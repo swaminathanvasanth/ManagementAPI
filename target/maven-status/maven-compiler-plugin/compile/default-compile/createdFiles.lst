@@ -1,0 +1,5 @@
+rbccps/smartcity/registerapi/ldap/addEntryToLDAP.class
+rbccps/smartcity/registerapi/RequestController.class
+rbccps/smartcity/registerapi/kong/Register.class
+rbccps/smartcity/registerapi/RequestService.class
+rbccps/smartcity/registerapi/ldap/LDAPQuery.class
