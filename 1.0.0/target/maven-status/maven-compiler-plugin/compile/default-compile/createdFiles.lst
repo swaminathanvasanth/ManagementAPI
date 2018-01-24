@@ -1,0 +1,14 @@
+rbccps/smartcity/IDEAM/registerapi/ldap/LDAP.class
+rbccps/smartcity/IDEAM/registerapi/broker/broker.class
+rbccps/smartcity/IDEAM/registerapi/parser/entitySchemaParser.class
+rbccps/smartcity/IDEAM/registerapi/parser/serverConfigurationParser.class
+rbccps/smartcity/IDEAM/registerapi/ldap/updateLDAP.class
+rbccps/smartcity/IDEAM/registerapi/RequestController.class
+rbccps/smartcity/IDEAM/registerapi/ldap/addEntryToLDAP.class
+rbccps/smartcity/IDEAM/registerapi/catalog/uCat.class
+rbccps/smartcity/IDEAM/urls/URLs.class
+rbccps/smartcity/IDEAM/registerapi/RequestRedirect.class
+rbccps/smartcity/IDEAM/registerapi/parser/entity.class
+rbccps/smartcity/IDEAM/registerapi/kong/Register.class
+rbccps/smartcity/IDEAM/registerapi/kong/apiGateway.class
+rbccps/smartcity/IDEAM/registerapi/parser/JSONParser.class
