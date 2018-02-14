@@ -8,7 +8,16 @@ public class URLs {
 	public static String mCatURL;
 	public static String LDAPURL = "ldap://10.156.14.20:389";
 	public static String dbURL = "";
-	
+	public static String loraserverJWTURL = "https://gateways.rbccps.org:8080/api/internal/login";
+	public static String loraserverURL = "https://gateways.rbccps.org:8080/api/nodes";
+	public static String videoserverURL = "http://10.156.14.206:8088";
+			
+	public static String getLoraserverURL() {
+		return loraserverURL;
+	}
+	public static void setLoraserverURL(String loraserverURL) {
+		URLs.loraserverURL = loraserverURL;
+	}
 	public static String getBrokerURL() {
 		return brokerURL;
 	}
@@ -26,5 +35,17 @@ public class URLs {
 	}
 	public static String getDbURL() {
 		return dbURL;
+	}
+	public static String getLoraserverJWTURL() {
+		return loraserverJWTURL;
+	}
+	public static void setLoraserverJWTURL(String loraserverJWTURL) {
+		URLs.loraserverJWTURL = loraserverJWTURL;
+	}
+	public static String getVideoserverURL() {
+		return videoserverURL;
+	}
+	public static void setVideoserverURL(String videoserverURL) {
+		URLs.videoserverURL = videoserverURL;
 	}
 }

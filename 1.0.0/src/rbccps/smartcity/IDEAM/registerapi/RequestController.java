@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;	
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -15,10 +16,12 @@ import javax.ws.rs.core.MediaType;
 import org.json.simple.JSONObject;
 
 import rbccps.smartcity.IDEAM.registerapi.kong.Register;
-import rbccps.smartcity.IDEAM.registerapi.parser.JSONParser;
+import rbccps.smartcity.IDEAM.registerapi.parser.createEntityJSONParser;
 
 @Path("/newregister")
 public class RequestController {
+
+	private static final createEntityJSONParser DeleteEntityJSONParser = null;
 
 	Register register = new Register();
 	
@@ -35,6 +38,29 @@ public class RequestController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getAPIKey(@Context HttpServletRequest request) {
 		
+		System.out.println("------------");
+		System.out.println(request.getRequestURI());
+		System.out.println("------------");
+		
+		try {
+			getHeaderInfo(request);
+			body = getBody(request);
+			// System.out.println(body);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+		String returnData = createEntityJSONParser.JSONParser();
+		System.out.println(returnData);	
+		
+		return returnData;
+	}
+	
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	public String deleteAPIKey(@Context HttpServletRequest request) {
+		
 		try {
 			getHeaderInfo(request);
 			body = getBody(request);
@@ -44,7 +70,7 @@ public class RequestController {
 			e.printStackTrace();
 		}
 	
-		String returnData = JSONParser.JSONParser();
+		String returnData = DeleteEntityJSONParser.JSONParser();
 		System.out.println(returnData);	
 		
 		return returnData;
@@ -73,7 +99,6 @@ public class RequestController {
 		
 		System.out.println("------------HEADERS----------------");
 	}
-	
 
 	private String getBody(HttpServletRequest request) throws IOException {
 		// TODO Auto-generated method stub

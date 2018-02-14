@@ -1,4 +1,5 @@
 package rbccps.smartcity.IDEAM.registerapi.kong;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,6 +11,7 @@ import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import rbccps.smartcity.IDEAM.registerapi.lora.loraserverConfigurationFields;
 import rbccps.smartcity.IDEAM.registerapi.parser.entity;
 import rbccps.smartcity.IDEAM.urls.URLs;
 
@@ -30,7 +32,7 @@ public class apiGateway {
 	static JsonObject jsonObject;
 	static JsonObject response_jsonObject;
 	static String _url;
-
+	
 	public static String createUser(String resourceID) {
 		// TODO Auto-generated method stub
 		_url = URLs.getApiGatewayURL();
@@ -73,7 +75,86 @@ public class apiGateway {
 			response = sb.toString();
 
 			System.out.println(response);
-			
+
+			if (response != null) {
+				System.out.println(response);
+				jsonTree = parser.parse(response);
+				jsonObject = jsonTree.getAsJsonObject();
+				System.out.println(jsonObject.toString());
+			}
+		} catch (SocketTimeoutException s) {
+			response_jsonObject = new JsonObject();
+			response_jsonObject.addProperty("Registration", "failure");
+			response_jsonObject.addProperty("Reason", "Server Not Reachable");
+			response = response_jsonObject.toString();
+			System.out.println("--------------");
+			System.out.println(response);
+			System.out.println("--------------");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			response_jsonObject = new JsonObject();
+			response_jsonObject.addProperty("Registration", "failure");
+			response_jsonObject
+					.addProperty("Reason",
+							"ID not available. Please Use a Unique ID for Registration.");
+
+			response = response_jsonObject.toString();
+			System.out.println("--------------");
+			System.out.println(response);
+			System.out.println("--------------");
+
+		}
+
+		return response;
+
+		// Add a FLAG to process the Registration further
+
+	}
+
+	public static String deleteUser(String resourceID) {
+		// TODO Auto-generated method stub
+		_url = URLs.getApiGatewayURL();
+		_value = resourceID;
+		String response = null;
+		parser = new JsonParser();
+
+		try {
+			URL url = new URL(_url + "/consumers/");
+			Map<String, Object> params = new LinkedHashMap<>();
+			params.put("username", _value);
+
+			StringBuilder postData = new StringBuilder();
+			for (Map.Entry<String, Object> param : params.entrySet()) {
+				if (postData.length() != 0)
+					postData.append('&');
+				postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
+				postData.append('=');
+				postData.append(URLEncoder.encode(
+						String.valueOf(param.getValue()), "UTF-8"));
+			}
+
+			byte[] postDataBytes = postData.toString().getBytes("UTF-8");
+
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("DELETE");
+			conn.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded");
+			conn.setRequestProperty("Content-Length",
+					String.valueOf(postDataBytes.length));
+			conn.setDoOutput(true);
+			conn.setConnectTimeout(3000);
+			conn.getOutputStream().write(postDataBytes);
+
+			Reader in = new BufferedReader(new InputStreamReader(
+					conn.getInputStream(), "UTF-8"));
+			StringBuilder sb = new StringBuilder();
+			for (int c; (c = in.read()) >= 0;)
+				sb.append((char) c);
+			response = sb.toString();
+
+			System.out.println(response);
+
 			if (response != null) {
 				System.out.println(response);
 				jsonTree = parser.parse(response);
@@ -112,35 +193,83 @@ public class apiGateway {
 
 	public static String generateAPIKey(String resourceID) throws Exception {
 		// TODO Auto-generated method stub
-		
-		URL url = new URL(_url + "/consumers/" + resourceID
-				+ "/key-auth"); 
+		URL url = null;
+		String response = null;
 
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestMethod("POST");
-		conn.setRequestProperty("Content-Type",
-				"application/x-www-form-urlencoded");
+		if (loraserverConfigurationFields.serverConfiguration) {
+			if (loraserverConfigurationFields.LoRaServer) {
+				System.out
+						.println("apiGateway -- loraserverConfigurationFields.LoRaServer = TRUE");
+				if (loraserverConfigurationFields.appKeyFlag) {
+					String apiKey = loraserverConfigurationFields.getAppKey();
+					url = new URL(_url + "/consumers/" + resourceID + "/key-auth");
+					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+					String key = "key="+apiKey;
+					byte[] postDataBytes = key.getBytes("UTF-8");
+				
+					conn.setRequestMethod("POST");
+					conn.setRequestProperty("Content-Type",
+							"application/x-www-form-urlencoded");
+					conn.setRequestProperty("Content-Length",
+							String.valueOf(postDataBytes.length));
+					conn.setDoOutput(true);
+		            conn.setDoInput(true);
+		      
+		            conn.getOutputStream().write(postDataBytes);
+							            
+					Reader in = new BufferedReader(new InputStreamReader(
+							conn.getInputStream(), "UTF-8"));
 
-		Reader in = new BufferedReader(new InputStreamReader(
-				conn.getInputStream(), "UTF-8"));
+					StringBuilder sb = new StringBuilder();
+					for (int c; (c = in.read()) >= 0;)
+						sb.append((char) c);
+					response = sb.toString();
+					System.out.println(response);
 
-		StringBuilder sb = new StringBuilder();
-		for (int c; (c = in.read()) >= 0;)
-			sb.append((char) c);
-		String response = sb.toString();
-		System.out.println(response);
+					parser = new JsonParser();
+					jsonTree = parser.parse(response);
+					jsonObject = jsonTree.getAsJsonObject();
 
-		parser = new JsonParser();
-		jsonTree = parser.parse(response);
-		jsonObject = jsonTree.getAsJsonObject();
+					_apikey_JsonElement = jsonObject.get("key");
 
-		_apikey_JsonElement = jsonObject.get("key");
+					_apikey = _apikey_JsonElement.toString();
 
-		_apikey = _apikey_JsonElement.toString();
+					System.out.println("APIKey is : " + _apikey + " Used from LoRa");
 
-		System.out.println("APIKey is : " + _apikey);
+					entity.setEntityapikey(_apikey);
+	
+				}
+			}
+		} else {
+			url = new URL(_url + "/consumers/" + resourceID + "/key-auth");
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("POST");
+			conn.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded");
 
-		entity.setEntityapikey(_apikey);
+			Reader in = new BufferedReader(new InputStreamReader(
+					conn.getInputStream(), "UTF-8"));
+
+			StringBuilder sb = new StringBuilder();
+			for (int c; (c = in.read()) >= 0;)
+				sb.append((char) c);
+			response = sb.toString();
+			System.out.println(response);
+
+			parser = new JsonParser();
+			jsonTree = parser.parse(response);
+			jsonObject = jsonTree.getAsJsonObject();
+
+			_apikey_JsonElement = jsonObject.get("key");
+
+			_apikey = _apikey_JsonElement.toString();
+
+			System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
+
+			entity.setEntityapikey(_apikey);
+
+		}
+
 		
 		return response;
 		// Add a FLAG to process the Registration further
@@ -190,7 +319,7 @@ public class apiGateway {
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			 e.printStackTrace();
+			e.printStackTrace();
 			response = "Cannot add to ServiceList.";
 		}
 
