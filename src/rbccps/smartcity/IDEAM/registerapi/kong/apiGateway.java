@@ -201,12 +201,19 @@ public class apiGateway {
 				System.out
 						.println("apiGateway -- loraserverConfigurationFields.LoRaServer = TRUE");
 				if (loraserverConfigurationFields.appKeyFlag) {
-					String apiKey = loraserverConfigurationFields.getAppKey();
+					
+					System.out.println("LoRA Key Available");
+					
+					String apiKey = loraserverConfigurationFields.getAppKey().replaceAll("^\"|\"$", "");
+					
+					System.out.println("LoRA Key Available"+apiKey);
+					
 					url = new URL(_url + "/consumers/" + resourceID + "/key-auth");
 					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 					String key = "key="+apiKey;
 					byte[] postDataBytes = key.getBytes("UTF-8");
-				
+					System.out.println("LoRA Key Available"+key);
+					
 					conn.setRequestMethod("POST");
 					conn.setRequestProperty("Content-Type",
 							"application/x-www-form-urlencoded");
@@ -238,7 +245,34 @@ public class apiGateway {
 
 					entity.setEntityapikey(_apikey);
 	
-				}
+				} else {
+					url = new URL(_url + "/consumers/" + resourceID + "/key-auth");
+					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+					conn.setRequestMethod("POST");
+					conn.setRequestProperty("Content-Type",
+							"application/x-www-form-urlencoded");
+
+					Reader in = new BufferedReader(new InputStreamReader(
+							conn.getInputStream(), "UTF-8"));
+
+					StringBuilder sb = new StringBuilder();
+					for (int c; (c = in.read()) >= 0;)
+						sb.append((char) c);
+					response = sb.toString();
+					System.out.println(response);
+
+					parser = new JsonParser();
+					jsonTree = parser.parse(response);
+					jsonObject = jsonTree.getAsJsonObject();
+
+					_apikey_JsonElement = jsonObject.get("key");
+
+					_apikey = _apikey_JsonElement.toString();
+
+					System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
+
+					entity.setEntityapikey(_apikey);
+				} 
 			}
 		} else {
 			url = new URL(_url + "/consumers/" + resourceID + "/key-auth");

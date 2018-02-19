@@ -61,7 +61,7 @@ public class uCat {
 			System.out.println("uCat Entry URL : "+url.toString());
 			System.out.println("Data in body is : "+_dataSchema);
 			conn = (HttpURLConnection) url.openConnection();
-			((HttpsURLConnection) conn).setDefaultSSLSocketFactory(sc.getSocketFactory());
+			// ((HttpsURLConnection) conn).setDefaultSSLSocketFactory(sc.getSocketFactory());
 			
 			conn.setRequestProperty("apikey", RequestController.getApikey());
 			conn.setRequestMethod("POST");

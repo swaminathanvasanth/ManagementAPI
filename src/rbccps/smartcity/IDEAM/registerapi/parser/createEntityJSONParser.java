@@ -70,44 +70,57 @@ public class createEntityJSONParser {
 		videoCamera = false;
 		System.out.println("JSONParser");
 
-		final String Access_Mechanism_JSON_PATH = "/home/vasanth/JavaEE_Workspace/JSONParser/accessMechanism.json";
-
-		try {
-			br = new BufferedReader(new FileReader(Access_Mechanism_JSON_PATH));
-			while ((_accessMechanism_json = br.readLine()) != null) {
-				accessMechanism_json = accessMechanism_json
-						+ _accessMechanism_json;
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("File Not Found");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("IO Exception");
-		}
-
-		System.out.println(accessMechanism_json);
-
 		// Access Mechanism JSON 
-		JsonObject testjsonObject = new JsonObject();
-		testjsonObject.addProperty("describes", "URI for getting permissions to access the device");
-		testjsonObject.addProperty("value","https://rbccps.org/middleware/api/{api_ver}/db");
-		testjsonObject.addProperty("describes","End point to access the archived values (database access endpoint)");
-		testjsonObject.addProperty("value","https://smartcity.rbccps.org/api/0.1.0/subscribe");
-		testjsonObject.addProperty("describes","End point for subscribing to LIVE data");
+		JsonObject requestAccessSite_jsonObject = new JsonObject();
+		requestAccessSite_jsonObject.addProperty("describes", "URI for getting permissions to access the device");
+		requestAccessSite_jsonObject.addProperty("value","https://rbccps.org/middleware/api/{api_ver}/db");
+	
+		JsonObject accessEndPoint_jsonObject = new JsonObject();
+		accessEndPoint_jsonObject.addProperty("describes", "URI for getting permissions to access the device");
+		accessEndPoint_jsonObject.addProperty("value","https://rbccps.org/middleware/api/{api_ver}/db");
 		
-		System.out.println(testjsonObject.toString());
+		JsonObject additionalResourceInfo_jsonObject = new JsonObject();
+		additionalResourceInfo_jsonObject.addProperty("describes", "End point for subscribing to LIVE data");
+		additionalResourceInfo_jsonObject.addProperty("value","http://rbccps.org/resourceInfo/{id}");
 		
+		JsonObject subscriptionEndPoint_jsonObject = new JsonObject();
+		subscriptionEndPoint_jsonObject.addProperty("describes", "Additional information about the device");
+		subscriptionEndPoint_jsonObject.addProperty("value","https://smartcity.rbccps.org/api/0.1.0/subscribe");
 		
+		JsonObject resourceAPIInfo_jsonObject = new JsonObject();
+		resourceAPIInfo_jsonObject.addProperty("describes", "Information on how to use various APIs (access, update, cat) associated with this resource");
+		resourceAPIInfo_jsonObject.addProperty("value","https://rbccps-iisc.github.io/");
+
+		JsonObject accessModifier_Entries_jsonObject = new JsonObject();
+		
+		accessModifier_Entries_jsonObject.addProperty("accessEndPoint", accessEndPoint_jsonObject.toString());
+		accessModifier_Entries_jsonObject.addProperty("requestAccessSite", requestAccessSite_jsonObject.toString());
+		accessModifier_Entries_jsonObject.addProperty("additionalResourceInfo", additionalResourceInfo_jsonObject.toString());
+		accessModifier_Entries_jsonObject.addProperty("subscriptionEndPoint", subscriptionEndPoint_jsonObject.toString());
+		accessModifier_Entries_jsonObject.addProperty("resourceAPIInfo", resourceAPIInfo_jsonObject.toString());
+	
+		System.out.println(accessModifier_Entries_jsonObject.toString());
+		
+		accessMechanism_json = accessModifier_Entries_jsonObject.toString();
+		
+		System.out.println(accessMechanism_json);
+		
+		// accessMechanism_json = accessMechanism_json.replaceAll("\\\\", "");
+		
+		// System.out.println(accessMechanism_json.replaceAll("\\\\", ""));
+
 		controller = new RequestController();
 		json = controller.getBody();
+		
+		System.out.println("------------------BODY------------------");
+		System.out.println(json);
+		
 		parser = new JsonParser();
 		jsonTree = parser.parse(json);
 		access_parser = new JsonParser();
-		access_jsonTree = access_parser.parse(accessMechanism_json);
-		access_jsonObject = access_jsonTree.getAsJsonObject();
+		
+		 access_jsonTree = access_parser.parse(accessMechanism_json);
+		 access_jsonObject = access_jsonTree.getAsJsonObject();
 
 		response = new JsonObject();
 
@@ -253,6 +266,9 @@ public class createEntityJSONParser {
 							.registerLoRaEntity(ID);
 					System.out
 							.println(loraServerConfiguration_registerLoRaEntity);
+					loraserverConfigurationFields.serverConfiguration = false;
+					loraserverConfigurationFields.LoRaServer = false;					
+					
 				} else if (videoserverConfigurationFields.videoServer) {
 					videoServerConfiguration.registervideoEntity(ID);
 				} else if (serverType.contains("IPDevice")) {
@@ -289,7 +305,7 @@ public class createEntityJSONParser {
 				response.addProperty("Reason",
 						"Failed in adding ID into the ACL");
 			}
-			if (response_createQueue.contains("declare queue ok")) {
+			if (response_createQueue.contains("Declare queue OK")) {
 
 				System.out.println("LDAP for LoRa and IPDevice");
 				System.out.println(ID);
@@ -335,6 +351,7 @@ public class createEntityJSONParser {
 				response.addProperty("Reason", "Failed in Broker");
 			}
 			if (response_updateLDAPEntry != null) {
+				
 				response_updateCat = uCatServer.post(_dataSchema);
 				System.out.println("------STEP 6------");
 				System.out.println("------------");
