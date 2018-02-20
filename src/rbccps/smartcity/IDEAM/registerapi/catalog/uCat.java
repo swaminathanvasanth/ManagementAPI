@@ -23,46 +23,26 @@ import rbccps.smartcity.IDEAM.urls.URLs;
 
 public class uCat {
 	
-	public String post(String _dataSchema){
+	static String _url;
+	static String response = null;
 	
-		String _url = URLs.getuCatURL();
-		String response = null;
-		URL url ;
-		HttpURLConnection conn ;
-		OutputStream os ;
+	public static String post(String _dataSchema){
+	
+		System.out.println("+++++++++++In on-board uCat Block+++++++++++");
 		
-		TrustManager[] trustAllCerts = new TrustManager[]{
-		        new X509TrustManager() {
-
-		            public java.security.cert.X509Certificate[] getAcceptedIssuers()
-		            {
-		                return null;
-		            }
-		            public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType)
-		            {
-		                //No need to implement.
-		            }
-		            public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType)
-		            {
-		                //No need to implement.
-		            }
-		        }
-		};
-				
-		// Install the all-trusting trust manager
 		try 
 		{
-		    SSLContext sc = SSLContext.getInstance("SSL");
-		    sc.init(null, trustAllCerts, new java.security.SecureRandom());
-		    
-			byte[] postDataBytes = _dataSchema.getBytes("UTF-8");
+			_url = URLs.getuCatURL();
+			String _postData;
+			_postData = _dataSchema;
 			
-			url = new URL(_url + "?id=" + entity.getEntityID());
+			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");	
+			
+			URL url = new URL(_url + "?id=" + entity.getEntityID());
 			System.out.println("uCat Entry URL : "+url.toString());
 			System.out.println("Data in body is : "+_dataSchema);
-			conn = (HttpURLConnection) url.openConnection();
-			// ((HttpsURLConnection) conn).setDefaultSSLSocketFactory(sc.getSocketFactory());
 			
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestProperty("apikey", RequestController.getApikey());
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type",
@@ -70,10 +50,8 @@ public class uCat {
 			conn.setRequestProperty("Content-Length",
 					String.valueOf(postDataBytes.length));
 			conn.setDoOutput(true);
-            conn.setDoInput(true);
-             
-            conn.getOutputStream().write(postDataBytes);
-			Reader in = new BufferedReader(new InputStreamReader(
+            conn.getOutputStream().write(postDataBytes);			
+            Reader in = new BufferedReader(new InputStreamReader(
 					conn.getInputStream(), "UTF-8"));
 			StringBuilder sb = new StringBuilder();
 			for (int c; (c = in.read()) >= 0;)
@@ -89,13 +67,6 @@ public class uCat {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (KeyManagementException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return response; 
+		} return response; 
 	}
 }

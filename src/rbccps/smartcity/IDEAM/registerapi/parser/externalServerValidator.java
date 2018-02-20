@@ -19,7 +19,14 @@ public class externalServerValidator {
 	static String response;
 
 	public String parse(JsonObject jsonObject) {
+		
+		loraserverConfigurationFields.LoRaServer = false;
+		loraserverConfigurationFields.serverConfiguration = false;
+	
+		videoserverConfigurationFields.videoServer = false;
+		videoserverConfigurationFields.serverConfiguration = false;
 
+		
 		try {
 			serverConfiguration = jsonObject.get("entityType");
 			_serverConfiguration = serverConfiguration.toString();

@@ -99,10 +99,15 @@ public class createEntityJSONParser {
 		accessModifier_Entries_jsonObject.addProperty("subscriptionEndPoint", subscriptionEndPoint_jsonObject.toString());
 		accessModifier_Entries_jsonObject.addProperty("resourceAPIInfo", resourceAPIInfo_jsonObject.toString());
 	
+		String s="{\n\t\"requestAccessSite\": {\n\t\t\"describes\": \"URI for getting permissions to access the device\",\n\t\t\"value\": \"http://rbccps.org/middleware/requestAccess\"\n\t},\n\t\"accessEndPoint\": {\n\t\t\"value\": \"https://rbccps.org/middleware/api/{api_ver}/db\",\n\t\t\"describes\": \"End point to access the archived values (database access endpoint)\"\n\t},\n\t\"subscriptionEndPoint\": {\n\t\t\"value\": \"mqtt://rbccps.org/subscription/live\",\n\t\t\"describes\": \"End point for subscribing to LIVE data\"\n\t},\n\t\"additionalResourceInfo\": {\n\t\t\"value\": \"http://rbccps.org/resourceInfo/{id}\",\n\t\t\"describes\": \"Additional information about the device\"\n\t},\n\t\"resourceAPIInfo\": {\n\t\t\"value\": \"http://rbccps.org/resourceInfo/api\",\n\t\t\"describes\": \"Information on how to use various APIs (access, update, cat) associated with this resource\"\n\t}\n}";
+
+		System.out.println("First ------- ");
 		System.out.println(accessModifier_Entries_jsonObject.toString());
 		
 		accessMechanism_json = accessModifier_Entries_jsonObject.toString();
 		
+		accessMechanism_json = s;
+		System.out.println("Second ------- ");
 		System.out.println(accessMechanism_json);
 		
 		// accessMechanism_json = accessMechanism_json.replaceAll("\\\\", "");
@@ -352,7 +357,7 @@ public class createEntityJSONParser {
 			}
 			if (response_updateLDAPEntry != null) {
 				
-				response_updateCat = uCatServer.post(_dataSchema);
+				response_updateCat = uCat.post(_dataSchema);
 				System.out.println("------STEP 6------");
 				System.out.println("------------");
 				System.out.println(response_updateCat);
