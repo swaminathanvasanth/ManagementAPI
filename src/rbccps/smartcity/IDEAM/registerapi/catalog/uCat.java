@@ -11,6 +11,7 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -26,8 +27,25 @@ public class uCat {
 	static String _url;
 	static String response = null;
 	
-	public static String post(String _dataSchema){
-	
+	static TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+
+		public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+			return null;
+		}
+
+		public void checkClientTrusted(
+				java.security.cert.X509Certificate[] certs, String authType) {
+			// No need to implement.
+		}
+
+		public void checkServerTrusted(
+				java.security.cert.X509Certificate[] certs, String authType) {
+			// No need to implement.
+		}
+	} };
+
+	public static String postCat(String _dataSchema){
+
 		System.out.println("+++++++++++In on-board uCat Block+++++++++++");
 		
 		try 
@@ -39,16 +57,20 @@ public class uCat {
 			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");	
 			
 			URL url = new URL(_url + "?id=" + entity.getEntityID());
+
 			System.out.println("uCat Entry URL : "+url.toString());
 			System.out.println("Data in body is : "+_dataSchema);
 			
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestProperty("apikey", RequestController.getApikey());
+			
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type",
 					"application/json");
+			conn.setRequestProperty("no-check","1");
+			conn.setRequestProperty("pwd", "local123");
 			conn.setRequestProperty("Content-Length",
 					String.valueOf(postDataBytes.length));
+			
 			conn.setDoOutput(true);
             conn.getOutputStream().write(postDataBytes);			
             Reader in = new BufferedReader(new InputStreamReader(
@@ -69,4 +91,6 @@ public class uCat {
 			e.printStackTrace();
 		} return response; 
 	}
+
+	
 }
