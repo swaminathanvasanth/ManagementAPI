@@ -255,12 +255,26 @@ public class createEntityJSONParser {
 
 			if (response_generateapiKey.contains("key")) {
 				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID,
-						"publish,subscribe,historic,cat");
+						"publish");
 				System.out.println("------STEP 3------");
 				System.out.println("------------");
 				System.out.println(response_assignwhitelist);
 				System.out.println("------------");
 
+				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID,
+						"subscribe");
+				System.out.println("------STEP 3------");
+				System.out.println("------------");
+				System.out.println(response_assignwhitelist);
+				System.out.println("------------");
+				
+				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID,
+						"db");
+				System.out.println("------STEP 3------");
+				System.out.println("------------");
+				System.out.println(response_assignwhitelist);
+				System.out.println("------------");
+				
 				System.out.println("------STEP 3.1------");
 				if (loraserverConfigurationFields.serverConfiguration
 						&& loraserverConfigurationFields.LoRaServer) {

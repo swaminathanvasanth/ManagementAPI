@@ -138,7 +138,7 @@ public class deleteEntityJSONParser {
 				// STEP 4				
 				
 				if (response_deleteLDAPEntry != null) {
-					response_deleteCat = uCatServer.post("");
+					response_deleteCat = uCatServer.postCat("");
 					System.out.println("------STEP 6------");
 					System.out.println("------------");
 					System.out.println(response_deleteCat);

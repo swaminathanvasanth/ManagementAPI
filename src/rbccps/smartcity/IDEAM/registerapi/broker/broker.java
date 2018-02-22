@@ -101,7 +101,9 @@ public class broker {
 					
 					// Create a structured JSON as per the Broker requirement
 					
-					_postData = "{\"name\":" + "\""+ resourceID + "\""+ "}";
+					// _postData = "{\"name\":" + "\""+ resourceID + "\""+ "}";
+					
+					_postData = "{\"name\":" + "\""+ resourceID + "\""+ "," + "\"durable\": true, \"autodelete\": false}";
 					
 					System.out.println("+++++++++++In createQueue try Block+++++++++++" + "\n" + _postData.toString() + "\n");
 									
