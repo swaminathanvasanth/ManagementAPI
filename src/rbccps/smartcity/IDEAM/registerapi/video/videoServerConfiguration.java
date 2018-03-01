@@ -69,7 +69,7 @@ public class videoServerConfiguration {
 
 	public static String registervideoEntity(String entityID) {
 
-		_url = URLs.getVideoserverURL();
+		_url = videoserverConfigurationFields.getServerURL().trim().replaceAll("^\"|\"$", "");
 		
 		// Add Path and Playback
 		_url = _url + "/create_stream?id=" + entity.getEntityID() + "&playurl=" + videoserverConfigurationFields.getPlaybackurl().replaceAll("^\"|\"$", "");
