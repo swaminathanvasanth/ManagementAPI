@@ -27,6 +27,9 @@ public class LDAP {
 	static String brokerExchangeEntryDN;
 	static String brokerExchange_DeviceName_EntryDN;
 	static String brokerExchange_DeviceName_Configure_EntryDN;
+	static String brokerExchange_DeviceName_Private_EntryDN;
+	static String brokerExchange_DeviceName_Protected_EntryDN;
+	static String brokerExchange_DeviceName_Follow_EntryDN;
 	static String brokerQueueEntryDN;
 	static String brokerQueue_Name_EntryDN;
 	static String brokerShareEntryDN;
@@ -135,6 +138,61 @@ public class LDAP {
 		brokerExchange_DeviceName_Configure_Entry
 				.put(exchange_DeviceName_Configure_write);
 
+		// Exchange Name (Protected) to which User can Read / Write
+
+		brokerExchange_DeviceName_Protected_EntryDN = "description=" + userId
+				+ "_Protected,description=exchange,description=broker,"
+				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Protected_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Protected_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Protected_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Protected_Entry.put(oc);
+		brokerExchange_DeviceName_Protected_Entry
+				.put(exchange_DeviceName_Protected_read);
+		brokerExchange_DeviceName_Protected_Entry
+				.put(exchange_DeviceName_Protected_write);
+		
+		// Exchange Name (Protected) to which User can Read / Write
+
+		brokerExchange_DeviceName_Private_EntryDN = "description=" + userId
+				+ "_Private,description=exchange,description=broker,"
+				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Private_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Private_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Private_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Private_Entry.put(oc);
+		brokerExchange_DeviceName_Private_Entry
+				.put(exchange_DeviceName_Private_read);
+		brokerExchange_DeviceName_Private_Entry
+				.put(exchange_DeviceName_Private_write);
+
+		// Exchange Name (Protected) to which User can Read / Write
+
+		brokerExchange_DeviceName_Follow_EntryDN = "description=" + userId
+				+ "_Follow,description=exchange,description=broker,"
+				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Follow_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Follow_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Follow_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Follow_Entry.put(oc);
+		brokerExchange_DeviceName_Follow_Entry
+				.put(exchange_DeviceName_Follow_read);
+		brokerExchange_DeviceName_Follow_Entry
+				.put(exchange_DeviceName_Follow_write);
+
+		
 		// Queue
 
 		brokerQueueEntryDN = "description=queue,description=broker," + "uid="
@@ -162,6 +220,21 @@ public class LDAP {
 		brokerQueue_Name_Entry.put(queue_Name_read);
 		brokerQueue_Name_Entry.put(queue_Name_write);
 
+		// Queue (Name or ID) from which User can Read
+
+		brokerQueue_Name_EntryDN = "description=" + userId
+				+ ",description=queue,description=broker," + "uid=" + userId
+				+ ",cn=devices,dc=smartcity";
+
+		Attributes brokerQueue_Follow_Name_Entry = new BasicAttributes();
+		Attribute queue_Follow_Name_read = new BasicAttribute("read", "true");
+		Attribute queue_Follow_Name_write = new BasicAttribute("write", "true");
+
+		brokerQueue_Follow_Name_Entry.put(oc);
+		brokerQueue_Name_Entry.put(queue_Follow_Name_read);
+		brokerQueue_Name_Entry.put(queue_Follow_Name_write);
+
+		
 		// Share
 
 		brokerShareEntryDN = "description=share,description=broker," + "uid="
