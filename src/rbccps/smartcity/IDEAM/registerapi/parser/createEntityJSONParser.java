@@ -310,7 +310,9 @@ public class createEntityJSONParser {
 					broker.createExchange(ID + ".public");
 					broker.createExchange(ID + ".protected");
 					broker.createExchange(ID + ".configure");
+					broker.createExchange(ID + ".follow");
 					response_createQueue = broker.createQueue(ID);
+					response_createQueue = broker.createQueue(ID + ".follow");
 				} else {
 					System.out.println("Its a videoCamera");
 					response_createQueue = "videoCamera";
@@ -385,10 +387,10 @@ public class createEntityJSONParser {
 				response.addProperty("Registration", "success");
 				response.addProperty("entityID", ID);
 				response.addProperty("apiKey", apiKey);
-				response.addProperty("subscriptionEndPoint", ID);
-				response.addProperty("accessEndPoint", ID);
-				response.addProperty("publicationEndPoint", ID);
-				response.addProperty("resourceAPIInfo", ID);
+				response.addProperty("subscriptionEndPoint", "https://smartcity.rbccps.org/api/{version}/follow?id="+ID);
+				response.addProperty("accessEndPoint", "https://smartcity.rbccps.org/api/{version}/db?id="+ID);
+				response.addProperty("publicationEndPoint", "https://smartcity.rbccps.org/api/{version}/publish?id="+ID);
+				response.addProperty("resourceAPIInfo", "https://rbccps-iisc.github.io");
 			} else {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "uCat update Failure");
