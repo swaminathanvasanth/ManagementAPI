@@ -28,6 +28,7 @@ public class LDAP {
 	static String brokerExchange_DeviceName_EntryDN;
 	static String brokerExchange_DeviceName_Configure_EntryDN;
 	static String brokerExchange_DeviceName_Private_EntryDN;
+	static String brokerExchange_DeviceName_Public_EntryDN;
 	static String brokerExchange_DeviceName_Protected_EntryDN;
 	static String brokerExchange_DeviceName_Follow_EntryDN;
 	static String brokerQueueEntryDN;
@@ -157,7 +158,7 @@ public class LDAP {
 		brokerExchange_DeviceName_Protected_Entry
 				.put(exchange_DeviceName_Protected_write);
 		
-		// Exchange Name (Protected) to which User can Read / Write
+		// Exchange Name (Private) to which User can Read / Write
 
 		brokerExchange_DeviceName_Private_EntryDN = "description=" + userId
 				+ ".private,description=exchange,description=broker,"
@@ -175,6 +176,25 @@ public class LDAP {
 		brokerExchange_DeviceName_Private_Entry
 				.put(exchange_DeviceName_Private_write);
 
+		// Exchange Name (Public) to which User can Read / Write
+
+		brokerExchange_DeviceName_Public_EntryDN = "description=" + userId
+				+ ".public,description=exchange,description=broker,"
+				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Public_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Public_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Public_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Public_Entry.put(oc);
+		brokerExchange_DeviceName_Public_Entry
+				.put(exchange_DeviceName_Public_read);
+		brokerExchange_DeviceName_Public_Entry
+				.put(exchange_DeviceName_Public_write);
+
+		
 		// Exchange Name (Protected) to which User can Read / Write
 
 		brokerExchange_DeviceName_Follow_EntryDN = "description=" + userId
@@ -221,7 +241,7 @@ public class LDAP {
 		brokerQueue_Name_Entry.put(queue_Name_read);
 		brokerQueue_Name_Entry.put(queue_Name_write);
 
-		// Queue (Name or ID) from which User can Read
+		// Queue Follow (Name or ID) from which User can Read
 
 		brokerQueue_Name_Follow_EntryDN = "description=" + userId + ".follow"
 				+ ",description=queue,description=broker," + "uid=" + userId
@@ -232,8 +252,8 @@ public class LDAP {
 		Attribute queue_Follow_Name_write = new BasicAttribute("write", "true");
 
 		brokerQueue_Follow_Name_Entry.put(oc);
-		brokerQueue_Name_Entry.put(queue_Follow_Name_read);
-		brokerQueue_Name_Entry.put(queue_Follow_Name_write);
+		brokerQueue_Follow_Name_Entry.put(queue_Follow_Name_read);
+		brokerQueue_Follow_Name_Entry.put(queue_Follow_Name_write);
 
 		
 		// Share
@@ -263,8 +283,6 @@ public class LDAP {
 		brokerShare_Name_Entry.put(Share_Name_read);
 		brokerShare_Name_Entry.put(Share_Name_write);
 
-		System.out.println("brokerentryDN :" + brokerQueueEntryDN + " Entry :"
-				+ brokerQueueEntry.toString());
 
 		try {
 			dirContext.createSubcontext(entryDN, entry);
@@ -279,6 +297,9 @@ public class LDAP {
 			dirContext.createSubcontext(
 					brokerExchange_DeviceName_Private_EntryDN,
 					brokerExchange_DeviceName_Private_Entry);
+			dirContext.createSubcontext(
+					brokerExchange_DeviceName_Public_EntryDN,
+					brokerExchange_DeviceName_Public_Entry);
 			dirContext.createSubcontext(
 					brokerExchange_DeviceName_Protected_EntryDN,
 					brokerExchange_DeviceName_Protected_Entry);
@@ -296,6 +317,21 @@ public class LDAP {
 
 			flag = true;
 
+			System.out.println("entryDN : "+entryDN );
+			System.out.println("brokerEntryDN : "+brokerEntryDN);
+			System.out.println("brokerExchangeEntryDN : "+brokerExchangeEntryDN);
+			System.out.println("brokerExchange_DeviceName_EntryDN : "+brokerExchange_DeviceName_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Configure_EntryDN : "+brokerExchange_DeviceName_Configure_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Private_EntryDN : "+brokerExchange_DeviceName_Private_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Protected_EntryDN : "+brokerExchange_DeviceName_Protected_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Public_EntryDN : "+brokerExchange_DeviceName_Public_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Follow_EntryDN : "+brokerExchange_DeviceName_Follow_EntryDN);
+			System.out.println("brokerQueueEntryDN : "+brokerQueueEntryDN);
+			System.out.println("brokerQueue_Name_EntryDN : "+brokerQueue_Name_EntryDN);
+			System.out.println("brokerQueue_Name_Follow_EntryDN : "+brokerQueue_Name_Follow_EntryDN);
+			System.out.println("brokerShareEntryDN : "+brokerShareEntryDN);
+			System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
+				
 		} catch (Exception e) {
 			System.out.println("error: " + e.getMessage());
 			return flag;
