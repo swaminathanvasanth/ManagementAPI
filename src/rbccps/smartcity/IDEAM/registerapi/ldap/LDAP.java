@@ -32,6 +32,7 @@ public class LDAP {
 	static String brokerExchange_DeviceName_Follow_EntryDN;
 	static String brokerQueueEntryDN;
 	static String brokerQueue_Name_EntryDN;
+	static String brokerQueue_Name_Follow_EntryDN;
 	static String brokerShareEntryDN;
 	static String brokerShare_Name_EntryDN;
 	static String LDAPEntry;
@@ -123,7 +124,7 @@ public class LDAP {
 		// Exchange Name (Configure) to which User can Read / Write
 
 		brokerExchange_DeviceName_Configure_EntryDN = "description=" + userId
-				+ "_configure,description=exchange,description=broker,"
+				+ ".configure,description=exchange,description=broker,"
 				+ "uid=" + userId + ",cn=devices,dc=smartcity";
 
 		Attributes brokerExchange_DeviceName_Configure_Entry = new BasicAttributes();
@@ -141,7 +142,7 @@ public class LDAP {
 		// Exchange Name (Protected) to which User can Read / Write
 
 		brokerExchange_DeviceName_Protected_EntryDN = "description=" + userId
-				+ "_Protected,description=exchange,description=broker,"
+				+ ".protected,description=exchange,description=broker,"
 				+ "uid=" + userId + ",cn=devices,dc=smartcity";
 
 		Attributes brokerExchange_DeviceName_Protected_Entry = new BasicAttributes();
@@ -159,7 +160,7 @@ public class LDAP {
 		// Exchange Name (Protected) to which User can Read / Write
 
 		brokerExchange_DeviceName_Private_EntryDN = "description=" + userId
-				+ "_Private,description=exchange,description=broker,"
+				+ ".private,description=exchange,description=broker,"
 				+ "uid=" + userId + ",cn=devices,dc=smartcity";
 
 		Attributes brokerExchange_DeviceName_Private_Entry = new BasicAttributes();
@@ -177,7 +178,7 @@ public class LDAP {
 		// Exchange Name (Protected) to which User can Read / Write
 
 		brokerExchange_DeviceName_Follow_EntryDN = "description=" + userId
-				+ "_Follow,description=exchange,description=broker,"
+				+ ".follow,description=exchange,description=broker,"
 				+ "uid=" + userId + ",cn=devices,dc=smartcity";
 
 		Attributes brokerExchange_DeviceName_Follow_Entry = new BasicAttributes();
@@ -222,7 +223,7 @@ public class LDAP {
 
 		// Queue (Name or ID) from which User can Read
 
-		brokerQueue_Name_EntryDN = "description=" + userId
+		brokerQueue_Name_Follow_EntryDN = "description=" + userId + ".follow"
 				+ ",description=queue,description=broker," + "uid=" + userId
 				+ ",cn=devices,dc=smartcity";
 
@@ -275,9 +276,20 @@ public class LDAP {
 			dirContext.createSubcontext(
 					brokerExchange_DeviceName_Configure_EntryDN,
 					brokerExchange_DeviceName_Configure_Entry);
+			dirContext.createSubcontext(
+					brokerExchange_DeviceName_Private_EntryDN,
+					brokerExchange_DeviceName_Private_Entry);
+			dirContext.createSubcontext(
+					brokerExchange_DeviceName_Protected_EntryDN,
+					brokerExchange_DeviceName_Protected_Entry);
+			dirContext.createSubcontext(
+					brokerExchange_DeviceName_Follow_EntryDN,
+					brokerExchange_DeviceName_Follow_Entry);
 			dirContext.createSubcontext(brokerQueueEntryDN, brokerQueueEntry);
 			dirContext.createSubcontext(brokerQueue_Name_EntryDN,
 					brokerQueue_Name_Entry);
+			dirContext.createSubcontext(brokerQueue_Name_Follow_EntryDN,
+					brokerQueue_Follow_Name_Entry);
 			dirContext.createSubcontext(brokerShareEntryDN, brokerShareEntry);
 			dirContext.createSubcontext(brokerShare_Name_EntryDN,
 					brokerShare_Name_Entry);
