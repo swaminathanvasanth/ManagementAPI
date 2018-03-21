@@ -1,4 +1,5 @@
 # ManagementAPI
+[![Build Status](https://travis-ci.org/rbccps-iisc/ManagementAPI.svg?branch=master)](https://travis-ci.org/rbccps-iisc/ManagementAPI)
 
 APIs for Management of Devices and Applications in Middleware of Smart City (version 1.0.0)
 
