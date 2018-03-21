@@ -221,6 +221,73 @@ public class broker {
 
 	}
 	
+	public static String createDatabaseBinding(String resourceID){
+
+		_url = URLs.getBrokerURL();
+		_value = resourceID;
+		response = null;
+		System.out.println("+++++++++++In createQueue Block+++++++++++");
+				
+		try {
+					URL url = new URL(_url+ "/queue/bind"); // RabbitMQ Docker
+					String _postData;
+					System.out.println(resourceID);
+					
+					// Create a structured JSON as per the Broker requirement
+					
+					_postData = "{\"queue\":" + "\"database" +  "\"exchange\":" + "\""+ resourceID+".protected" + "\"" + "\"keys\":" + "\"["+ resourceID + "#]\""+ "}";
+					
+					System.out.println("+++++++++++In createQueue try Block+++++++++++" + "\n" + _postData.toString() + "\n");
+									
+					byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
+
+					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+					
+					// conn.setRequestProperty("X-Consumer-Username", RequestController.getX_Consumer_Custom_ID());
+					// conn.setRequestProperty("Apikey", RequestController.getApikey());
+
+					conn.setRequestProperty("X-Consumer-Username", "rbccps");
+					conn.setRequestProperty("Apikey", "rbccps@123");
+					
+					conn.setRequestMethod("POST");
+					conn.setRequestProperty("Content-Type",
+							"application/x-www-form-urlencoded");
+					conn.setRequestProperty("Content-Length",
+							String.valueOf(postDataBytes.length));
+					conn.setDoOutput(true);
+					conn.getOutputStream().write(postDataBytes);
+					Reader in = new BufferedReader(new InputStreamReader(
+							conn.getInputStream(), "UTF-8"));
+					StringBuilder sb = new StringBuilder();
+					for (int c; (c = in.read()) >= 0;)
+						sb.append((char) c);
+					response = sb.toString();
+					System.out.println(response);
+					System.out.println("In Queue Creation");
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					 e.printStackTrace();
+					
+					response_jsonObject = new JsonObject();			
+					response_jsonObject.addProperty("Registration", "failure");
+					response_jsonObject.addProperty("Reason", "Cannot create Queue.");
+					
+					System.out.println("--------------");
+					System.out.println(response_jsonObject.toString());
+					System.out.println("--------------");
+
+					System.out.println("+++++++++++In createQueue catch Block+++++++++++" + e.toString());
+					response = response_jsonObject.toString();
+					
+				}
+				return response;
+
+				// Add a FLAG to process the Registration further
+
+	}
+
+	
 	public static String deleteExchange(String resourceID){
 
 		_url = URLs.getBrokerURL();

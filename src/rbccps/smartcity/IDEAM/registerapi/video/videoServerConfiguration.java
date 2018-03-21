@@ -69,6 +69,8 @@ public class videoServerConfiguration {
 
 	public static String registervideoEntity(String entityID) {
 
+		// _url = URLs.getVideoserverURL();
+		
 		_url = videoserverConfigurationFields.getServerURL().trim().replaceAll("^\"|\"$", "");
 		
 		// Add Path and Playback
@@ -118,7 +120,7 @@ public class videoServerConfiguration {
 			response_jsonObject = new JsonObject();
 			response_jsonObject.addProperty("Registration", "failure");
 			response_jsonObject
-					.addProperty("Reason", "Cannot Onboard LoRa device in Server. POST Error.");
+					.addProperty("Reason", "Cannot Onboard Video camera in VideoServer. POST Error.");
 
 			System.out.println("--------------");
 			System.out.println(response_jsonObject.toString());

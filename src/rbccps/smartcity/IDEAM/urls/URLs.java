@@ -5,8 +5,6 @@ public class URLs {
 
 	  public static String brokerURL = "http://rabbitmq:8000"; 
 	  public static String apiGatewayURL = "http://kong:8001"; 
-	  //public static String uCatURL = "http://kong:8000/api/1.0.0/cat";
-	  // public static String uCatURL = "https://pushpin:443/api/1.0.0/cat"; 
 	  public static String uCatURL = "http://hypercat:8000/cat"; 
 	  public static String mCatURL; 
 	  public static String LDAPURL = "ldap://ldapd:8389"; 

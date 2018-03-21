@@ -67,7 +67,6 @@ public class videoserverConfigurationParser {
 		}
 
 		try {
-
 			serverConfiguration_credentials = serverConfiguration_jsonObject
 					.get("credentials");
 			_serverConfiguration_credentials = serverConfiguration_credentials
@@ -107,12 +106,11 @@ public class videoserverConfigurationParser {
 
 		} catch (Exception e) {
 			System.out
-					.println("Error : serverConfiguration_credentials not found");
-			return "LoRa Configuration Parser error";
+					.println("Error : serverConfiguration_credentials, some field not found");
+			return "serverConfiguration_credentials, some field not found in json";
 		}
 
 		try {
-
 			serverConfiguration_configuration = serverConfiguration_jsonObject
 					.get("configuration");
 			_serverConfiguration_configuration = serverConfiguration_configuration
@@ -127,23 +125,20 @@ public class videoserverConfigurationParser {
 			System.out.println("---------------");
 			System.out.println(serverConfiguration_configuration_jsonObject
 					.toString() + "\n---------------\n");
-
 			serverConfiguration_configuration_playurl = serverConfiguration_configuration_jsonObject
 					.get("playbackurl");
 			videoserverConfigurationFields.playbackurl = serverConfiguration_configuration_playurl
 					.toString();
 			System.out.println(videoserverConfigurationFields.playbackurl);
 			videoserverConfigurationFields.url = true;
-
 		} catch (Exception e) {
 			System.out
-					.println("Error : serverConfiguration appEUI or devEUI not found");
+					.println("Error : serverConfiguration_credentials playbackurl not found");
 
 			// Set Flag is not available.
 			videoserverConfigurationFields.url = false;
 			
 			return "PlayURL is not specified in json";
-
 		}
 
 		return "Video information extracted";
