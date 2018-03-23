@@ -1,0 +1,39 @@
+autonumber
+
+Device -> KONG: POST to /publish
+ref over Device
+  Device API Key.
+  Data as per Schema
+end ref
+
+box "Smart City Middleware" 
+	participant KONG
+	participant Broker
+	participant LDAP
+	participant Subscribers
+end box
+
+KONG -> KONG: Decode API Key 
+KONG -> KONG: Verify Device credentials in ACL
+
+alt onFailure
+KONG -> Device: Invalid Credentials.
+destroy KONG
+
+else onSuccess
+KONG -> Broker: Forward POST request.
+end
+
+Broker -> Broker: Parse resourceID, topic and request body.
+Broker -> LDAP: Check if ID = resourceID is allowed to publish to topic.
+LDAP -> Broker: Success (or) Failure
+
+alt onFailure
+Broker -> Device: Failure. Not authorised.
+destroy Broker
+
+else onSuccess
+Broker -> Subscribers: Publish Data. 
+Broker -> Device: Success.
+
+end

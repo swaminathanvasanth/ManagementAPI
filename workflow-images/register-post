@@ -1,0 +1,122 @@
+autonumber
+
+User -> KONG: POST to /register to onboard a new entity 
+
+box "Smart City Middleware" 
+	participant KONG
+	participant RegisterAPI
+	participant uCat
+	participant mCat
+	participant Broker
+	participant DB
+	participant LDAP
+	participant LoRa_Server
+	participant Adaptor
+	participant Video_Server
+end box
+
+
+KONG -> KONG: Decode API Key 
+KONG -> KONG: Verify USER credentials 
+
+alt onFailure
+KONG -> User: Invalid Credentials.
+destroy KONG
+
+else onSuccess
+KONG -> RegisterAPI: Forward registration request.
+end
+
+RegisterAPI -> RegisterAPI: Parse UserID and resourceID.
+RegisterAPI -> RegisterAPI: Check if registration contains body. 
+
+alt onSuccess
+note right
+            If TRUE, 
+            parse request body JSON for
+            entityType, registration_schema,
+            data_schema, serverCredentials.
+end note
+
+note left
+            If FALSE, 
+            GOTO 14
+end note
+RegisterAPI -> uCat: Validate data_schema for resourceID.
+
+uCat -> RegisterAPI: Success (or) Failure.
+
+alt onFailure
+RegisterAPI -> User: Failure. 
+destroy RegisterAPI
+note left
+            Entity with ID = resourceID, 
+            is not registered due to
+            invalid data_schema.
+end note
+
+else onSuccess
+RegisterAPI -> mCat: Validate registration_schema for resourceID.
+end
+
+mCat -> RegisterAPI: Success (or) Failure.
+alt onFailure
+RegisterAPI -> User: Failure.
+destroy RegisterAPI
+note left
+            Entity with ID = resourceID, 
+            is not registered due to
+            invalid registration_schema.
+end note
+
+else onSuccess
+RegisterAPI -> KONG: Create entity with ID = resourceID.
+KONG -> RegisterAPI: Success.
+RegisterAPI -> KONG: Generate API Key for entity with ID = resourceID.
+KONG -> RegisterAPI: Success.
+RegisterAPI -> Broker: Create Queue with ID = resourceID.
+Broker -> RegisterAPI: Success.
+RegisterAPI -> LDAP: Store entity with ID = resourceID, userPassword = apiKey.
+LDAP -> RegisterAPI: Success.
+note left
+            If Success, 
+            GOTO 14
+            
+            If Failure, 
+            GOTO 13
+end note
+note left
+            If 7=False, 
+            GOTO 22
+            
+            If 7=True, 
+            GOTO 23
+end note
+RegisterAPI -> User: Success. 
+note left
+            Entity with 
+            ID = resourceID, 
+            userPassword = apiKey 
+            is now registered.
+end note
+RegisterAPI -> DB: Create an entry to store entity with ID = resourceID in DB.
+DB -> RegisterAPI: Success.
+RegisterAPI -> LoRa_Server: If entityType = LORA, register resourceID with registration_schema.
+LoRa_Server -> RegisterAPI: Success.
+RegisterAPI -> uCat: Update data schema for resourceID.
+uCat -> RegisterAPI: Success.
+RegisterAPI -> mCat: Update registration schema for resourceID.
+mCat -> RegisterAPI: Success.
+RegisterAPI -> Adaptor: If entityType = LORA, connect to network_server with server_credentials, subscribe and publish for resourceID.
+Adaptor -> RegisterAPI: Success.
+RegisterAPI -> Video_Server: If entityType = videoCamera, register resourceID with registration schema.
+Video_Server -> RegisterAPI: Success.
+RegisterAPI -> User: Success. 
+note left
+            Entity with ID = resourceID, 
+            userPassword = apiKey, 
+            dataSchema and registrationSchema 
+            as provided by USER is registered.
+end note
+end
+

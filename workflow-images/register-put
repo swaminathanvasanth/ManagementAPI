@@ -1,0 +1,76 @@
+autonumber
+
+User -> KONG: PUT to update an entity 
+KONG -> KONG: Decode API Key 
+KONG -> KONG: Verify USER credentials 
+
+alt onFailure
+KONG -> User: Invalid Credentials.
+destroy KONG
+
+else onSuccess
+KONG -> RegisterAPI: Forward registration update request.
+end
+
+RegisterAPI -> RegisterAPI: Parse UserID and resourceID.
+RegisterAPI -> RegisterAPI: Check if request contains body. 
+
+alt onSuccess
+note right
+            Parse request body JSON for
+            entityType, registration_schema,
+            data_schema, serverCredentials.
+end note
+
+RegisterAPI -> Catalogue: Validate data_schema for resourceID.
+
+Catalogue -> RegisterAPI: Success (or) Failure.
+
+alt onFailure
+RegisterAPI -> User: Failure. 
+destroy RegisterAPI
+note left
+            Entity with ID = resourceID, 
+            is not registered due to
+            invalid data_schema.
+end note
+
+else onSuccess
+RegisterAPI -> Management_Catalogue: Validate registration_schema for resourceID.
+end
+
+Management_Catalogue -> RegisterAPI: Success (or) Failure.
+alt onFailure
+RegisterAPI -> User: Failure.
+destroy RegisterAPI
+note left
+            Entity with ID = resourceID, 
+            is not registered due to
+            invalid registration_schema.
+end note
+else onSuccess
+RegisterAPI -> KONG: Update entity with ID = resourceID.
+KONG -> RegisterAPI: Success.
+RegisterAPI -> LDAP: Update entity with ID = resourceID.
+LDAP -> RegisterAPI: Success.
+
+RegisterAPI -> DB: Create an entry to store entity with ID = resourceID in DB.
+DB -> RegisterAPI: Success.
+RegisterAPI -> Network_Server: If entityType = LORA, register resourceID with registration_schema.
+Network_Server -> RegisterAPI: Success.
+RegisterAPI -> Catalogue: Update data schema for resourceID.
+Catalogue -> RegisterAPI: Success.
+RegisterAPI -> Management_Catalogue: Update registration schema for resourceID.
+Management_Catalogue -> RegisterAPI: Success.
+RegisterAPI -> Adaptor: If entityType = LORA, connect to network_server with server_credentials, subscribe and publish for resourceID.
+Adaptor -> RegisterAPI: Success.
+RegisterAPI -> Video_Server: If entityType = videoCamera, register resourceID with registration schema.
+Video_Server -> RegisterAPI: Success.
+RegisterAPI -> User: Success. 
+note left
+            Entity with ID = resourceID, 
+            userPassword = apiKey, 
+            dataSchema and registrationSchema 
+            as provided by USER is registered.
+end note
+end

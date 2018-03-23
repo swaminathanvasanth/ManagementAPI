@@ -1,0 +1,74 @@
+User -> KONG: **1** POST to /register to onboard a new entity 
+
+box "Smart City Middleware" 
+	participant KONG
+	participant RegisterAPI
+	participant uCat
+	participant mCat
+	participant Broker
+	participant DB
+	participant LDAP
+	participant LoRa_Server
+	participant Adaptor
+	participant Video_Server
+end box
+
+mCat -> RegisterAPI: **12** Success (or) Failure.
+alt onFailure
+RegisterAPI -> User: **13** Failure.
+destroy RegisterAPI
+note left
+            Entity with ID = resourceID, 
+            is not registered due to
+            invalid registration_schema.
+end note
+
+
+else onSuccess
+RegisterAPI -> KONG: **14** Create entity with ID = resourceID.
+KONG -> RegisterAPI: **15** Success.
+RegisterAPI -> KONG: **16** Generate API Key for entity with ID = resourceID.
+KONG -> RegisterAPI: **17** Success.
+RegisterAPI -> Broker: **18** Create Queue with ID = resourceID.
+Broker -> RegisterAPI: **19** Success.
+RegisterAPI -> LDAP: **20** Store entity with ID = resourceID, userPassword = apiKey.
+LDAP -> RegisterAPI: **21** Success.
+note left
+            If Success, 
+            GOTO 14
+            
+            If Failure, 
+            GOTO 13
+end note
+note left
+            If body=nil, 
+            GOTO 22
+            
+            If body=True, 
+            GOTO 23
+end note
+RegisterAPI -> User: **22** Success. 
+note left
+            Entity with 
+            ID = resourceID, 
+            userPassword = apiKey 
+            is now registered.
+end note
+RegisterAPI -> DB: **23** Create an entry to store entity with ID = resourceID in DB.
+RegisterAPI -> LoRa_Server: **24** If entityType = LORA, register resourceID with registration_schema.
+RegisterAPI -> uCat: **25** Update data schema for resourceID.
+
+RegisterAPI -> mCat: **26** Update registration schema for resourceID.
+
+RegisterAPI -> Adaptor: **27** If entityType = LORA, connect to network_server with server_credentials, subscribe and publish for resourceID.
+
+RegisterAPI -> Video_Server: **28** If entityType = videoCamera, register resourceID with registration schema.
+RegisterAPI -> User: **29** Success.
+
+note left
+            Entity with ID = resourceID, 
+            userPassword = apiKey, 
+            dataSchema and registrationSchema 
+            as provided by USER is registered.
+end note
+end

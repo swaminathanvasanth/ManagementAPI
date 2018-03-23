@@ -1,0 +1,34 @@
+autonumber
+
+User -> KONG: GET to query an entity 
+KONG -> KONG: Decode API Key 
+KONG -> KONG: Verify USER credentials 
+
+alt onFailure
+KONG -> User: Invalid Credentials.
+destroy KONG
+
+else onSuccess
+KONG -> RegisterAPI: Forward query request.
+end
+
+RegisterAPI -> RegisterAPI: Parse UserID and resourceID.
+RegisterAPI -> LDAP: Check if UserID=owner for entity with ID = resourceID.
+LDAP -> RegisterAPI: Success (or) Failure
+
+alt onFailure
+RegisterAPI -> User: Failure. Not authorised.
+destroy RegisterAPI
+
+else onSuccess
+RegisterAPI -> KONG: Get apiKey for entity with ID = resourceID.
+KONG -> RegisterAPI: Success.
+end
+
+RegisterAPI -> User: Success. 
+note left
+            API Key for entity with 
+            ID = resourceID is  
+            userPassword = apiKey, 
+end note
+

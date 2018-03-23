@@ -1,0 +1,55 @@
+autonumber
+
+User -> KONG: DELETE to de-register an entity 
+KONG -> KONG: Decode API Key 
+KONG -> KONG: Verify USER credentials 
+
+alt onFailure
+KONG -> User: Invalid Credentials.
+destroy KONG
+
+else onSuccess
+KONG -> RegisterAPI: Forward de-registration request.
+end
+
+RegisterAPI -> RegisterAPI: Parse UserID and resourceID.
+RegisterAPI -> LDAP: Verify Owner of resourceID. If Owner = UserID, send Success. 
+LDAP -> RegisterAPI: Success or Failure
+
+alt onFailure
+RegisterAPI -> User: Failure.
+destroy RegisterAPI
+note left
+            Entity with ID = resourceID, 
+            is not registered by User. 
+            Invalid Credentials.
+end note
+
+else onSuccess
+RegisterAPI -> KONG: Delete entity with ID = resourceID.
+KONG -> RegisterAPI: Success.
+RegisterAPI -> RabbitMQ: Delete Queue with ID = resourceID.
+RabbitMQ -> RegisterAPI: Success.
+RegisterAPI -> LDAP: Delete entity with ID = resourceID, userPassword = apiKey.
+LDAP -> RegisterAPI: Success.
+RegisterAPI -> DB: Delete entity with ID = resourceID in DB.
+DB -> RegisterAPI: Success.
+RegisterAPI -> Network_Server: If entityType = LORA, de-register resourceID.
+Network_Server -> RegisterAPI: Success.
+RegisterAPI -> Catalogue: Delete schema for resourceID.
+Catalogue -> RegisterAPI: Success.
+RegisterAPI -> Management_Catalogue: Delete registration schema for resourceID.
+Management_Catalogue -> RegisterAPI: Success.
+RegisterAPI -> Adaptor: If entityType = LORA, delete adaptor for resourceID.
+Adaptor -> RegisterAPI: Success.
+RegisterAPI -> Video_Server: If entityType = videoCamera, de-register resourceID.
+Video_Server -> RegisterAPI: Success.
+end
+RegisterAPI -> User: Success. 
+
+note left
+            Entity with ID = resourceID, 
+            as provided by 
+            USER is 
+            de-registered.
+end note
