@@ -1,0 +1,27 @@
+autonumber
+
+sharing_entity -> KONG: POST to /share to approve follow request of a USER
+KONG -> KONG: Decode API Key 
+KONG -> KONG: Verify entity credentials 
+
+alt onFailure
+KONG -> sharing_entity: Invalid Credentials.
+destroy KONG
+
+else onSuccess
+KONG -> ShareAPI: Forward share request.
+ShareAPI -> ShareAPI: Parse UserID, permission and entityID.
+ShareAPI -> LDAP: Add entityID in UserID tree with permission = {read, write or read/write}. 
+LDAP -> ShareAPI: Success.
+
+ShareAPI -> RabbitMQ: Bind entityID with queue of UserID
+
+RabbitMQ -> ShareAPI : Success.
+ShareAPI -> User: Success.
+note left
+            Approved USER with ID = UserID, 
+            permission = {read, write, read/write}
+            to access entityID as per the request. 
+end note
+end
+
