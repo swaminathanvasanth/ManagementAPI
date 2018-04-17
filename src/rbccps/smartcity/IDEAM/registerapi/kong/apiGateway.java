@@ -8,12 +8,15 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import rbccps.smartcity.IDEAM.registerapi.lora.loraserverConfigurationFields;
 import rbccps.smartcity.IDEAM.registerapi.parser.entity;
 import rbccps.smartcity.IDEAM.urls.URLs;
+import rbccps.smartcity.IDEAM.registerapi.RequestController;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -32,6 +35,18 @@ public class apiGateway {
 	static JsonObject jsonObject;
 	static JsonObject response_jsonObject;
 	static String _url;
+	static String security_level;
+	static Map<Integer,Integer> bits;
+	
+	static
+	{
+		bits=new HashMap<>();
+		bits.put(1, 6);
+		bits.put(2,11);
+		bits.put(3, 22);
+		bits.put(4, 43);
+		bits.put(5, 86);
+	}
 	
 	public static String createUser(String resourceID) {
 		// TODO Auto-generated method stub
@@ -195,7 +210,8 @@ public class apiGateway {
 		// TODO Auto-generated method stub
 		URL url = null;
 		String response = null;
-
+		security_level=RequestController.getSecurityLevel();
+	
 		if (loraserverConfigurationFields.serverConfiguration) {
 			if (loraserverConfigurationFields.LoRaServer) {
 				System.out
@@ -248,17 +264,58 @@ public class apiGateway {
 				} else {
 					url = new URL(_url + "/consumers/" + resourceID + "/key-auth");
 					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+					
+					
+					String key = "key="+genAPIKey(bits.get(Integer.parseInt(security_level)));
+					byte[] postDataBytes = key.getBytes("UTF-8");					
 					conn.setRequestMethod("POST");
 					conn.setRequestProperty("Content-Type",
-							"application/x-www-form-urlencoded");
+								"application/x-www-form-urlencoded");
+					conn.setRequestProperty("Content-Length",
+					String.valueOf(postDataBytes.length));
+					conn.setDoOutput(true);
+			        conn.setDoInput(true);
+			      
+		            conn.getOutputStream().write(postDataBytes);
 
 					Reader in = new BufferedReader(new InputStreamReader(
-							conn.getInputStream(), "UTF-8"));
+								conn.getInputStream(), "UTF-8"));
 
 					StringBuilder sb = new StringBuilder();
-					for (int c; (c = in.read()) >= 0;)
-						sb.append((char) c);
+						for (int c; (c = in.read()) >= 0;)
+							sb.append((char) c);
+						
 					response = sb.toString();
+					
+					if(conn.getResponseCode()>=400&&conn.getResponseCode()<=500)
+					{
+						while(conn.getResponseCode()>=400&&conn.getResponseCode()<=500)
+						{
+							conn = (HttpURLConnection) url.openConnection();
+							
+							
+							key = "key="+genAPIKey(bits.get(Integer.parseInt(security_level)));
+							postDataBytes = key.getBytes("UTF-8");								
+							conn.setRequestMethod("POST");
+							conn.setRequestProperty("Content-Type",
+										"application/x-www-form-urlencoded");
+							conn.setRequestProperty("Content-Length",
+							String.valueOf(postDataBytes.length));
+							conn.setDoOutput(true);
+					        conn.setDoInput(true);
+					      
+					        conn.getOutputStream().write(postDataBytes);
+							in = new BufferedReader(new InputStreamReader(
+										conn.getInputStream(), "UTF-8"));
+
+							sb = new StringBuilder();
+							for (int c; (c = in.read()) >= 0;)
+								sb.append((char) c);
+							
+							response = sb.toString();
+						}
+					}
+					
 					System.out.println(response);
 
 					parser = new JsonParser();
@@ -270,6 +327,7 @@ public class apiGateway {
 					_apikey = _apikey_JsonElement.toString();
 
 					System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
+					//System.out.println(key);
 
 					entity.setEntityapikey(_apikey);
 				} 
@@ -277,17 +335,56 @@ public class apiGateway {
 		} else {
 			url = new URL(_url + "/consumers/" + resourceID + "/key-auth");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			
+		
+			String key = "key="+genAPIKey(bits.get(Integer.parseInt(security_level)));
+			byte[] postDataBytes = key.getBytes("UTF-8");				
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type",
-					"application/x-www-form-urlencoded");
-
+						"application/x-www-form-urlencoded");
+			conn.setRequestProperty("Content-Length",
+			String.valueOf(postDataBytes.length));
+			conn.setDoOutput(true);
+	        conn.setDoInput(true);
+	      
+	        conn.getOutputStream().write(postDataBytes);
 			Reader in = new BufferedReader(new InputStreamReader(
-					conn.getInputStream(), "UTF-8"));
+						conn.getInputStream(), "UTF-8"));
 
 			StringBuilder sb = new StringBuilder();
 			for (int c; (c = in.read()) >= 0;)
 				sb.append((char) c);
+			
 			response = sb.toString();
+			
+			if(conn.getResponseCode()>=400&&conn.getResponseCode()<=500)
+			{
+				while(conn.getResponseCode()>=400&&conn.getResponseCode()<=500)
+				{
+					conn = (HttpURLConnection) url.openConnection();
+					key = "key="+genAPIKey(bits.get(Integer.parseInt(security_level)));
+					postDataBytes = key.getBytes("UTF-8");						
+					conn.setRequestMethod("POST");
+					conn.setRequestProperty("Content-Type",
+								"application/x-www-form-urlencoded");
+					conn.setRequestProperty("Content-Length",
+					String.valueOf(postDataBytes.length));
+					conn.setDoOutput(true);
+			        conn.setDoInput(true);
+			      
+			        conn.getOutputStream().write(postDataBytes);
+					in = new BufferedReader(new InputStreamReader(
+								conn.getInputStream(), "UTF-8"));
+
+					sb = new StringBuilder();
+					for (int c; (c = in.read()) >= 0;)
+						sb.append((char) c);
+					
+					response = sb.toString();
+				}
+			}
+			
+			
 			System.out.println(response);
 
 			parser = new JsonParser();
@@ -361,6 +458,16 @@ public class apiGateway {
 
 		// Add a FLAG to process the Registration further
 
+	}
+	
+	public static String genAPIKey(int len)
+	{
+		String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+		SecureRandom rnd = new SecureRandom();
+		StringBuilder sb = new StringBuilder( len );
+		   for( int i = 0; i < len; i++ ) 
+		      sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+		   return sb.toString();
 	}
 
 }

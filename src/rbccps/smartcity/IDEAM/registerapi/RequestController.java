@@ -33,6 +33,7 @@ public class RequestController {
 	static String apikey;
 	static String X_Consumer_Groups;
 	static String body;
+	static String security_level;
 	
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
@@ -94,6 +95,25 @@ public class RequestController {
 		apikey = request.getHeader("apikey");
 		System.out.println(apikey);
 		
+		try
+		{
+		security_level=request.getHeader("security_level");
+		}
+		catch(Exception e)
+		{
+			System.out.println("Security Level not specififed");
+		}
+		finally
+		{
+			if(security_level==null)
+			{
+				System.out.println("Using default security level of 4");
+			    security_level=String.valueOf(4);	
+			}
+			
+		}
+		
+		System.out.println(security_level);
 		X_Consumer_Groups = request.getHeader("X-Consumer-Groups");
 		System.out.println(X_Consumer_Groups);
 		
@@ -155,6 +175,11 @@ public class RequestController {
 
 	public static String getApikey() {
 		return apikey;
+	}
+	
+	public static String getSecurityLevel()
+	{
+		return security_level;
 	}
 
 	public static String getX_Consumer_Groups() {

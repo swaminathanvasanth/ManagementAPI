@@ -3,6 +3,7 @@ package rbccps.smartcity.IDEAM.registerapi.kong;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -15,21 +16,27 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import rbccps.smartcity.IDEAM.registerapi.ldap.addEntryToLDAP;
+import rbccps.smartcity.IDEAM.urls.URLs;
+import java.security.SecureRandom;
 
 public class Register {
 
 	static String _value;
 	static String _apikey;
 	static String _providerID;
+	static String kong_url;
+	static String broker_url;
 
 	public static String createUser(String resourceID) {
 		// TODO Auto-generated method stub
 		_value = resourceID;
+		kong_url=URLs.getApiGatewayURL();
 		String response = null;
 
 		try {
-
-			URL url = new URL("http://10.156.14.144:2959/consumers/");
+            
+			
+			URL url = new URL(kong_url+"/consumers/");
 			Map<String, Object> params = new LinkedHashMap<>();
 			params.put("username", _value);
 
@@ -76,16 +83,23 @@ public class Register {
 	public static String generateAPIKey(String resourceID) throws Exception {
 		// TODO Auto-generated method stub
 
-		URL url = new URL("http://10.156.14.144:2959/consumers/" + resourceID
+		URL url = new URL(kong_url+"/consumers/" + resourceID
 				+ "/key-auth");
 		// URL url = new URL("http://10.156.14.144:2959/consumers/" +_value +
 		// "/key-auth");
-
+		
+        String key=genAPIKey(32);
+        String urlParameters = "key="+key;
+        System.out.println(key);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setDoOutput(true);
+		OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+	    writer.write(urlParameters);
+	    writer.flush();
 		conn.setRequestMethod("POST");
 		conn.setRequestProperty("Content-Type",
 				"application/x-www-form-urlencoded");
-
+	  
 		Reader in = new BufferedReader(new InputStreamReader(
 				conn.getInputStream(), "UTF-8"));
 
@@ -114,7 +128,7 @@ public class Register {
 		String response = null;
 				
 		try {
-					URL url = new URL("http://10.156.14.144:2959/consumers/"+_value+"/acls");
+					URL url = new URL(kong_url+"/consumers/"+_value+"/acls");
 					Map<String, Object> params = new LinkedHashMap<>();
 					params.put("group", serviceType);
 
@@ -163,7 +177,8 @@ public class Register {
 		System.out.println("+++++++++++In createQueue Block+++++++++++");
 				
 		try {
-					URL url = new URL(" http://10.156.14.6:8989/queue");
+			        broker_url=URLs.getBrokerURL();
+					URL url = new URL(broker_url+"/queue");
 					
 					/*Map<String, Object> params = new LinkedHashMap<>();
 					params.put("name", _value);
@@ -234,6 +249,16 @@ public class Register {
 		}
 
 		return addEntry_Response;
+	}
+	
+	public static String genAPIKey(int len)
+	{
+		String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+		SecureRandom rnd = new SecureRandom();
+		StringBuilder sb = new StringBuilder( len );
+		   for( int i = 0; i < len; i++ ) 
+		      sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+		   return sb.toString();
 	}
 
 }
