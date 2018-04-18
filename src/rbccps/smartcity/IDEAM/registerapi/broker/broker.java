@@ -155,8 +155,7 @@ public class broker {
 	}
 	
 	public static String createBinding(String resourceID){
-
-
+		
 		_url = URLs.getBrokerURL();
 		_value = resourceID;
 		response = null;
@@ -190,12 +189,14 @@ public class broker {
 							String.valueOf(postDataBytes.length));
 					conn.setDoOutput(true);
 					conn.getOutputStream().write(postDataBytes);
+					
 					Reader in = new BufferedReader(new InputStreamReader(
 							conn.getInputStream(), "UTF-8"));
 					StringBuilder sb = new StringBuilder();
 					for (int c; (c = in.read()) >= 0;)
 						sb.append((char) c);
 					response = sb.toString();
+					
 					System.out.println(response);
 					System.out.println("In Queue Creation");
 					
@@ -223,6 +224,8 @@ public class broker {
 	
 	public static String createDatabaseBinding(String resourceID){
 
+		System.out.println("+++++++++++In createDatabaseBinding Block+++++++++++");
+		
 		_url = URLs.getBrokerURL();
 		_value = resourceID;
 		response = null;
@@ -232,20 +235,19 @@ public class broker {
 					URL url = new URL(_url+ "/queue/bind"); // RabbitMQ Docker
 					String _postData;
 					System.out.println(resourceID);
+					System.out.println(url.toString());
 					
 					// Create a structured JSON as per the Broker requirement
 					
-					_postData = "{\"queue\":" + "\"database" +  "\"exchange\":" + "\""+ resourceID+".protected" + "\"" + "\"keys\":" + "\"["+ resourceID + "#]\""+ "}";
 					
+					_postData = "{\"exchange\":" + "\""+ resourceID+".protected" + "\""+ "," + "\"key\":" + "[\"#\"]"+ ",\"queue\":" + "\"database\"" +"}";
+	
 					System.out.println("+++++++++++In createQueue try Block+++++++++++" + "\n" + _postData.toString() + "\n");
 									
 					byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
 
 					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 					
-					// conn.setRequestProperty("X-Consumer-Username", RequestController.getX_Consumer_Custom_ID());
-					// conn.setRequestProperty("Apikey", RequestController.getApikey());
-
 					conn.setRequestProperty("X-Consumer-Username", "rbccps");
 					conn.setRequestProperty("Apikey", "rbccps@123");
 					
@@ -256,6 +258,9 @@ public class broker {
 							String.valueOf(postDataBytes.length));
 					conn.setDoOutput(true);
 					conn.getOutputStream().write(postDataBytes);
+					
+					System.out.println(conn.toString());
+					
 					Reader in = new BufferedReader(new InputStreamReader(
 							conn.getInputStream(), "UTF-8"));
 					StringBuilder sb = new StringBuilder();
@@ -263,7 +268,7 @@ public class broker {
 						sb.append((char) c);
 					response = sb.toString();
 					System.out.println(response);
-					System.out.println("In Queue Creation");
+					System.out.println("In Bind Queue");
 					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -284,7 +289,6 @@ public class broker {
 				return response;
 
 				// Add a FLAG to process the Registration further
-
 	}
 
 	

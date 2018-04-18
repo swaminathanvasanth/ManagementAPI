@@ -311,8 +311,11 @@ public class createEntityJSONParser {
 					broker.createExchange(ID + ".protected");
 					broker.createExchange(ID + ".configure");
 					broker.createExchange(ID + ".follow");
+					System.out.println("+++++++++++Calling createDatabaseBinding Block+++++++++++");
+					broker.createDatabaseBinding(ID);
 					response_createQueue = broker.createQueue(ID);
 					response_createQueue = broker.createQueue(ID + ".follow");
+					
 				} else {
 					System.out.println("Its a videoCamera");
 					response_createQueue = "videoCamera";
