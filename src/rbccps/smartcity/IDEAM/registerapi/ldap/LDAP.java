@@ -1,5 +1,7 @@
 package rbccps.smartcity.IDEAM.registerapi.ldap;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -40,6 +42,21 @@ public class LDAP {
 
 	public LDAP() {
 		System.out.println("constructer to LDAP bind");
+		
+		try
+		{
+			BufferedReader br=new BufferedReader(new FileReader("/etc/pwd"));
+			
+			password=br.readLine();
+			
+			br.close();
+			
+		}
+		catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
+		
 		try {
 			environment.put(Context.INITIAL_CONTEXT_FACTORY,
 					"com.sun.jndi.ldap.LdapCtxFactory");

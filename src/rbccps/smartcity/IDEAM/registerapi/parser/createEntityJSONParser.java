@@ -119,15 +119,25 @@ public class createEntityJSONParser {
 		
 		System.out.println("------------------BODY------------------");
 		System.out.println(json);
-		
-		parser = new JsonParser();
-		jsonTree = parser.parse(json);
-		access_parser = new JsonParser();
-		
-		 access_jsonTree = access_parser.parse(accessMechanism_json);
-		 access_jsonObject = access_jsonTree.getAsJsonObject();
-
 		response = new JsonObject();
+		
+		try
+		{
+			parser = new JsonParser();
+			jsonTree = parser.parse(json);
+			access_parser = new JsonParser();
+			
+			 access_jsonTree = access_parser.parse(accessMechanism_json);
+			 access_jsonObject = access_jsonTree.getAsJsonObject();
+		}
+		catch(Exception e)
+		{
+			response.addProperty("Registration", "Failure");
+			response.addProperty("Reason","JSON parse error");
+			return response.toString();
+		}
+		
+		
 
 		/*
 		 * System.out.println(access_jsonObject.toString() +
@@ -149,8 +159,7 @@ public class createEntityJSONParser {
 			System.out.println(serverType);
 
 			if (serverType.contains("lora")) {
-				String _credentials = _loraserverConfigurationParser
-						.parse(jsonObject);
+				String _credentials = _loraserverConfigurationParser.parse(jsonObject);
 				System.out.println(_credentials);
 
 				if (loraserverConfigurationFields.serverConfiguration) {
@@ -213,10 +222,12 @@ public class createEntityJSONParser {
 		// Store entitySchema and ID in entity class for easy access.
 		entity.setEntitySchemaObject(_dataSchema);
 
-		System.out.println(entity.getEntitySchemaObject());
-		System.out.println(entity.getEntityID().toString());
+
 
 		try {
+			System.out.println(entity.getEntitySchemaObject());
+			System.out.println(entity.getEntityID().toString());
+			
 			ID = entity.getEntityID().toString();
 			System.out.println(ID);
 
@@ -237,6 +248,14 @@ public class createEntityJSONParser {
 
 			if (response_createID.contains("created")) {
 				response_generateapiKey = apiGateway.generateAPIKey(ID);
+				
+				if(response_generateapiKey.contains("Security level must be between 1-5"))
+				{
+					response.addProperty("Registration", "Failure");
+					response.addProperty("Reason", "Security level must be between 1-5");
+					return response.toString();
+				}
+				
 				System.out.println("------STEP 2------");
 				System.out.println("------------");
 				System.out.println(response_generateapiKey);
@@ -400,7 +419,9 @@ public class createEntityJSONParser {
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
+			response.addProperty("Registration", "failure");
+			response.addProperty("Reason", "Possible missing fields");
 		}
 		return response.toString();
 	}

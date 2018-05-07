@@ -47,7 +47,7 @@ public class createEntitySchemaParser {
 */
 		} catch (Exception e) {
 			System.out.println("Error : entitySchema not found");
-			System.exit(0);
+			return "Possible missing fields";
 		}
 		return entitySchemaObject.toString();
 	}

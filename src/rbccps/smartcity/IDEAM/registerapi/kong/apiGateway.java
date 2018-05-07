@@ -211,6 +211,9 @@ public class apiGateway {
 		URL url = null;
 		String response = null;
 		security_level=RequestController.getSecurityLevel();
+		
+		if(Integer.parseInt(security_level)>5)
+			return "Security level must be between 1-5";
 	
 		if (loraserverConfigurationFields.serverConfiguration) {
 			if (loraserverConfigurationFields.LoRaServer) {
