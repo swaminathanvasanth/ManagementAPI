@@ -18,6 +18,8 @@ import org.json.simple.JSONObject;
 
 import rbccps.smartcity.IDEAM.registerapi.kong.Register;
 import rbccps.smartcity.IDEAM.registerapi.parser.createEntityJSONParser;
+import rbccps.smartcity.IDEAM.registerapi.parser.entity;
+import rbccps.smartcity.IDEAM.registerapi.deregister.*;
 
 @Path("/newregister")
 public class RequestController {
@@ -62,12 +64,39 @@ public class RequestController {
 		else if(returnData.contains("uCat update Failure")||returnData.contains("Server Not Reachable")||returnData.contains("API KeyGen failed")
 				||returnData.contains("Failed in Broker")||returnData.contains("Failed in adding ID into the ACL")
 				||returnData.contains("LDAP update Failure")|| returnData.contains("Queue Deletion Failure")||returnData.contains("uCat deletion Failure"))
-			 return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(returnData).build();
+		{
+			try
+			{
+				String resp=Deregister.removeEntries(getApikey(), entity.getEntityID());
+				System.out.println(resp);
+				
+			}
+			catch(Exception e)
+			{
+				System.out.println(e.getMessage());
+			}
+			
+			return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(returnData).build();
+		}
+			 
 		
 		else if(returnData.contains("ID not provided")||returnData.contains("Security level must be between 1-5")||returnData.contains("JSON parse error")||returnData.contains("Possible missing fields")||returnData.contains("Missing LoRa information")||returnData.contains("Missing Video information")
 				||returnData.contains("Cannot Onboard Video camera in VideoServer. POST Error.")||returnData.contains("serverConfiguration_credentials, some field not found in json")
 				||returnData.contains("PlayURL is not specified in json"))
-			 return Response.status(Response.Status.BAD_REQUEST).entity(returnData).build();
+		{
+			try
+			{
+				String resp=Deregister.removeEntries(getApikey(), entity.getEntityID());
+				System.out.println(resp);
+				
+			}
+			catch(Exception e)
+			{
+				System.out.println(e.getMessage());
+			}
+			return Response.status(Response.Status.BAD_REQUEST).entity(returnData).build();
+		}
+			 
 	
 		else
 		return Response.ok(returnData, MediaType.APPLICATION_JSON).build();

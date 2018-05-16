@@ -251,6 +251,7 @@ public class createEntityJSONParser {
 				
 				if(response_generateapiKey.contains("Security level must be between 1-5"))
 				{
+					apiGateway.deleteUser(ID);
 					response.addProperty("Registration", "Failure");
 					response.addProperty("Reason", "Security level must be between 1-5");
 					return response.toString();
@@ -267,6 +268,7 @@ public class createEntityJSONParser {
 				apiGateway.deleteUser(ID);
 				return response.toString();
 			} else {
+				apiGateway.deleteUser(ID);
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "ID already used.");
 				return response.toString();

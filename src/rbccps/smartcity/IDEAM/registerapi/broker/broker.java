@@ -226,21 +226,38 @@ public class broker {
 
 		System.out.println("+++++++++++In createDatabaseBinding Block+++++++++++");
 		
+		String response="";
+		
+		response=bind(resourceID);
+		response+=bind(resourceID+".configure");
+		response+=bind(resourceID+".follow");
+		response+=bind(resourceID+".private");
+		response+=bind(resourceID+".protected");
+		response+=bind(resourceID+".public");
+		
+		if(response.contains("Cannot create Queue"))
+			return "Failed to bind exchange to DB queue";
+		else
+			return "Bind to DB queue successful";
+	}
+	
+	public static String bind(String name)
+	{
 		_url = URLs.getBrokerURL();
-		_value = resourceID;
+		_value = name;
 		response = null;
 		System.out.println("+++++++++++In createQueue Block+++++++++++");
 				
 		try {
 					URL url = new URL(_url+ "/queue/bind"); // RabbitMQ Docker
 					String _postData;
-					System.out.println(resourceID);
+					System.out.println(name);
 					System.out.println(url.toString());
 					
 					// Create a structured JSON as per the Broker requirement
 					
 					
-					_postData = "{\"exchange\":" + "\""+ resourceID+".protected" + "\""+ "," + "\"key\":" + "[\"#\"]"+ ",\"queue\":" + "\"database\"" +"}";
+					_postData = "{\"exchange\":" + "\""+ name + "\""+ "," + "\"key\":" + "[\"#\"]"+ ",\"queue\":" + "\"database\"" +"}";
 	
 					System.out.println("+++++++++++In createQueue try Block+++++++++++" + "\n" + _postData.toString() + "\n");
 									
@@ -288,7 +305,6 @@ public class broker {
 				}
 				return response;
 
-				// Add a FLAG to process the Registration further
 	}
 
 	
