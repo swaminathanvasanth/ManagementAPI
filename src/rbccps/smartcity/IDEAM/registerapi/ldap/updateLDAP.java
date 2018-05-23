@@ -8,6 +8,7 @@ public class updateLDAP {
 		System.out.println(providerID + resourceID + apiKey);
 		
 		LDAP addEntryToLdap = new LDAP();
+		addEntryToLdap.readldappwd();
 		String addEntry_Response;
 		if (addEntryToLdap.addEntry(providerID, resourceID, apiKey)) {
 			System.out.println("entry creation completed");

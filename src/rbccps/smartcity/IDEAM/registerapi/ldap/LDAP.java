@@ -17,12 +17,12 @@ import rbccps.smartcity.IDEAM.urls.URLs;
 
 public class LDAP {
 
-	private DirContext dirContext = null;
-	String url = URLs.getLDAPURL();
-	String conntype = "simple";
-	String AdminDn = "cn=admin,dc=smartcity";
-	String password = "secret0";
-	Hashtable<String, String> environment = new Hashtable<String, String>();
+	private static DirContext dirContext = null;
+	static String url = URLs.getLDAPURL();
+	static String conntype = "simple";
+	static String AdminDn = "cn=admin,dc=smartcity";
+	static String password = "secret0";
+	static Hashtable<String, String> environment = new Hashtable<String, String>();
 
 	static String entryDN;
 	static String brokerEntryDN;
@@ -40,15 +40,14 @@ public class LDAP {
 	static String brokerShare_Name_EntryDN;
 	static String LDAPEntry;
 
-	public LDAP() {
+	public static void readldappwd() {
 		System.out.println("constructer to LDAP bind");
 		
 		try
 		{
 			BufferedReader br=new BufferedReader(new FileReader("/etc/pwd"));
 			
-			password=br.readLine();
-			
+			password=br.readLine();			
 			br.close();
 			
 		}

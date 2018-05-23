@@ -1,5 +1,6 @@
 package rbccps.smartcity.IDEAM.registerapi.broker;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -18,8 +19,28 @@ public class broker {
 	static String _url ;
 	static String _value ;
 	static String response ;
+	static String password="";
 	
+	public static void readbrokerpassword()
+	{
+		try
+		{
+			BufferedReader br=new BufferedReader(new FileReader("/etc/rmqpwd"));
+			
+			password=br.readLine();
+			
+			br.close();
+			
+		}
+		catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+		}		
+	}
+
 	public static String createExchange(String resourceID){
+		
+		readbrokerpassword();
 
 		_url = URLs.getBrokerURL();
 		_value = resourceID;
@@ -45,8 +66,8 @@ public class broker {
 					// conn.setRequestProperty("X-Consumer-Username", RequestController.getX_Consumer_Custom_ID());
 					// conn.setRequestProperty("Apikey", RequestController.getApikey());
 
-					conn.setRequestProperty("X-Consumer-Username", "rbccps");
-					conn.setRequestProperty("Apikey", "rbccps@123");
+					conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
+					conn.setRequestProperty("Apikey", password);
 					
 					conn.setRequestMethod("POST");
 					conn.setRequestProperty("Content-Type",
@@ -114,8 +135,8 @@ public class broker {
 					// conn.setRequestProperty("X-Consumer-Username", RequestController.getX_Consumer_Custom_ID());
 					// conn.setRequestProperty("Apikey", RequestController.getApikey());
 
-					conn.setRequestProperty("X-Consumer-Username", "rbccps");
-					conn.setRequestProperty("Apikey", "rbccps@123");
+					conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
+					conn.setRequestProperty("Apikey", password);
 					
 					conn.setRequestMethod("POST");
 					conn.setRequestProperty("Content-Type",
@@ -179,8 +200,8 @@ public class broker {
 					// conn.setRequestProperty("X-Consumer-Username", RequestController.getX_Consumer_Custom_ID());
 					// conn.setRequestProperty("Apikey", RequestController.getApikey());
 
-					conn.setRequestProperty("X-Consumer-Username", "rbccps");
-					conn.setRequestProperty("Apikey", "rbccps@123");
+					conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
+					conn.setRequestProperty("Apikey", password);
 					
 					conn.setRequestMethod("POST");
 					conn.setRequestProperty("Content-Type",
@@ -243,6 +264,7 @@ public class broker {
 	
 	public static String bind(String name)
 	{
+		readbrokerpassword();
 		_url = URLs.getBrokerURL();
 		_value = name;
 		response = null;
@@ -265,8 +287,8 @@ public class broker {
 
 					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 					
-					conn.setRequestProperty("X-Consumer-Username", "rbccps");
-					conn.setRequestProperty("Apikey", "rbccps@123");
+					conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
+					conn.setRequestProperty("Apikey", password);
 					
 					conn.setRequestMethod("POST");
 					conn.setRequestProperty("Content-Type",
@@ -334,8 +356,8 @@ public class broker {
 					// conn.setRequestProperty("X-Consumer-Username", RequestController.getX_Consumer_Custom_ID());
 					// conn.setRequestProperty("Apikey", RequestController.getApikey());
 
-					conn.setRequestProperty("X-Consumer-Username", "rbccps");
-					conn.setRequestProperty("Apikey", "rbccps@123");
+					conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
+					conn.setRequestProperty("Apikey", password);
 					
 					conn.setRequestMethod("DELETE");
 					conn.setRequestProperty("Content-Type",
@@ -400,8 +422,8 @@ public class broker {
 					// conn.setRequestProperty("X-Consumer-Username", RequestController.getX_Consumer_Custom_ID());
 					// conn.setRequestProperty("Apikey", RequestController.getApikey());
 
-					conn.setRequestProperty("X-Consumer-Username", "rbccps");
-					conn.setRequestProperty("Apikey", "rbccps@123");
+					conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
+					conn.setRequestProperty("Apikey", password);
 					
 					conn.setRequestMethod("DELETE");
 					conn.setRequestProperty("Content-Type",
