@@ -1,4 +1,4 @@
-package rbccps.smartcity.IDEAM.registerapi;
+package rbccps.smartcity.IDEAM.redirecthomepage;
 
 import java.io.IOException;
 
@@ -21,8 +21,6 @@ public class RequestRedirect extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 
 	@GET
-	// public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{
-		
 	public void doGet(@Context HttpServletResponse response) throws IOException{
 		
 		System.out.println("++++++++++++++++++++++++++++++++++++++++++");
