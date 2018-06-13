@@ -1,10 +1,17 @@
-package rbccps.smartcity.IDEAM.followapi;
-
+package rbccps.smartcity.IDEAM.registerapi;
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.POST;
@@ -13,15 +20,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.json.simple.JSONObject;
 
 /**
  * Servlet implementation class follow
  */
-
 @Path("/follow")
-public class follow extends HttpServlet {
+public class RequestFollow extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	static JSONObject responseObj;
@@ -34,9 +39,18 @@ public class follow extends HttpServlet {
 	static String body;
 	
 	
+
+	@GET
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		response.getWriter().append("Served at: ").append(request.getContextPath());
+	}
+
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response followRequest(@Context HttpServletRequest request) {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+
 		
 		System.out.println("------------");
 		System.out.println(request.getRequestURI());
@@ -50,7 +64,6 @@ public class follow extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
 		}
 	
 	private void getHeaderInfo(HttpServletRequest request) {
@@ -112,5 +125,4 @@ public class follow extends HttpServlet {
 	    body = stringBuilder.toString();
 	    return body;
 	}
-
 }

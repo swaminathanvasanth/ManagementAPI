@@ -1,4 +1,4 @@
-package rbccps.smartcity.IDEAM.databaseapi;
+package rbccps.smartcity.IDEAM.registerapi;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -14,7 +14,7 @@ import javax.ws.rs.Path;
  */
 
 @Path("/database")
-public class database extends HttpServlet {
+public class RequestDatabase extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@GET

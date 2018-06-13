@@ -1,4 +1,4 @@
-package rbccps.smartcity.IDEAM.redirecthomepage;
+package rbccps.smartcity.IDEAM.registerapi;
 
 import java.io.IOException;
 
