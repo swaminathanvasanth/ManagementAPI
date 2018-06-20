@@ -85,9 +85,7 @@ public class Register {
 
 		URL url = new URL(kong_url+"/consumers/" + resourceID
 				+ "/key-auth");
-		// URL url = new URL("http://10.156.14.144:2959/consumers/" +_value +
-		// "/key-auth");
-		
+
         String key=genAPIKey(32);
         String urlParameters = "key="+key;
         System.out.println(key);
@@ -179,21 +177,7 @@ public class Register {
 		try {
 			        broker_url=URLs.getBrokerURL();
 					URL url = new URL(broker_url+"/queue");
-					
-					/*Map<String, Object> params = new LinkedHashMap<>();
-					params.put("name", _value);
-					
-					System.out.println("+++++++++++In createQueue try Block+++++++++++");
-					StringBuilder postData = new StringBuilder();for (Map.Entry<String, Object> param : params.entrySet()) {
-						if (postData.length() != 0)
-							postData.append('&');
-						postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
-						postData.append('=');
-						postData.append(URLEncoder.encode(
-								String.valueOf(param.getValue()), "UTF-8"));
-					}
-					*/
-					
+
 					String _postData;
 					_postData = "{\"name\": \""+ resourceID + "\"}";
 					

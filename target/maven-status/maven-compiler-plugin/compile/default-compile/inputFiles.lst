@@ -1,26 +1,49 @@
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/parser/externalServerValidator.java
+<<<<<<< HEAD
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/lora/loraserverConfigurationParser.java
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/parser/createEntityJSONParser.java
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/parser/deleteEntitySchemaParser.java
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/APIs/RequestController.java
+=======
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/RequestFollow.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/lora/loraserverConfigurationParser.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/parser/createEntityJSONParser.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/parser/deleteEntitySchemaParser.java
+>>>>>>> upstream/master
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/video/videoserverConfigurationFields.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/parser/deleteEntityJSONParser.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/video/videoServerConfiguration.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/video/videoserverConfigurationParser.java
+<<<<<<< HEAD
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/APIs/RequestFollow.java
+=======
+>>>>>>> upstream/master
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/catalog/uCat.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/kong/Register.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/deregister/Deregister.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/kong/apiGateway.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/urls/URLs.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/ldap/updateLDAP.java
+<<<<<<< HEAD
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/APIs/RequestShare.java
+=======
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/RequestRedirect.java
+>>>>>>> upstream/master
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/lora/loraserverConfigurationFields.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/ldap/addEntryToLDAP.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/lora/loraServerConfiguration.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/parser/createEntitySchemaParser.java
+<<<<<<< HEAD
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/broker/broker.java
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/APIs/RequestRedirect.java
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/parser/entity.java
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/ldap/LDAP.java
+/home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/APIs/RequestDatabase.java
+=======
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/RequestController.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/broker/broker.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/RequestDatabase.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/parser/entity.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/shareapi/share.java
 /home/vasanth/Work/Workspace/Java/ManagementAPI/src/rbccps/smartcity/IDEAM/registerapi/ldap/LDAP.java
+>>>>>>> upstream/master

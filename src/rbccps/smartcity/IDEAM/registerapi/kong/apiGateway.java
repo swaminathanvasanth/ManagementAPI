@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import rbccps.smartcity.IDEAM.APIs.RequestController;
 import rbccps.smartcity.IDEAM.registerapi.lora.loraserverConfigurationFields;
 import rbccps.smartcity.IDEAM.registerapi.parser.entity;
 import rbccps.smartcity.IDEAM.urls.URLs;
-import rbccps.smartcity.IDEAM.registerapi.RequestController;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;

@@ -1,4 +1,4 @@
-package rbccps.smartcity.IDEAM.registerapi;
+package rbccps.smartcity.IDEAM.APIs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import rbccps.smartcity.IDEAM.registerapi.parser.createEntityJSONParser;
 import rbccps.smartcity.IDEAM.registerapi.parser.entity;
 import rbccps.smartcity.IDEAM.registerapi.deregister.*;
 
-@Path("/newregister")
+@Path("/register")
 public class RequestController {
 
 	private static final createEntityJSONParser DeleteEntityJSONParser = null;

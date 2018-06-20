@@ -17,7 +17,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import rbccps.smartcity.IDEAM.registerapi.RequestController;
+import rbccps.smartcity.IDEAM.APIs.RequestController;
 import rbccps.smartcity.IDEAM.registerapi.parser.entity;
 import rbccps.smartcity.IDEAM.urls.URLs;
 

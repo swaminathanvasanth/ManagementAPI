@@ -1,8 +1,7 @@
-package rbccps.smartcity.IDEAM.shareapi;
+package rbccps.smartcity.IDEAM.APIs;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,12 +10,13 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 /**
- * Servlet implementation class share
+ * Servlet implementation class database
  */
-@Path("/share")
-public class share extends HttpServlet {
+
+@Path("/database")
+public class RequestDatabase extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-  
+
 	@GET
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -28,4 +28,5 @@ public class share extends HttpServlet {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
+
 }

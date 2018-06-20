@@ -11,7 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import rbccps.smartcity.IDEAM.registerapi.RequestController;
+import rbccps.smartcity.IDEAM.APIs.RequestController;
 import rbccps.smartcity.IDEAM.registerapi.broker.broker;
 import rbccps.smartcity.IDEAM.registerapi.catalog.uCat;
 import rbccps.smartcity.IDEAM.registerapi.kong.apiGateway;
@@ -222,8 +222,6 @@ public class createEntityJSONParser {
 		// Store entitySchema and ID in entity class for easy access.
 		entity.setEntitySchemaObject(_dataSchema);
 
-
-
 		try {
 			System.out.println(entity.getEntitySchemaObject());
 			System.out.println(entity.getEntityID().toString());
@@ -333,9 +331,10 @@ public class createEntityJSONParser {
 					broker.createExchange(ID + ".configure");
 					broker.createExchange(ID + ".follow");
 					System.out.println("+++++++++++Calling createDatabaseBinding Block+++++++++++");
-					broker.createDatabaseBinding(ID);
 					response_createQueue = broker.createQueue(ID);
 					response_createQueue = broker.createQueue(ID + ".follow");
+					broker.createBinding(ID, "database");
+					broker.createBinding(ID + ".follow", ID + ".follow");
 					
 				} else {
 					System.out.println("Its a videoCamera");

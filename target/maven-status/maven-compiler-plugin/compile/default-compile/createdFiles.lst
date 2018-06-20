@@ -1,3 +1,17 @@
+<<<<<<< HEAD
+rbccps/smartcity/IDEAM/registerapi/parser/externalServerValidator.class
+rbccps/smartcity/IDEAM/registerapi/parser/deleteEntitySchemaParser.class
+rbccps/smartcity/IDEAM/registerapi/parser/deleteEntityJSONParser.class
+rbccps/smartcity/IDEAM/urls/URLs.class
+rbccps/smartcity/IDEAM/registerapi/catalog/uCat$1.class
+rbccps/smartcity/IDEAM/APIs/RequestShare.class
+rbccps/smartcity/IDEAM/APIs/RequestFollow.class
+rbccps/smartcity/IDEAM/APIs/RequestDatabase.class
+rbccps/smartcity/IDEAM/registerapi/video/videoServerConfiguration$1.class
+rbccps/smartcity/IDEAM/registerapi/parser/entity.class
+rbccps/smartcity/IDEAM/registerapi/kong/Register.class
+rbccps/smartcity/IDEAM/APIs/RequestController.class
+=======
 rbccps/smartcity/IDEAM/registerapi/RequestDatabase.class
 rbccps/smartcity/IDEAM/registerapi/parser/externalServerValidator.class
 rbccps/smartcity/IDEAM/registerapi/parser/deleteEntitySchemaParser.class
@@ -8,21 +22,31 @@ rbccps/smartcity/IDEAM/registerapi/catalog/uCat$1.class
 rbccps/smartcity/IDEAM/registerapi/video/videoServerConfiguration$1.class
 rbccps/smartcity/IDEAM/registerapi/parser/entity.class
 rbccps/smartcity/IDEAM/registerapi/kong/Register.class
+>>>>>>> upstream/master
 rbccps/smartcity/IDEAM/registerapi/ldap/LDAP.class
 rbccps/smartcity/IDEAM/registerapi/lora/loraServerConfiguration.class
 rbccps/smartcity/IDEAM/registerapi/broker/broker.class
 rbccps/smartcity/IDEAM/registerapi/ldap/updateLDAP.class
 rbccps/smartcity/IDEAM/registerapi/deregister/Deregister.class
 rbccps/smartcity/IDEAM/registerapi/lora/loraServerConfiguration$1.class
+<<<<<<< HEAD
+=======
 rbccps/smartcity/IDEAM/registerapi/RequestController.class
+>>>>>>> upstream/master
 rbccps/smartcity/IDEAM/registerapi/ldap/addEntryToLDAP.class
 rbccps/smartcity/IDEAM/registerapi/catalog/uCat.class
 rbccps/smartcity/IDEAM/registerapi/lora/loraserverConfigurationParser.class
 rbccps/smartcity/IDEAM/registerapi/parser/createEntityJSONParser.class
+<<<<<<< HEAD
+rbccps/smartcity/IDEAM/APIs/RequestRedirect.class
+rbccps/smartcity/IDEAM/registerapi/video/videoserverConfigurationFields.class
+rbccps/smartcity/IDEAM/registerapi/lora/loraserverConfigurationFields.class
+=======
 rbccps/smartcity/IDEAM/registerapi/RequestFollow.class
 rbccps/smartcity/IDEAM/registerapi/video/videoserverConfigurationFields.class
 rbccps/smartcity/IDEAM/registerapi/lora/loraserverConfigurationFields.class
 rbccps/smartcity/IDEAM/registerapi/RequestRedirect.class
+>>>>>>> upstream/master
 rbccps/smartcity/IDEAM/registerapi/video/videoServerConfiguration.class
 rbccps/smartcity/IDEAM/registerapi/parser/createEntitySchemaParser.class
 rbccps/smartcity/IDEAM/registerapi/kong/apiGateway.class

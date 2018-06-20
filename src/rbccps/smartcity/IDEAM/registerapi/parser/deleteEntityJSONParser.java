@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import rbccps.smartcity.IDEAM.registerapi.RequestController;
+import rbccps.smartcity.IDEAM.APIs.RequestController;
 import rbccps.smartcity.IDEAM.registerapi.broker.broker;
 import rbccps.smartcity.IDEAM.registerapi.catalog.uCat;
 import rbccps.smartcity.IDEAM.registerapi.kong.apiGateway;
