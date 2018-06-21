@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-<<<<<<< HEAD
   <name>RegisterAPI</name>
   <comment>NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects/>
@@ -27,7 +26,6 @@
     <nature>org.eclipse.wst.jsdt.core.jsNature</nature>
   </natures>
 </projectDescription>
-=======
 	<name>ManagementAPI</name>
 	<comment></comment>
 	<projects>
@@ -63,4 +61,3 @@
 		<nature>org.eclipse.wst.jsdt.core.jsNature</nature>
 	</natures>
 </projectDescription>
->>>>>>> upstream/master

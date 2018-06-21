@@ -5,13 +5,12 @@
     <servlet-name>jersey-serlvet</servlet-name>
     <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
     <init-param>
-<<<<<<< HEAD
       <param-name>com.sun.jersey.spi.container.servlet.ServletContainer</param-name>
       <param-value>rbccps.smartcity.IDEAM.APIs</param-value>
-=======
+      <param-name>com.sun.jersey.spi.container.servlet.ServletContainer</param-name>
+      <param-value>rbccps.smartcity.IDEAM.APIs</param-value>
       <param-name>com.sun.jersey.config.property.packages</param-name>
       <param-value>rbccps.smartcity.IDEAM.registerapi</param-value>
->>>>>>> upstream/master
     </init-param>
     <init-param>
       <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
