@@ -7,10 +7,6 @@
     <init-param>
       <param-name>com.sun.jersey.spi.container.servlet.ServletContainer</param-name>
       <param-value>rbccps.smartcity.IDEAM.APIs</param-value>
-      <param-name>com.sun.jersey.spi.container.servlet.ServletContainer</param-name>
-      <param-value>rbccps.smartcity.IDEAM.APIs</param-value>
-      <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>rbccps.smartcity.IDEAM.registerapi</param-value>
     </init-param>
     <init-param>
       <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
