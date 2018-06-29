@@ -10,7 +10,7 @@ public class updateLDAP {
 		LDAP addEntryToLdap = new LDAP();
 		addEntryToLdap.readldappwd();
 		String addEntry_Response;
-		if (addEntryToLdap.addEntry(providerID, resourceID, apiKey)) {
+		if (addEntryToLdap.addRegistrationEntry(providerID, resourceID, apiKey)) {
 			System.out.println("entry creation completed");
 			addEntry_Response = "Success";
 			// Add a FLAG to process the Registration further

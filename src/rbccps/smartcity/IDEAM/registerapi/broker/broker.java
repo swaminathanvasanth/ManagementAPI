@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 public class broker {
 
 	static JsonObject response_jsonObject;
+	static JsonObject publish_jsonObject;
 
 	static String _url;
 	static String _value;
@@ -391,6 +392,7 @@ public class broker {
 
 		readbrokerpassword();
 
+		publish_jsonObject = new JsonObject();
 		_url = URLs.getBrokerURL();
 		_value = _entityID;
 		response = null;
@@ -406,10 +408,16 @@ public class broker {
 
 			// '{"exchange": "e1", "key": "bb", "deliverymode": 1, "priority": 99, "body":
 			// "hahaha"}'
+			
+			publish_jsonObject.addProperty("requestorID", _requestorID);
+			publish_jsonObject.addProperty("permission", _permission);
+			publish_jsonObject.addProperty("validity", _validity);
+			
+			System.out.println(publish_jsonObject.toString());
+			
 			_postData = "{\"exchange\":" + "\"" + _entityID + "\"" + "," 
 					+ "\"key\":" + "\"" + _entityID + "\"" + ","
-					+ "\"body\":" + "\"" + "Follow request sent by " + _requestorID
-					+ "with permission to " + _permission + " for duration " + _validity + "\"" + "}";
+					+ "\"body\":" + "\"" + publish_jsonObject.toString() +"\"" + "}";
 
 			System.out
 					.println("+++++++++++In publish message try Block+++++++++++" + "\n" + _postData.toString() + "\n");

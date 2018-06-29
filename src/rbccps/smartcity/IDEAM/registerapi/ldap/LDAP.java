@@ -71,7 +71,7 @@ public class LDAP {
 	}
 
 	// Attributes to be set for new entry creation
-	public boolean addEntry(String providerId, String userId, String apiKey) {
+	public boolean addRegistrationEntry(String providerId, String userId, String apiKey) {
 		boolean flag = false;
 
 		System.out.println(providerId + userId + apiKey);
@@ -270,7 +270,6 @@ public class LDAP {
 		brokerQueue_Follow_Name_Entry.put(oc);
 		brokerQueue_Follow_Name_Entry.put(queue_Follow_Name_read);
 		brokerQueue_Follow_Name_Entry.put(queue_Follow_Name_write);
-
 		
 		// Share
 
@@ -401,6 +400,65 @@ public class LDAP {
 			System.out.println("error: " + e.getMessage());
 			return flag;
 		}
+		return flag;
+	}
+	
+	// Attributes to be set for new entry creation
+	public boolean addShareEntry(String providerId, String userId, String read, String write, String validity) {
+		boolean flag = false;
+		System.out.println(providerId + " : " + userId + " : " + read + " : " + write  + " : " + validity);
+
+		readldappwd();
+		
+		// ObjectClass attributes
+		Attribute oc = new BasicAttribute("objectClass");
+		oc.add("broker");
+		oc.add("exchange");
+		oc.add("queue");
+		oc.add("share");
+		
+		// Share
+		brokerShareEntryDN = "description=share,description=broker," + "uid="
+				+ providerId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerShareEntry = new BasicAttributes();
+		Attribute shareread = new BasicAttribute("read", read);
+		Attribute sharewrite = new BasicAttribute("write", write);
+		Attribute sharevalidity = new BasicAttribute("validity", validity);
+	
+		brokerShareEntry.put(shareread);
+		brokerShareEntry.put(sharewrite);
+		brokerShareEntry.put(sharevalidity);
+
+		// Share (Name or ID) of requested user
+
+		brokerShare_Name_EntryDN = "description=" + userId
+				+ ",description=share,description=broker," + "uid=" + providerId
+				+ ",cn=devices,dc=smartcity";
+
+		Attributes brokerShare_Name_Entry = new BasicAttributes();
+		Attribute Share_Name_read = new BasicAttribute("read", read);
+		Attribute Share_Name_write = new BasicAttribute("write", write);
+		Attribute Share_Name_validity = new BasicAttribute("validity", validity);
+
+		brokerShare_Name_Entry.put(oc);
+		brokerShare_Name_Entry.put(Share_Name_read);
+		brokerShare_Name_Entry.put(Share_Name_write);
+		brokerShare_Name_Entry.put(Share_Name_validity);
+		
+		System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
+		
+		try {
+			dirContext.createSubcontext(brokerShare_Name_EntryDN,
+					brokerShare_Name_Entry);
+			flag = true;
+
+		} catch (Exception e) {
+			System.out.println("error: " + e.getMessage());
+			return flag;
+		}
+		
+		System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
 		return flag;
 	}
 
