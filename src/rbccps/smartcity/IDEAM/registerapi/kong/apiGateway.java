@@ -41,11 +41,11 @@ public class apiGateway {
 	static
 	{
 		bits=new HashMap<>();
-		bits.put(1, 11);
-		bits.put(2,22);
-		bits.put(3, 43);
-		bits.put(4, 86);
-		bits.put(5, 172);
+		bits.put(1, 6);
+		bits.put(2,11);
+		bits.put(3, 22);
+		bits.put(4, 43);
+		bits.put(5, 86);
 	}
 	
 	public static String createUser(String resourceID) {

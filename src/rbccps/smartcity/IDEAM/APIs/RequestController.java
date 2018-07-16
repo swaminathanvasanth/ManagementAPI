@@ -128,16 +128,16 @@ public class RequestController {
 		System.out.println("------------HEADERS----------------");
 		
 		authorization = request.getHeader("authorization");
-		System.out.println(authorization);
+		System.out.println("Authorisation="+authorization);
 		
 		X_Consumer_Custom_ID = request.getHeader("X-Consumer-Custom-ID");
-		System.out.println(X_Consumer_Custom_ID);
+		System.out.println("Custom ID="+X_Consumer_Custom_ID);
 		
 		X_Consumer_Username = request.getHeader("X-Consumer-Username");
-		System.out.println(X_Consumer_Username);
+		System.out.println("Username="+X_Consumer_Username);
 		
 		apikey = request.getHeader("apikey");
-		System.out.println(apikey);
+		System.out.println("Apikey="+apikey);
 		
 		try
 		{

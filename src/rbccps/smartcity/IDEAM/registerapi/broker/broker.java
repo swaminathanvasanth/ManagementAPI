@@ -184,7 +184,7 @@ public class broker {
 			response += bind(resourceID + ".protected", queueID);
 			response += bind(resourceID + ".public", queueID);
 		} else if (queueID.contains("follow")) {
-			response += bind(resourceID + ".follow", queueID);
+			response += bind(resourceID , queueID);
 		}
 
 		if (response.contains("Cannot create Queue"))
