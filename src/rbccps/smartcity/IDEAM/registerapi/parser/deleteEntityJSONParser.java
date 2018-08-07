@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import rbccps.smartcity.IDEAM.APIs.RequestController;
+import rbccps.smartcity.IDEAM.APIs.RequestRegister;
 import rbccps.smartcity.IDEAM.registerapi.broker.broker;
 import rbccps.smartcity.IDEAM.registerapi.catalog.uCat;
 import rbccps.smartcity.IDEAM.registerapi.kong.apiGateway;
@@ -42,7 +42,7 @@ public class deleteEntityJSONParser {
 		String response_deleteLDAPEntry = null;
 		String response_deleteCat = null;
 
-		RequestController controller = new RequestController();
+		RequestRegister controller = new RequestRegister();
 		String json = controller.getBody();
 		
 		deleteEntitySchemaParser _deleteEntitySchemaParser = new deleteEntitySchemaParser();
@@ -118,7 +118,7 @@ public class deleteEntityJSONParser {
 					ID = ID.replaceAll("^\"|\"$", "");
 					System.out.println(ID);
 					
-					response_deleteLDAPEntry = updateLDAP.deleteEntry(RequestController.getX_Consumer_Custom_ID(),
+					response_deleteLDAPEntry = updateLDAP.deleteEntry(RequestRegister.getX_Consumer_Custom_ID(),
 							ID.toString(), entity.getEntityapikey().toString());
 					
 					/*

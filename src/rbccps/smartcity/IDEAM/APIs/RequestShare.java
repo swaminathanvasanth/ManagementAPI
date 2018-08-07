@@ -4,24 +4,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 
 import org.json.simple.JSONObject;
 
@@ -31,7 +22,6 @@ import com.google.gson.JsonParser;
 
 import rbccps.smartcity.IDEAM.registerapi.ldap.LDAP;
 
-@Path("/share")
 public class RequestShare extends HttpServlet{
 	
 	/**
@@ -73,8 +63,8 @@ public class RequestShare extends HttpServlet{
 	
 	static String temp = null;
 
-	@GET
-	public void doGet(@Context HttpServletResponse response) throws IOException{
+	@Override
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		
 		System.out.println("++++++++++++++++++++++++++++++++++++++++++");
 		System.out.println("In RequestRedirect");
@@ -83,9 +73,8 @@ public class RequestShare extends HttpServlet{
 		return;
 }
 	
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	public void doPost(@Context HttpServletRequest request, @Context HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
 		System.out.println("------------");
@@ -103,7 +92,7 @@ public class RequestShare extends HttpServlet{
 		}
 		}
 
-	private void getHeaderInfo(@Context HttpServletRequest request) {
+	private void getHeaderInfo(HttpServletRequest request) {
 		// TODO Auto-generated method stub
 		System.out.println("In Request Header");
 		
@@ -126,7 +115,7 @@ public class RequestShare extends HttpServlet{
 		System.out.println("------------HEADERS----------------");
 	}
 
-	private String getBody(@Context HttpServletRequest request) throws IOException {
+	private String getBody(HttpServletRequest request) throws IOException {
 		// TODO Auto-generated method stub
 		
 		System.out.println("In Request Body");

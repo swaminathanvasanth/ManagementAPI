@@ -8,7 +8,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import rbccps.smartcity.IDEAM.APIs.RequestController;
+import rbccps.smartcity.IDEAM.APIs.RequestRegister;
 import rbccps.smartcity.IDEAM.urls.URLs;
 
 import com.google.gson.JsonObject;
@@ -45,8 +45,7 @@ public class broker {
 		_value = resourceID;
 		response = null;
 		System.out.println("+++++++++++In createExchange Block+++++++++++");
-		// curl -i -X POST http://127.0.0.1:8080/exchange -d \
-		// '{"name": "e1", "type": "topic", "durable": true, "autodelete": false}'
+
 		try {
 			URL url = new URL(_url + "/exchange"); // RabbitMQ Docker
 			String _postData;
@@ -62,10 +61,6 @@ public class broker {
 			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			// conn.setRequestProperty("X-Consumer-Username",
-			// RequestController.getX_Consumer_Custom_ID());
-			// conn.setRequestProperty("Apikey", RequestController.getApikey());
 
 			conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
 			conn.setRequestProperty("Apikey", password);
@@ -129,10 +124,6 @@ public class broker {
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-			// conn.setRequestProperty("X-Consumer-Username",
-			// RequestController.getX_Consumer_Custom_ID());
-			// conn.setRequestProperty("Apikey", RequestController.getApikey());
-
 			conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
 			conn.setRequestProperty("Apikey", password);
 
@@ -175,18 +166,8 @@ public class broker {
 		System.out.println("+++++++++++In createDatabaseBinding Block+++++++++++");
 
 		String response = "";
-
-		if (queueID.contains("database")) {
-			response = bind(resourceID, queueID);
-			response += bind(resourceID + ".configure", queueID);
-			response += bind(resourceID + ".follow", queueID);
-			response += bind(resourceID + ".private", queueID);
-			response += bind(resourceID + ".protected", queueID);
-			response += bind(resourceID + ".public", queueID);
-		} else if (queueID.contains("follow")) {
-			response += bind(resourceID , queueID);
-		}
-
+		response = bind(resourceID, queueID);
+		
 		if (response.contains("Cannot create Queue"))
 			return "Failed to bind exchange to DB queue";
 		else
@@ -262,8 +243,7 @@ public class broker {
 		_value = resourceID;
 		response = null;
 		System.out.println("+++++++++++In createExchange Block+++++++++++");
-		// curl -i -X POST http://127.0.0.1:8080/exchange -d \
-		// '{"name": "e1", "type": "topic", "durable": true, "autodelete": false}'
+
 		try {
 			URL url = new URL(_url + "/exchange"); // RabbitMQ Docker
 			String _postData;
@@ -279,10 +259,6 @@ public class broker {
 			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			// conn.setRequestProperty("X-Consumer-Username",
-			// RequestController.getX_Consumer_Custom_ID());
-			// conn.setRequestProperty("Apikey", RequestController.getApikey());
 
 			conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
 			conn.setRequestProperty("Apikey", password);
@@ -343,10 +319,6 @@ public class broker {
 			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			// conn.setRequestProperty("X-Consumer-Username",
-			// RequestController.getX_Consumer_Custom_ID());
-			// conn.setRequestProperty("Apikey", RequestController.getApikey());
 
 			conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
 			conn.setRequestProperty("Apikey", password);

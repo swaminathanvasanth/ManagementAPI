@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import rbccps.smartcity.IDEAM.APIs.RequestController;
+import rbccps.smartcity.IDEAM.APIs.RequestRegister;
 import rbccps.smartcity.IDEAM.registerapi.lora.loraserverConfigurationFields;
 import rbccps.smartcity.IDEAM.registerapi.parser.entity;
 import rbccps.smartcity.IDEAM.urls.URLs;
@@ -210,7 +210,7 @@ public class apiGateway {
 		// TODO Auto-generated method stub
 		URL url = null;
 		String response = null;
-		security_level=RequestController.getSecurityLevel();
+		security_level=RequestRegister.getSecurityLevel();
 		
 		if(Integer.parseInt(security_level)>5)
 			return "Security level must be between 1-5";

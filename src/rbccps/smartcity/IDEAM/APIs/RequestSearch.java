@@ -5,25 +5,26 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 
 /**
- * Servlet implementation class database
+ * Servlet implementation class search
  */
 
-@Path("/database")
-public class RequestDatabase extends HttpServlet {
+
+public class RequestSearch extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	@GET
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		
+		System.out.println("++++++++++++++++++++++++++++++++++++++++++");
+		System.out.println("In RequestRedirect");
+		System.out.println("++++++++++++++++++++++++++++++++++++++++++");
+		response.sendRedirect("http://rbccps.org/smartcity/");
+		return;
 	}
 
-	@POST
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
