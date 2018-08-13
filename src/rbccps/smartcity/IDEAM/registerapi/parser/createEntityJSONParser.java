@@ -359,7 +359,7 @@ public class createEntityJSONParser {
 				response.addProperty("Reason",
 						"Failed in adding ID into the ACL");
 			}
-			if (response_createQueue.contains("Declare")) {
+			if (response_createQueue.contains("Created")) { 
 
 				System.out.println("LDAP for LoRa and IPDevice");
 				System.out.println(ID);

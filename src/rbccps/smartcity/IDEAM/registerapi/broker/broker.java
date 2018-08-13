@@ -62,7 +62,7 @@ public class broker {
 			connection = factory.newConnection();
 			channel = connection.createChannel();
 			channel.exchangeDeclare(resourceID, "topic",true);
-			response="Created Exchange"+resourceID;
+			response="Created Exchange "+resourceID;  
 			connection.close();
 		}
 		catch(Exception e)
@@ -96,7 +96,7 @@ public class broker {
 			channel = connection.createChannel();
 			
 			channel.queueDeclare(resourceID, true, false, false, null);
-			response="Created Queue"+resourceID;
+			response="Created Queue "+resourceID;
 			connection.close();
 		}
 			
@@ -132,7 +132,7 @@ public class broker {
 			channel = connection.createChannel();
 			
 			channel.queueBind(queueID, resourceID, "#");
-			response="Bind queue OK";
+			response="Bind queue OK"; 
 			connection .close();
 		}
 			
