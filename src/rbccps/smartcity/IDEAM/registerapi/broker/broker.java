@@ -7,11 +7,15 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.TimeoutException;
 
 import rbccps.smartcity.IDEAM.APIs.RequestRegister;
 import rbccps.smartcity.IDEAM.urls.URLs;
 
 import com.google.gson.JsonObject;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 
 public class broker {
 
@@ -40,201 +44,103 @@ public class broker {
 	public static String createExchange(String resourceID) {
 
 		readbrokerpassword();
-
-		_url = URLs.getBrokerURL();
-		_value = resourceID;
 		response = null;
 		System.out.println("+++++++++++In createExchange Block+++++++++++");
 
+		Connection connection;
+		Channel channel;
+		ConnectionFactory factory = new ConnectionFactory();
+			
+		factory.setUsername("admin.ideam");
+		factory.setPassword(password);
+		factory.setVirtualHost("/");
+		factory.setHost("rabbitmq");
+		factory.setPort(5672);
+		
+		
 		try {
-			URL url = new URL(_url + "/exchange"); // RabbitMQ Docker
-			String _postData;
-			System.out.println(resourceID);
-
-			// Create a structured JSON as per the Broker requirement
-
-			_postData = "{\"name\":" + "\"" + resourceID + "\"" + ","
-					+ "\"type\":\"topic\",\"durable\": true, \"autodelete\": false}";
-
-			System.out.println("+++++++++++In createQueue try Block+++++++++++" + "\n" + _postData.toString() + "\n");
-
-			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
-
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
-			conn.setRequestProperty("Apikey", password);
-
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-			conn.setDoOutput(true);
-			conn.getOutputStream().write(postDataBytes);
-			Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-			StringBuilder sb = new StringBuilder();
-			for (int c; (c = in.read()) >= 0;)
-				sb.append((char) c);
-			response = sb.toString();
-			System.out.println(response);
-			System.out.println("In Exchange Creation");
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-
-			response_jsonObject = new JsonObject();
-			response_jsonObject.addProperty("Registration", "failure");
-			response_jsonObject.addProperty("Reason", "Cannot create Exchange.");
-
-			System.out.println("--------------");
-			System.out.println(response_jsonObject.toString());
-			System.out.println("--------------");
-
-			System.out.println("+++++++++++In createExchange catch Block+++++++++++" + e.toString());
-			response = response_jsonObject.toString();
-
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			channel.exchangeDeclare(resourceID, "topic",true);
+			response="Created Exchange"+resourceID;
+			connection.close();
 		}
-		return response;
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 
-		// Add a FLAG to process the Registration further
+		
+		return response;
 
 	}
 
 	public static String createQueue(String resourceID) {
-
-		_url = URLs.getBrokerURL();
-		_value = resourceID;
+		
 		response = null;
 		System.out.println("+++++++++++In createQueue Block+++++++++++");
 
-		try {
-			URL url = new URL(_url + "/queue"); // RabbitMQ Docker
-			String _postData;
-			System.out.println(resourceID);
-
-			// Create a structured JSON as per the Broker requirement
-
-			// _postData = "{\"name\":" + "\""+ resourceID + "\""+ "}";
-
-			_postData = "{\"name\":" + "\"" + resourceID + "\"" + "," + "\"durable\": true, \"autodelete\": false}";
-
-			System.out.println("+++++++++++In createQueue try Block+++++++++++" + "\n" + _postData.toString() + "\n");
-
-			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
-
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
-			conn.setRequestProperty("Apikey", password);
-
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-			conn.setDoOutput(true);
-			conn.getOutputStream().write(postDataBytes);
-			Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-			StringBuilder sb = new StringBuilder();
-			for (int c; (c = in.read()) >= 0;)
-				sb.append((char) c);
-			response = sb.toString();
-			System.out.println(response);
-			System.out.println("In Queue Creation");
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		Connection connection;
+		Channel channel;
+		ConnectionFactory factory = new ConnectionFactory();
+			
+		factory.setUsername("admin.ideam");
+		factory.setPassword(password);
+		factory.setVirtualHost("/");
+		factory.setHost("rabbitmq");
+		factory.setPort(5672);
+			
+		try
+		{
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			
+			channel.queueDeclare(resourceID, true, false, false, null);
+			response="Created Queue"+resourceID;
+			connection.close();
+		}
+			
+		catch(Exception e)
+		{
 			e.printStackTrace();
-
-			response_jsonObject = new JsonObject();
-			response_jsonObject.addProperty("Registration", "failure");
-			response_jsonObject.addProperty("Reason", "Cannot create Queue.");
-
-			System.out.println("--------------");
-			System.out.println(response_jsonObject.toString());
-			System.out.println("--------------");
-			System.out.println("+++++++++++In createQueue catch Block+++++++++++" + e.toString());
-			response = response_jsonObject.toString();
-
 		}
 		return response;
-
-		// Add a FLAG to process the Registration further
 
 	}
 
 	public static String createBinding(String resourceID, String queueID) {
 
-		System.out.println("+++++++++++In createDatabaseBinding Block+++++++++++");
+		System.out.println("+++++++++++In createBinding Block+++++++++++");
 
 		String response = "";
-		response = bind(resourceID, queueID);
 		
-		if (response.contains("Cannot create Queue"))
-			return "Failed to bind exchange to DB queue";
-		else
-			return "Bind to DB queue successful";
-	}
-
-	public static String bind(String resourceID, String queueID) {
-		readbrokerpassword();
-		_url = URLs.getBrokerURL();
-		_value = resourceID;
 		response = null;
-		System.out.println("+++++++++++In createQueue Block+++++++++++");
 
-		try {
-			URL url = new URL(_url + "/queue/bind"); // RabbitMQ Docker
-			String _postData;
-			System.out.println(resourceID);
-			System.out.println(url.toString());
-
-			// Create a structured JSON as per the Broker requirement
-
-			_postData = "{\"exchange\":" + "\"" + resourceID + "\"" + "," + "\"key\":" + "[\"#\"]" + ",\"queue\":"
-					+ "\"" + queueID + "\"" + "}";
-
-			System.out.println("+++++++++++In createQueue try Block+++++++++++" + "\n" + _postData.toString() + "\n");
-
-			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
-
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
-			conn.setRequestProperty("Apikey", password);
-
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-			conn.setDoOutput(true);
-			conn.getOutputStream().write(postDataBytes);
-
-			System.out.println(conn.toString());
-
-			Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-			StringBuilder sb = new StringBuilder();
-			for (int c; (c = in.read()) >= 0;)
-				sb.append((char) c);
-			response = sb.toString();
-			System.out.println(response);
-			System.out.println("In Bind Queue");
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		Connection connection;
+		Channel channel;
+		ConnectionFactory factory = new ConnectionFactory();
+			
+		factory.setUsername("admin.ideam");
+		factory.setPassword(password);
+		factory.setVirtualHost("/");
+		factory.setHost("rabbitmq");
+		factory.setPort(5672);
+			
+		try
+		{
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			
+			channel.queueBind(queueID, resourceID, "#");
+			response="Bind queue OK";
+			connection .close();
+		}
+			
+		catch(Exception e)
+		{
 			e.printStackTrace();
-
-			response_jsonObject = new JsonObject();
-			response_jsonObject.addProperty("Registration", "failure");
-			response_jsonObject.addProperty("Reason", "Cannot create Queue.");
-
-			System.out.println("--------------");
-			System.out.println(response_jsonObject.toString());
-			System.out.println("--------------");
-
-			System.out.println("+++++++++++In createQueue catch Block+++++++++++" + e.toString());
-			response = response_jsonObject.toString();
-
 		}
 		return response;
-
 	}
 
 	public static String deleteExchange(String resourceID) {

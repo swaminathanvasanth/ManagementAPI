@@ -3,7 +3,7 @@ package rbccps.smartcity.IDEAM.urls;
 public class URLs {
 
 
-	  public static String brokerURL = "http://rabbitmq:8000"; 
+	  public static String brokerURL = "http://webserver:8080"; 
 	  public static String apiGatewayURL = "http://kong:8001"; 
 	  public static String uCatURL = "http://catalogue:8000/cat"; 
 	  public static String mCatURL; 
