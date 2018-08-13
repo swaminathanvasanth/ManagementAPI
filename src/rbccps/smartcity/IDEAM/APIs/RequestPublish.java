@@ -2,11 +2,15 @@ package rbccps.smartcity.IDEAM.APIs;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
@@ -20,16 +24,15 @@ public class RequestPublish extends HttpServlet {
 	static String apikey;
 	static String body;
 	static PrintWriter out;
-	static Map<String,Channel> pool=new ConcurrentHashMap<String,Channel>();
+	
+	static ExecutorService executor=Executors.newSingleThreadExecutor();
 	static int STATUS_OK = 200;
 	
-	Connection connection = null;
-	Channel channel = null;
-	ConnectionFactory factory = null;
 	String[] requestURI;
 	String exchange;
 	String routingKey;
 	String token;
+	publish pub=new publish();
 	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -41,23 +44,74 @@ public class RequestPublish extends HttpServlet {
 		exchange = requestURI[1];
 		routingKey = requestURI[2];
 		token=X_Consumer_Username+":"+apikey;
+		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+		pub.token=token;
+		pub.body=body;
+		pub.exchange=exchange;
+		pub.key=routingKey;
+		out = response.getWriter();
+		response.setStatus(STATUS_OK);
+		
+		executor.execute(pub);
+		
+}
+}
 
+class publish implements Runnable
+{
+	String exchange,key,body,token;
+	
+	static Map<String,Channel> pool=new ConcurrentHashMap<String,Channel>();
+	
+	Connection connection = null;
+	Channel channel = null;
+	ConnectionFactory factory = null;
+	
+	publish()
+	{
+		this.exchange="";
+		this.key="";
+		this.body="";
+		this.token="";
+	}
+	
+	publish(String exchange,String key,String body,String token)
+	{
+		this.exchange=exchange;
+		this.key=key;
+		this.body=body;
+		this.token=token;
+	}
+
+	@Override
+	public void run() 
+	{
 		if(!pool.containsKey(token))
 		{
 			factory = new ConnectionFactory();
-			factory.setUsername(X_Consumer_Username);
-			factory.setPassword(apikey);
+			factory.setUsername(token.split(":")[0]);
+			factory.setPassword(token.split(":")[1]);
 			factory.setVirtualHost("/");
 			factory.setHost("127.0.0.1");
 			factory.setPort(12082);
 
-			try {
+			try 
+			{
 				connection = factory.newConnection();
-			} catch (TimeoutException e) {
-				// TODO Auto-generated catch block
+			} 
+			catch (Exception e) 
+			{
 				e.printStackTrace();
 			}
-			channel = connection.createChannel();
+			
+			try 
+			{
+				channel = connection.createChannel();
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
 			pool.put(token, channel);		
 		}
 		else
@@ -65,29 +119,48 @@ public class RequestPublish extends HttpServlet {
 			if(!pool.get(token).isOpen())
 			{
 				factory = new ConnectionFactory();
-				factory.setUsername(X_Consumer_Username);
-				factory.setPassword(apikey);
+				factory.setUsername(token.split(":")[0]);
+				factory.setPassword(token.split(":")[1]);
 				factory.setVirtualHost("/");
 				factory.setHost("127.0.0.1");
 				factory.setPort(12082);
 
-				try {
+				try 
+				{
 					connection = factory.newConnection();
-				} catch (TimeoutException e) {
-					// TODO Auto-generated catch block
+				} 
+				catch (Exception e) 
+				{
 					e.printStackTrace();
 				}
-				channel = connection.createChannel();
+				
+				try 
+				{
+					channel = connection.createChannel();
+				} 
+				catch (IOException e) 
+				{
+					e.printStackTrace();
+				}
+				
 				pool.replace(token, channel);		
 			}
 		}
 
-		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-		pool.get(token).basicPublish(exchange, routingKey, null, body.getBytes("UTF-8"));
 		
-		out = response.getWriter();
-		response.setStatus(STATUS_OK);
-		response.setContentType("application/json");
-		out.print("Publish Sent");
+		try 
+		{
+			pool.get(token).basicPublish(exchange, key, null, body.getBytes("UTF-8"));
+		} 
+		catch (UnsupportedEncodingException e) 
+		{
+			e.printStackTrace();
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+		
 	}
+	
 }

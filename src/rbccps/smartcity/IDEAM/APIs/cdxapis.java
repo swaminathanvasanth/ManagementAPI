@@ -36,7 +36,7 @@ public class cdxapis {
 			e.printStackTrace();
 		}
 		
-		Undertow server = Undertow.builder().addHttpListener(8080, "0.0.0.0").setHandler(path).build();
+		Undertow server = Undertow.builder().addHttpListener(8888, "0.0.0.0").setHandler(path).build();
 		server.start();
 	}
 }
