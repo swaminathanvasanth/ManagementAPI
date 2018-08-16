@@ -133,6 +133,7 @@ public class broker {
 			
 			channel.queueBind(queueID, resourceID, "#");
 			response="Bind queue OK"; 
+			System.out.println("Bound "+resourceID+" to "+queueID);
 			connection .close();
 		}
 			

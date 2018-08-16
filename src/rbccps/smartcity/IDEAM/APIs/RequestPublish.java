@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -36,14 +35,29 @@ public class RequestPublish extends HttpServlet {
 	publish pub=new publish();
 	
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
 
 		requestURI = request.getPathInfo().toString().split("/");
 		X_Consumer_Username = request.getHeader("X-Consumer-Username");
 		apikey = request.getHeader("apikey");
 		exchange = requestURI[1];
-		routingKey = requestURI[2];
+		
+		String routingKey;
+		
+		try
+		{
+			routingKey=request.getHeader("routingKey");
+		}
+		catch(Exception e)
+		{
+			System.out.println("Routing key not specified");
+		}
+		finally
+		{
+			routingKey="#";
+		}
+		
 		token=X_Consumer_Username+":"+apikey;
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		pub.token=token;
@@ -55,7 +69,7 @@ public class RequestPublish extends HttpServlet {
 		
 		executor.execute(pub);
 		
-}
+	}
 }
 
 class publish implements Runnable
@@ -123,8 +137,8 @@ class publish implements Runnable
 				factory.setUsername(token.split(":")[0]);
 				factory.setPassword(token.split(":")[1]);
 				factory.setVirtualHost("/");
-				factory.setHost("127.0.0.1");
-				factory.setPort(12082);
+				factory.setHost("rabbitmq");
+				factory.setPort(5672);
 
 				try 
 				{

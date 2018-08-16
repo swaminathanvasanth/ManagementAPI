@@ -25,6 +25,10 @@ public class cdxapis {
 		servletBuilder.addServlets(Servlets.servlet("search", new RequestSearch().getClass()).addMapping("/search"));
 		servletBuilder.addServlets(Servlets.servlet("register", new RequestRegister().getClass()).addMapping("/register"));
 		servletBuilder.addServlets(Servlets.servlet("publish", new RequestPublish().getClass()).addMapping("/publish/*"));
+		servletBuilder.addServlets(Servlets.servlet("subscribe", new RequestSubscribe().getClass()).addMapping("/subscribe/*"));
+		servletBuilder.addServlets(Servlets.servlet("bind", new RequestBind().getClass()).addMapping("/bind/*"));
+		servletBuilder.addServlets(Servlets.servlet("exchange", new RequestExchange().getClass()).addMapping("/exchange/*"));
+		servletBuilder.addServlets(Servlets.servlet("queue", new RequestQueue().getClass()).addMapping("/queue/*"));
 		
 		manager = Servlets.defaultContainer().addDeployment(servletBuilder);
 		manager.deploy();
