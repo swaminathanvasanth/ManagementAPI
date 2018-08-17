@@ -43,14 +43,19 @@ public class RequestPublish extends HttpServlet {
 		apikey = request.getHeader("apikey");
 		exchange = requestURI[1];
 		
+		String routingKey;
+	
 		try
 		{
 			routingKey=request.getHeader("routingKey");
 		}
 		catch(Exception e)
 		{
+
+		}
+		finally
+		{
 			routingKey="#";
-			
 		}
 		
 		token=X_Consumer_Username+":"+apikey;
@@ -108,20 +113,13 @@ class publish implements Runnable
 			try 
 			{
 				connection = factory.newConnection();
+				channel = connection.createChannel();
 			} 
 			catch (Exception e) 
 			{
 				e.printStackTrace();
 			}
 			
-			try 
-			{
-				channel = connection.createChannel();
-			} 
-			catch (IOException e) 
-			{
-				e.printStackTrace();
-			}
 			pool.put(token, channel);		
 		}
 		else
@@ -138,17 +136,9 @@ class publish implements Runnable
 				try 
 				{
 					connection = factory.newConnection();
-				} 
-				catch (Exception e) 
-				{
-					e.printStackTrace();
-				}
-				
-				try 
-				{
 					channel = connection.createChannel();
 				} 
-				catch (IOException e) 
+				catch (Exception e) 
 				{
 					e.printStackTrace();
 				}
@@ -162,11 +152,7 @@ class publish implements Runnable
 		{
 			pool.get(token).basicPublish(exchange, key, null, body.getBytes("UTF-8"));
 		} 
-		catch (UnsupportedEncodingException e) 
-		{
-			e.printStackTrace();
-		} 
-		catch (IOException e) 
+		catch (Exception e) 
 		{
 			e.printStackTrace();
 		}

@@ -35,13 +35,13 @@ public class RequestQueue extends HttpServlet
 			channel = connection.createChannel();
 			channel.queueDeclare(queue, true, false, false, null);
 			connection.close();
+			response.getWriter().println("Created Queue "+queue);
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
+			response.getWriter().println("Error creating queue "+queue);
 		}
-		
-		response.getWriter().println("Created Queue "+queue);
 	}
 	
 	@Override
@@ -67,14 +67,12 @@ public class RequestQueue extends HttpServlet
 			channel = connection.createChannel();
 			channel.queueDelete(queue);
 			connection.close();
+			response.getWriter().println("Deleted Queue "+queue);
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
+			response.getWriter().println("Error deleting queue "+queue);
 		}
-		
-		response.getWriter().println("Deleted Queue "+queue);
 	}
-	
-	
 }

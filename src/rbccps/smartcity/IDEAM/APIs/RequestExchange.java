@@ -35,13 +35,14 @@ public class RequestExchange extends HttpServlet
 			channel = connection.createChannel();
 			channel.exchangeDeclare(exchange, "topic");
 			connection.close();
+			response.getWriter().println("Created Exchange "+exchange);
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
+			response.getWriter().println("Error creating exchange");
 		}
-		
-		response.getWriter().println("Created Exchange "+exchange);
+	
 	}
 	
 	@Override
@@ -67,12 +68,12 @@ public class RequestExchange extends HttpServlet
 			channel = connection.createChannel();
 			channel.exchangeDelete(exchange);
 			connection.close();
-		}
+			response.getWriter().println("Deleted Exchange "+exchange);
+    }
 		catch(Exception e)
 		{
 			e.printStackTrace();
+			response.getWriter().println("Error deleting exchange");
 		}
-		
-		response.getWriter().println("Deleted Exchange "+exchange);
 	}
 }

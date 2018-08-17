@@ -1,6 +1,9 @@
 package rbccps.smartcity.IDEAM.APIs;
 
 import java.io.IOException;
+
+import java.io.StringWriter;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
@@ -8,10 +11,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
+
+import org.json.simple.parser.ParseException;
+import org.json.simple.parser.JSONParser;
 
 public class RequestSubscribe extends HttpServlet 
 {
@@ -48,6 +61,9 @@ public class RequestSubscribe extends HttpServlet
 	        ArrayList<String> list=new ArrayList<String>();
 	        
 	        GetResponse resp=null;
+
+	        JSONArray res=new JSONArray();
+	        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			
 			while(count<=num)
 			{
@@ -64,12 +80,30 @@ public class RequestSubscribe extends HttpServlet
 				 
 				 else
 				 {
-					 byte[] message = resp.getBody();
-					 list.add(new String(message,StandardCharsets.UTF_8));
+
+					 byte[] body = resp.getBody();
+					 String data=new String(body,StandardCharsets.UTF_8);
+					 JSONParser parser = new JSONParser();
+					 JSONObject obj = new JSONObject();
+					 JSONObject message=null;
+					 
+					 try 
+					 {
+						message=(JSONObject)parser.parse(data);
+					 } 
+					 catch (Exception e) 
+					 {
+						e.printStackTrace();
+					 }
+					 obj.put("data", message);
+					 obj.put("datasource", resp.getEnvelope().getExchange());
+					 obj.put("datatype", resp.getEnvelope().getRoutingKey());
+		
+					 res.add(obj);
 					 count++;
 				 }
 			}
-			
-			response.getWriter().println(list.toString());
+			response.getWriter().println(gson.toJson(res));
+
 	}
 }
