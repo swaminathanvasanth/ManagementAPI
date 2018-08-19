@@ -26,6 +26,7 @@ public class uCat {
 	
 	static String _url;
 	static String response = null;
+	static  int responseCode ;
 	
 	static TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
 
@@ -44,7 +45,7 @@ public class uCat {
 		}
 	} };
 
-	public static String postCat(String _dataSchema){
+	public static int postCat(String _dataSchema){
 
 		System.out.println("+++++++++++In on-board uCat Block+++++++++++");
 		
@@ -72,7 +73,8 @@ public class uCat {
 					String.valueOf(postDataBytes.length));
 			
 			conn.setDoOutput(true);
-            conn.getOutputStream().write(postDataBytes);			
+            conn.getOutputStream().write(postDataBytes);
+            responseCode = conn.getResponseCode();
             Reader in = new BufferedReader(new InputStreamReader(
 					conn.getInputStream(), "UTF-8"));
 			StringBuilder sb = new StringBuilder();
@@ -80,6 +82,7 @@ public class uCat {
 				sb.append((char) c);
 			response = sb.toString();
 			System.out.println(response);
+			System.out.println(responseCode);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -89,7 +92,7 @@ public class uCat {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} return response; 
+		} return responseCode; 
 	}
 
 	

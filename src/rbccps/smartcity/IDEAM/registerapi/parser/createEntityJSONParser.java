@@ -42,7 +42,7 @@ public class createEntityJSONParser {
 	static String response_assignwhitelist = null;
 	static String response_createQueue = null;
 	static String response_updateLDAPEntry = null;
-	static String response_updateCat = null;
+	static int response_updateCat = 0;
 	static RequestRegister controller;
 	static String json;
 
@@ -416,7 +416,7 @@ public class createEntityJSONParser {
 				response.addProperty("Reason", "LDAP update Failure");
 			}
 
-			if (response_updateCat != null) {
+			if (response_updateCat == 201) {
 				response.addProperty("Registration", "success");
 				response.addProperty("entityID", ID);
 				response.addProperty("apiKey", apiKey);
