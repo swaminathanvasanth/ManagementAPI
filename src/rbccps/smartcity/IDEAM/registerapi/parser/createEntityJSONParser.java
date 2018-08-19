@@ -61,6 +61,7 @@ public class createEntityJSONParser {
 	static JsonObject jsonObject;
 	static String serverType;
 	static boolean videoCamera = false;
+	static int state;
 
 	public static String JSONParser() {
 
@@ -70,85 +71,81 @@ public class createEntityJSONParser {
 		videoCamera = false;
 		System.out.println("JSONParser");
 
-		// Access Mechanism JSON 
+		// Access Mechanism JSON
 		JsonObject requestAccessSite_jsonObject = new JsonObject();
 		requestAccessSite_jsonObject.addProperty("describes", "URI for getting permissions to access the device");
-		requestAccessSite_jsonObject.addProperty("value","https://rbccps.org/middleware/api/{api_ver}/db");
-	
+		requestAccessSite_jsonObject.addProperty("value", "https://rbccps.org/middleware/api/{api_ver}/db");
+
 		JsonObject accessEndPoint_jsonObject = new JsonObject();
 		accessEndPoint_jsonObject.addProperty("describes", "URI for getting permissions to access the device");
-		accessEndPoint_jsonObject.addProperty("value","https://rbccps.org/middleware/api/{api_ver}/db");
-		
+		accessEndPoint_jsonObject.addProperty("value", "https://rbccps.org/middleware/api/{api_ver}/db");
+
 		JsonObject additionalResourceInfo_jsonObject = new JsonObject();
 		additionalResourceInfo_jsonObject.addProperty("describes", "End point for subscribing to LIVE data");
-		additionalResourceInfo_jsonObject.addProperty("value","http://rbccps.org/resourceInfo/{id}");
-		
+		additionalResourceInfo_jsonObject.addProperty("value", "http://rbccps.org/resourceInfo/{id}");
+
 		JsonObject subscriptionEndPoint_jsonObject = new JsonObject();
 		subscriptionEndPoint_jsonObject.addProperty("describes", "Additional information about the device");
-		subscriptionEndPoint_jsonObject.addProperty("value","https://smartcity.rbccps.org/api/0.1.0/subscribe");
-		
+		subscriptionEndPoint_jsonObject.addProperty("value", "https://smartcity.rbccps.org/api/0.1.0/subscribe");
+
 		JsonObject resourceAPIInfo_jsonObject = new JsonObject();
-		resourceAPIInfo_jsonObject.addProperty("describes", "Information on how to use various APIs (access, update, cat) associated with this resource");
-		resourceAPIInfo_jsonObject.addProperty("value","https://rbccps-iisc.github.io/");
+		resourceAPIInfo_jsonObject.addProperty("describes",
+				"Information on how to use various APIs (access, update, cat) associated with this resource");
+		resourceAPIInfo_jsonObject.addProperty("value", "https://rbccps-iisc.github.io/");
 
 		JsonObject accessModifier_Entries_jsonObject = new JsonObject();
-		
+
 		accessModifier_Entries_jsonObject.addProperty("accessEndPoint", accessEndPoint_jsonObject.toString());
 		accessModifier_Entries_jsonObject.addProperty("requestAccessSite", requestAccessSite_jsonObject.toString());
-		accessModifier_Entries_jsonObject.addProperty("additionalResourceInfo", additionalResourceInfo_jsonObject.toString());
-		accessModifier_Entries_jsonObject.addProperty("subscriptionEndPoint", subscriptionEndPoint_jsonObject.toString());
+		accessModifier_Entries_jsonObject.addProperty("additionalResourceInfo",
+				additionalResourceInfo_jsonObject.toString());
+		accessModifier_Entries_jsonObject.addProperty("subscriptionEndPoint",
+				subscriptionEndPoint_jsonObject.toString());
 		accessModifier_Entries_jsonObject.addProperty("resourceAPIInfo", resourceAPIInfo_jsonObject.toString());
-	
-		String s="{\n\t\"requestAccessSite\": {\n\t\t\"describes\": \"URI for getting permissions to access the device\",\n\t\t\"value\": \"http://rbccps.org/middleware/requestAccess\"\n\t},\n\t\"accessEndPoint\": {\n\t\t\"value\": \"https://rbccps.org/middleware/api/{api_ver}/db\",\n\t\t\"describes\": \"End point to access the archived values (database access endpoint)\"\n\t},\n\t\"subscriptionEndPoint\": {\n\t\t\"value\": \"mqtt://rbccps.org/subscription/live\",\n\t\t\"describes\": \"End point for subscribing to LIVE data\"\n\t},\n\t\"additionalResourceInfo\": {\n\t\t\"value\": \"http://rbccps.org/resourceInfo/{id}\",\n\t\t\"describes\": \"Additional information about the device\"\n\t},\n\t\"resourceAPIInfo\": {\n\t\t\"value\": \"http://rbccps.org/resourceInfo/api\",\n\t\t\"describes\": \"Information on how to use various APIs (access, update, cat) associated with this resource\"\n\t}\n}";
+
+		String s = "{\n\t\"requestAccessSite\": {\n\t\t\"describes\": \"URI for getting permissions to access the device\",\n\t\t\"value\": \"http://rbccps.org/middleware/requestAccess\"\n\t},\n\t\"accessEndPoint\": {\n\t\t\"value\": \"https://rbccps.org/middleware/api/{api_ver}/db\",\n\t\t\"describes\": \"End point to access the archived values (database access endpoint)\"\n\t},\n\t\"subscriptionEndPoint\": {\n\t\t\"value\": \"mqtt://rbccps.org/subscription/live\",\n\t\t\"describes\": \"End point for subscribing to LIVE data\"\n\t},\n\t\"additionalResourceInfo\": {\n\t\t\"value\": \"http://rbccps.org/resourceInfo/{id}\",\n\t\t\"describes\": \"Additional information about the device\"\n\t},\n\t\"resourceAPIInfo\": {\n\t\t\"value\": \"http://rbccps.org/resourceInfo/api\",\n\t\t\"describes\": \"Information on how to use various APIs (access, update, cat) associated with this resource\"\n\t}\n}";
 
 		System.out.println("First ------- ");
 		System.out.println(accessModifier_Entries_jsonObject.toString());
-		
+
 		accessMechanism_json = accessModifier_Entries_jsonObject.toString();
-		
+
 		accessMechanism_json = s;
 		System.out.println("Second ------- ");
 		System.out.println(accessMechanism_json);
-		
+
 		// accessMechanism_json = accessMechanism_json.replaceAll("\\\\", "");
-		
+
 		// System.out.println(accessMechanism_json.replaceAll("\\\\", ""));
 
 		controller = new RequestRegister();
 		json = controller.getBody();
-		
+
 		System.out.println("------------------BODY------------------");
 		System.out.println(json);
 		response = new JsonObject();
-		
-		try
-		{
+
+		try {
 			parser = new JsonParser();
 			jsonTree = parser.parse(json);
 			access_parser = new JsonParser();
-			
-			 access_jsonTree = access_parser.parse(accessMechanism_json);
-			 access_jsonObject = access_jsonTree.getAsJsonObject();
-		}
-		catch(Exception e)
-		{
+
+			access_jsonTree = access_parser.parse(accessMechanism_json);
+			access_jsonObject = access_jsonTree.getAsJsonObject();
+		} catch (Exception e) {
 			response.addProperty("Registration", "Failure");
-			response.addProperty("Reason","JSON parse error");
+			response.addProperty("Reason", "JSON parse error");
 			return response.toString();
 		}
-		
-		
 
 		/*
-		 * System.out.println(access_jsonObject.toString() +
-		 * "\n---------------\n");
+		 * System.out.println(access_jsonObject.toString() + "\n---------------\n");
 		 */
 
 		if (jsonTree.isJsonObject()) {
 			jsonObject = jsonTree.getAsJsonObject();
 			/*
-			 * System.out.println(jsonObject.toString() +
-			 * "\n---------------\n");
+			 * System.out.println(jsonObject.toString() + "\n---------------\n");
 			 */
 
 			System.out.println("Kick Start the flow");
@@ -164,44 +161,35 @@ public class createEntityJSONParser {
 
 				if (loraserverConfigurationFields.serverConfiguration) {
 					if (loraserverConfigurationFields.LoRaServer) {
-						System.out
-								.println("loraserverConfigurationFields.LoRaServer = TRUE");
-						if (loraserverConfigurationFields.appEUIFlag
-								&& loraserverConfigurationFields.devEUIFlag) {
+						System.out.println("loraserverConfigurationFields.LoRaServer = TRUE");
+						if (loraserverConfigurationFields.appEUIFlag && loraserverConfigurationFields.devEUIFlag) {
 							System.out.println("Looks Good! Its a LoRa device");
 							startFlow();
 
 						} else {
 							response.addProperty("Registration", "failure");
-							response.addProperty("Reason",
-									"Missing LoRa information");
-							System.out
-									.println("Something went wrong with LoRa!");
+							response.addProperty("Reason", "Missing LoRa information");
+							System.out.println("Something went wrong with LoRa!");
 						}
 					}
 				}
 
 			} else if (serverType.contains("video")) {
-				String _credentials = _videoserverConfigurationParser
-						.parse(jsonObject);
+				String _credentials = _videoserverConfigurationParser.parse(jsonObject);
 				System.out.println(_credentials);
 
 				if (videoserverConfigurationFields.serverConfiguration) {
 					if (videoserverConfigurationFields.videoServer) {
-						System.out
-								.println("videoserverConfigurationFields.videoServer = TRUE");
+						System.out.println("videoserverConfigurationFields.videoServer = TRUE");
 						if (videoserverConfigurationFields.url) {
-							System.out
-									.println("Looks Good! Its a video device");
+							System.out.println("Looks Good! Its a video device");
 							videoCamera = true;
 							startFlow();
 
 						} else {
 							response.addProperty("Registration", "failure");
-							response.addProperty("Reason",
-									"Missing Video information");
-							System.out
-									.println("Something went wrong with Video!");
+							response.addProperty("Reason", "Missing Video information");
+							System.out.println("Something went wrong with Video!");
 						}
 					}
 				}
@@ -215,9 +203,8 @@ public class createEntityJSONParser {
 
 	private static String startFlow() {
 		// TODO Auto-generated method stub
-
-		String _dataSchema = _entitySchemaParser.parse(jsonObject,
-				access_jsonTree);
+		state = 0;
+		String _dataSchema = _entitySchemaParser.parse(jsonObject, access_jsonTree);
 
 		// Store entitySchema and ID in entity class for easy access.
 		entity.setEntitySchemaObject(_dataSchema);
@@ -225,7 +212,7 @@ public class createEntityJSONParser {
 		try {
 			System.out.println(entity.getEntitySchemaObject());
 			System.out.println(entity.getEntityID().toString());
-			
+
 			ID = entity.getEntityID().toString();
 			System.out.println(ID);
 
@@ -233,6 +220,7 @@ public class createEntityJSONParser {
 			System.out.println(ID);
 
 			if (ID != null) {
+				state = 1;
 				response_createID = apiGateway.createUser(ID);
 				System.out.println("------STEP 1------");
 				System.out.println("------------");
@@ -245,16 +233,16 @@ public class createEntityJSONParser {
 			}
 
 			if (response_createID.contains("created")) {
+				state = 2;
 				response_generateapiKey = apiGateway.generateAPIKey(ID);
-				
-				if(response_generateapiKey.contains("Security level must be between 1-5"))
-				{
+
+				if (response_generateapiKey.contains("Security level must be between 1-5")) {
 					apiGateway.deleteUser(ID);
 					response.addProperty("Registration", "Failure");
 					response.addProperty("Reason", "Security level must be between 1-5");
 					return response.toString();
 				}
-				
+
 				System.out.println("------STEP 2------");
 				System.out.println("------------");
 				System.out.println(response_generateapiKey);
@@ -273,40 +261,34 @@ public class createEntityJSONParser {
 			}
 
 			if (response_generateapiKey.contains("key")) {
-				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID,
-						"publish");
+				state = 3;
+				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID, "publish");
 				System.out.println("------STEP 3------");
 				System.out.println("------------");
 				System.out.println(response_assignwhitelist);
 				System.out.println("------------");
 
-				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID,
-						"subscribe");
+				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID, "subscribe");
 				System.out.println("------STEP 3------");
 				System.out.println("------------");
 				System.out.println(response_assignwhitelist);
 				System.out.println("------------");
-				
-				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID,
-						"db");
+
+				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID, "db");
 				System.out.println("------STEP 3------");
 				System.out.println("------------");
 				System.out.println(response_assignwhitelist);
 				System.out.println("------------");
-				
+
 				System.out.println("------STEP 3.1------");
-				if (loraserverConfigurationFields.serverConfiguration
-						&& loraserverConfigurationFields.LoRaServer) {
-					String loraServerConfiguration_getJWTKey = loraServerConfiguration
-							.getJWTKey();
+				if (loraserverConfigurationFields.serverConfiguration && loraserverConfigurationFields.LoRaServer) {
+					String loraServerConfiguration_getJWTKey = loraServerConfiguration.getJWTKey();
 					System.out.println(loraServerConfiguration_getJWTKey);
-					String loraServerConfiguration_registerLoRaEntity = loraServerConfiguration
-							.registerLoRaEntity(ID);
-					System.out
-							.println(loraServerConfiguration_registerLoRaEntity);
+					String loraServerConfiguration_registerLoRaEntity = loraServerConfiguration.registerLoRaEntity(ID);
+					System.out.println(loraServerConfiguration_registerLoRaEntity);
 					loraserverConfigurationFields.serverConfiguration = false;
-					loraserverConfigurationFields.LoRaServer = false;					
-					
+					loraserverConfigurationFields.LoRaServer = false;
+
 				} else if (videoserverConfigurationFields.videoServer) {
 					videoServerConfiguration.registervideoEntity(ID);
 				} else if (serverType.contains("IPDevice")) {
@@ -315,13 +297,12 @@ public class createEntityJSONParser {
 				System.out.println("------STEP 3.1------");
 			} else {
 				response.addProperty("Registration", "failure");
-				response.addProperty("Reason",
-						"Server not reachable. API KeyGen failed");
+				response.addProperty("Reason", "Server not reachable. API KeyGen failed");
 				apiGateway.deleteUser(ID);
 				return response.toString();
 			}
 			if (response_assignwhitelist.contains("created")) {
-
+				state = 4;
 				// Create Exchange and Queue for LoRa and IPDevice
 				if (!videoCamera) {
 					broker.createExchange(ID + ".private");
@@ -329,23 +310,23 @@ public class createEntityJSONParser {
 					broker.createExchange(ID + ".protected");
 					broker.createExchange(ID + ".configure");
 					broker.createExchange(ID + ".follow");
-					
+
 					System.out.println("+++++++++++Calling create Database Binding Block+++++++++++");
-					
+
 					response_createQueue = broker.createQueue(ID);
-					response_createQueue = broker.createQueue(ID + ".configure");					
+					response_createQueue = broker.createQueue(ID + ".configure");
 					response_createQueue = broker.createQueue(ID + ".follow");
 					response_createQueue = broker.createQueue(ID + ".priority");
-					
-					broker.createBinding(ID  + ".private", "database");
-					broker.createBinding(ID  + ".public", "database");
-					broker.createBinding(ID  + ".protected", "database");
-					broker.createBinding(ID  + ".configure", "database");
-					broker.createBinding(ID  + ".follow", "database");
-										
+
+					broker.createBinding(ID + ".private", "database");
+					broker.createBinding(ID + ".public", "database");
+					broker.createBinding(ID + ".protected", "database");
+					broker.createBinding(ID + ".configure", "database");
+					broker.createBinding(ID + ".follow", "database");
+
 					broker.createBinding(ID + ".follow", ID + ".follow");
 					broker.createBinding(ID + ".configure", ID + ".configure");
-					
+
 				} else {
 					System.out.println("Its a videoCamera");
 					response_createQueue = "videoCamera";
@@ -356,11 +337,15 @@ public class createEntityJSONParser {
 				System.out.println("------------");
 			} else {
 				response.addProperty("Registration", "failure");
-				response.addProperty("Reason",
-						"Failed in adding ID into the ACL");
+				response.addProperty("Reason", "Failed in adding ID into the ACL");
+				apiGateway.deleteUser(ID);
+				return response.toString();
+				// If queue and exchange creation was stopped midway, remove appropriate entries
+				// here
 			}
-			if (response_createQueue.contains("Created")) { 
+			if (response_createQueue.contains("Created")) {
 
+				state = 5;
 				System.out.println("LDAP for LoRa and IPDevice");
 				System.out.println(ID);
 				System.out.println(entity.getEntityapikey());
@@ -368,12 +353,10 @@ public class createEntityJSONParser {
 				ID = ID.replaceAll("^\"|\"$", "");
 				System.out.println(ID);
 
-				apiKey = entity.getEntityapikey().toString()
-						.replaceAll("^\"|\"$", "");
+				apiKey = entity.getEntityapikey().toString().replaceAll("^\"|\"$", "");
 				System.out.println(apiKey);
 
-				response_updateLDAPEntry = updateLDAP.createEntry(
-						RequestRegister.getX_Consumer_Username(),
+				response_updateLDAPEntry = updateLDAP.createEntry(RequestRegister.getX_Consumer_Username(),
 						ID.toString(), apiKey);
 				System.out.println("LDAP Success !!!");
 				System.out.println("------STEP 5------");
@@ -388,12 +371,10 @@ public class createEntityJSONParser {
 				ID = ID.replaceAll("^\"|\"$", "");
 				System.out.println(ID);
 
-				apiKey = entity.getEntityapikey().toString()
-						.replaceAll("^\"|\"$", "");
+				apiKey = entity.getEntityapikey().toString().replaceAll("^\"|\"$", "");
 				System.out.println(apiKey);
 
-				response_updateLDAPEntry = updateLDAP.createVideoEntry(
-						RequestRegister.getX_Consumer_Username(),
+				response_updateLDAPEntry = updateLDAP.createVideoEntry(RequestRegister.getX_Consumer_Username(),
 						ID.toString(), apiKey);
 				System.out.println("LDAP Success !!!");
 				System.out.println("------STEP 5------");
@@ -402,10 +383,23 @@ public class createEntityJSONParser {
 				System.out.println("------------");
 			} else {
 				response.addProperty("Registration", "failure");
-				response.addProperty("Reason", "Failed in Broker");
+				response.addProperty("Reason", "Failed in LDAP");
+
+				apiGateway.deleteUser(ID);
+				broker.deleteExchange(ID + ".private");
+				broker.deleteExchange(ID + ".public");
+				broker.deleteExchange(ID + ".protected");
+				broker.deleteExchange(ID + ".configure");
+				broker.deleteExchange(ID + ".follow");
+				broker.deleteQueue(ID);
+				broker.deleteQueue(ID + ".configure");
+				broker.deleteQueue(ID + ".follow");
+				broker.deleteQueue(ID + ".priority");
+
+				return response.toString();
 			}
 			if (response_updateLDAPEntry != null) {
-				
+
 				response_updateCat = uCat.postCat(_dataSchema);
 				System.out.println("------STEP 6------");
 				System.out.println("------------");
@@ -420,17 +414,34 @@ public class createEntityJSONParser {
 				response.addProperty("Registration", "success");
 				response.addProperty("entityID", ID);
 				response.addProperty("apiKey", apiKey);
-				response.addProperty("subscriptionEndPoint", "https://smartcity.rbccps.org/api/{version}/follow?id="+ID);
-				response.addProperty("accessEndPoint", "https://smartcity.rbccps.org/api/{version}/db?id="+ID);
-				response.addProperty("publicationEndPoint", "https://smartcity.rbccps.org/api/{version}/publish?id="+ID);
+				response.addProperty("subscriptionEndPoint",
+						"https://smartcity.rbccps.org/api/{version}/follow?id=" + ID);
+				response.addProperty("accessEndPoint", "https://smartcity.rbccps.org/api/{version}/db?id=" + ID);
+				response.addProperty("publicationEndPoint",
+						"https://smartcity.rbccps.org/api/{version}/publish?id=" + ID);
 				response.addProperty("resourceAPIInfo", "https://rbccps-iisc.github.io");
 			} else {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "uCat update Failure");
+
+				apiGateway.deleteUser(ID);
+				broker.deleteExchange(ID + ".private");
+				broker.deleteExchange(ID + ".public");
+				broker.deleteExchange(ID + ".protected");
+				broker.deleteExchange(ID + ".configure");
+				broker.deleteExchange(ID + ".follow");
+				broker.deleteQueue(ID);
+				broker.deleteQueue(ID + ".configure");
+				broker.deleteQueue(ID + ".follow");
+				broker.deleteQueue(ID + ".priority");
+				updateLDAP.deleteEntry(owner.getOwnerID(), ID, owner.getOwnerKey());
+
+				return response.toString();
+
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			//e.printStackTrace();
+			// e.printStackTrace();
 			response.addProperty("Registration", "failure");
 			response.addProperty("Reason", "Possible missing fields");
 		}

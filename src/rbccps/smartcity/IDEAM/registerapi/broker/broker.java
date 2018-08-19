@@ -57,13 +57,13 @@ public class broker {
 		factory.setHost("rabbitmq");
 		factory.setPort(5672);
 		
-		
 		try {
 			connection = factory.newConnection();
 			channel = connection.createChannel();
 			channel.exchangeDeclare(resourceID, "topic",true);
 			response="Created Exchange "+resourceID;  
 			connection.close();
+			
 		}
 		catch(Exception e)
 		{
@@ -144,124 +144,75 @@ public class broker {
 		return response;
 	}
 
+
 	public static String deleteExchange(String resourceID) {
 
-		_url = URLs.getBrokerURL();
-		_value = resourceID;
+		
 		response = null;
-		System.out.println("+++++++++++In createExchange Block+++++++++++");
+		System.out.println("+++++++++++In deleteExchange Block+++++++++++");
 
+		Connection connection;
+		Channel channel;
+		ConnectionFactory factory = new ConnectionFactory();
+			
+		factory.setUsername("admin.ideam");
+		factory.setPassword(password);
+		factory.setVirtualHost("/");
+		factory.setHost("rabbitmq");
+		factory.setPort(5672);
+		
 		try {
-			URL url = new URL(_url + "/exchange"); // RabbitMQ Docker
-			String _postData;
-			System.out.println(resourceID);
-
-			// Create a structured JSON as per the Broker requirement
-
-			_postData = "{\"name\":" + "\"" + resourceID + "\"}";
-
-			System.out
-					.println("+++++++++++In deleteExchange try Block+++++++++++" + "\n" + _postData.toString() + "\n");
-
-			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
-
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
-			conn.setRequestProperty("Apikey", password);
-
-			conn.setRequestMethod("DELETE");
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-			conn.setDoOutput(true);
-			conn.getOutputStream().write(postDataBytes);
-			Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-			StringBuilder sb = new StringBuilder();
-			for (int c; (c = in.read()) >= 0;)
-				sb.append((char) c);
-			response = sb.toString();
-			System.out.println(response);
-			System.out.println("In Exchange Deletion");
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-
-			response_jsonObject = new JsonObject();
-			response_jsonObject.addProperty("De-Registration", "failure");
-			response_jsonObject.addProperty("Reason", "Cannot delete Exchange.");
-
-			System.out.println("--------------");
-			System.out.println(response_jsonObject.toString());
-			System.out.println("--------------");
-
-			System.out.println("+++++++++++In deleteExchange catch Block+++++++++++" + e.toString());
-			response = response_jsonObject.toString();
-
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			channel.exchangeDelete(resourceID);
+			response="Deleted Exchange "+resourceID;  
+			connection.close();
+			
 		}
-		return response;
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 
-		// Add a FLAG to process the Registration further
+		
+		return response;
 
 	}
 
 	public static String deleteQueue(String resourceID) {
-
-		_url = URLs.getBrokerURL();
-		_value = resourceID;
+		
 		response = null;
 		System.out.println("+++++++++++In deleteQueue Block+++++++++++");
 
-		try {
-			URL url = new URL(_url + "/queue"); // RabbitMQ Docker
-			String _postData;
-			System.out.println(resourceID);
-
-			// Create a structured JSON as per the Broker requirement
-
-			_postData = "{\"name\":" + "\"" + resourceID + "\"" + "}";
-
-			System.out.println("+++++++++++In deleteQueue try Block+++++++++++" + "\n" + _postData.toString() + "\n");
-
-			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
-
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
-			conn.setRequestProperty("Apikey", password);
-
-			conn.setRequestMethod("DELETE");
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-			conn.setDoOutput(true);
-			conn.getOutputStream().write(postDataBytes);
-			Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-			StringBuilder sb = new StringBuilder();
-			for (int c; (c = in.read()) >= 0;)
-				sb.append((char) c);
-			response = sb.toString();
-			System.out.println(response);
-			System.out.println("In Queue Deletion");
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		Connection connection;
+		Channel channel;
+		ConnectionFactory factory = new ConnectionFactory();
+			
+		factory.setUsername("admin.ideam");
+		factory.setPassword(password);
+		factory.setVirtualHost("/");
+		factory.setHost("rabbitmq");
+		factory.setPort(5672);
+			
+		try
+		{
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			
+			channel.queueDelete(resourceID);
+			response="Deleted Queue "+resourceID;
+			connection.close();
+		}
+			
+		catch(Exception e)
+		{
 			e.printStackTrace();
-
-			response_jsonObject = new JsonObject();
-			response_jsonObject.addProperty("De-Registration", "failure");
-			response_jsonObject.addProperty("Reason", "Cannot delete Queue.");
-
-			System.out.println("--------------");
-			System.out.println(response_jsonObject.toString());
-			System.out.println("--------------");
-			System.out.println("+++++++++++In deleteQueue catch Block+++++++++++" + e.toString());
-			response = response_jsonObject.toString();
-
 		}
 		return response;
-		// Add a FLAG to process the Registration further
+
 	}
 
+	
 	public static String publish(String _entityID, String _permission, String _requestorID, String _validity) {
 		// TODO Auto-generated method stub
 

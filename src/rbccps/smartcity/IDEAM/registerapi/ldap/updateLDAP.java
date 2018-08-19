@@ -2,6 +2,8 @@ package rbccps.smartcity.IDEAM.registerapi.ldap;
 public class updateLDAP {
 
 	
+	private static String[] decoded_authorization_datas;
+
 	public static String createEntry(String providerID, String resourceID, String apiKey) {
 		// TODO Auto-generated method stub
 
@@ -52,12 +54,22 @@ public class updateLDAP {
 	public static String deleteEntry(String entityID,
 			String x_Consumer_Custom_ID, String apiKey) {
 		// TODO Auto-generated method stub
-		LDAP deleteEntryToLdap = new LDAP();
 		
-		String[] decoded_authorization_data = null;
-		decoded_authorization_data[0] = x_Consumer_Custom_ID;
-		decoded_authorization_data[1] = apiKey;
-		deleteEntryToLdap.deleteEntry(x_Consumer_Custom_ID, decoded_authorization_data);
+		LDAP deleteEntryToLdap = new LDAP();
+		deleteEntryToLdap.readldappwd();
+		
+		String addEntry_Response;
+		if (deleteEntryToLdap.deleteEntry(entityID, x_Consumer_Custom_ID, apiKey )) {
+			System.out.println("entry deletion completed");
+			addEntry_Response = "Success";
+			// Add a FLAG to process the Registration further
+
+		} else {
+			System.out.println("entry deletion failed");
+			addEntry_Response = "Failure";
+
+			// End the Process with a RESPONSE stating ID already available.
+		}
 
 		return null;
 	}

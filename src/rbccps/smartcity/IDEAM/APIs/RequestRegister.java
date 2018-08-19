@@ -15,6 +15,7 @@ import org.json.simple.JSONObject;
 import rbccps.smartcity.IDEAM.registerapi.kong.Register;
 import rbccps.smartcity.IDEAM.registerapi.parser.createEntityJSONParser;
 import rbccps.smartcity.IDEAM.registerapi.parser.entity;
+import rbccps.smartcity.IDEAM.registerapi.parser.owner;
 import rbccps.smartcity.IDEAM.registerapi.deregister.*;
 
 public class RequestRegister extends HttpServlet {
@@ -145,7 +146,10 @@ public class RequestRegister extends HttpServlet {
 
 		apikey = request.getHeader("apikey");
 		System.out.println("Apikey=" + apikey);
-
+		
+		owner.setOwnerID(X_Consumer_Username);
+		owner.setOwnerKey(apikey);
+		
 		try {
 			security_level = request.getHeader("security_level");
 		} catch (Exception e) {

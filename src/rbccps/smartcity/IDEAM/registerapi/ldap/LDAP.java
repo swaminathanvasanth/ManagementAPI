@@ -21,7 +21,7 @@ public class LDAP {
 	static String url = URLs.getLDAPURL();
 	static String conntype = "simple";
 	static String AdminDn = "cn=admin,dc=smartcity";
-	static String password = "secret0";
+	static String password = "";
 	static Hashtable<String, String> environment = new Hashtable<String, String>();
 
 	static String entryDN;
@@ -346,7 +346,7 @@ public class LDAP {
 			System.out.println("brokerQueue_Name_Follow_EntryDN : "+brokerQueue_Name_Follow_EntryDN);
 			System.out.println("brokerShareEntryDN : "+brokerShareEntryDN);
 			System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
-				
+
 		} catch (Exception e) {
 			System.out.println("error: " + e.getMessage());
 			return flag;
@@ -462,66 +462,278 @@ public class LDAP {
 		return flag;
 	}
 
-	public boolean deleteEntry(String userId,
-			String[] decoded_authorization_data) {
+	public static boolean deleteEntry(String providerId, String userId, String apiKey) {
+		System.out.println("In Delete LDAP");
+
+		boolean flag = false;
+		
+		System.out.println(providerId + "=====" + userId + "=====" + apiKey);
+
+		Attribute OWNER = new BasicAttribute("owner", providerId);
+		Attribute PASSWORD = new BasicAttribute("userPassword", apiKey);
+		Attribute BLOCK = new BasicAttribute("block", "false");
+
+		// ObjectClass attributes
+		Attribute oc = new BasicAttribute("objectClass");
+		oc.add("broker");
+		oc.add("exchange");
+		oc.add("queue");
+		oc.add("share");
+
+		Attributes entry = new BasicAttributes();
+
+		entry.put(OWNER);
+		entry.put(PASSWORD);
+		entry.put(BLOCK);
+		entry.put(oc);
 
 		entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
+		System.out.println("entryDN :" + entryDN + " Entry :"
+				+ entry.toString());
+
+		// Broker Object
+		// Broker Entry
 		brokerEntryDN = "description=broker," + "uid=" + userId
 				+ ",cn=devices,dc=smartcity";
+		Attributes brokerEntry = new BasicAttributes();
+		Attribute brokerread = new BasicAttribute("read", "true");
+		Attribute brokerwrite = new BasicAttribute("write", "true");
+
+		brokerEntry.put(brokerread);
+		brokerEntry.put(brokerwrite);
+		brokerEntry.put(oc);
+
+		// Exchange
+
 		brokerExchangeEntryDN = "description=exchange,description=broker,"
 				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchangeEntry = new BasicAttributes();
+		// Attribute exchangeread = new BasicAttribute("read", "true");
+		// Attribute exchangewrite = new BasicAttribute("write", "true");
+
+		brokerExchangeEntry.put(oc);
+		// brokerExchangeEntry.put(exchangeread);
+		// brokerExchangeEntry.put(exchangewrite);
+
+		// Exchange Name to which User can Read / Write
+
 		brokerExchange_DeviceName_EntryDN = "description=" + userId
 				+ ",description=exchange,description=broker," + "uid=" + userId
 				+ ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_read = new BasicAttribute("read", "true");
+		Attribute exchange_DeviceName_write = new BasicAttribute("write",
+				"true");
+
+		brokerExchange_DeviceName_Entry.put(oc);
+		brokerExchange_DeviceName_Entry.put(exchange_DeviceName_read);
+		brokerExchange_DeviceName_Entry.put(exchange_DeviceName_write);
+
+		// Exchange Name (Configure) to which User can Read / Write
+
 		brokerExchange_DeviceName_Configure_EntryDN = "description=" + userId
-				+ "_configure,description=exchange,description=broker,"
+				+ ".configure,description=exchange,description=broker,"
 				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Configure_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Configure_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Configure_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Configure_Entry.put(oc);
+		brokerExchange_DeviceName_Configure_Entry
+				.put(exchange_DeviceName_Configure_read);
+		brokerExchange_DeviceName_Configure_Entry
+				.put(exchange_DeviceName_Configure_write);
+
+		// Exchange Name (Protected) to which User can Read / Write
+
+		brokerExchange_DeviceName_Protected_EntryDN = "description=" + userId
+				+ ".protected,description=exchange,description=broker,"
+				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Protected_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Protected_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Protected_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Protected_Entry.put(oc);
+		brokerExchange_DeviceName_Protected_Entry
+				.put(exchange_DeviceName_Protected_read);
+		brokerExchange_DeviceName_Protected_Entry
+				.put(exchange_DeviceName_Protected_write);
+		
+		// Exchange Name (Private) to which User can Read / Write
+
+		brokerExchange_DeviceName_Private_EntryDN = "description=" + userId
+				+ ".private,description=exchange,description=broker,"
+				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Private_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Private_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Private_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Private_Entry.put(oc);
+		brokerExchange_DeviceName_Private_Entry
+				.put(exchange_DeviceName_Private_read);
+		brokerExchange_DeviceName_Private_Entry
+				.put(exchange_DeviceName_Private_write);
+
+		// Exchange Name (Public) to which User can Read / Write
+
+		brokerExchange_DeviceName_Public_EntryDN = "description=" + userId
+				+ ".public,description=exchange,description=broker,"
+				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Public_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Public_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Public_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Public_Entry.put(oc);
+		brokerExchange_DeviceName_Public_Entry
+				.put(exchange_DeviceName_Public_read);
+		brokerExchange_DeviceName_Public_Entry
+				.put(exchange_DeviceName_Public_write);
+
+		
+		// Exchange Name (Protected) to which User can Read / Write
+
+		brokerExchange_DeviceName_Follow_EntryDN = "description=" + userId
+				+ ".follow,description=exchange,description=broker,"
+				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Follow_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Follow_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Follow_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Follow_Entry.put(oc);
+		brokerExchange_DeviceName_Follow_Entry
+				.put(exchange_DeviceName_Follow_read);
+		brokerExchange_DeviceName_Follow_Entry
+				.put(exchange_DeviceName_Follow_write);
+
+		
+		// Queue
+
 		brokerQueueEntryDN = "description=queue,description=broker," + "uid="
 				+ userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerQueueEntry = new BasicAttributes();
+		Attribute queueread = new BasicAttribute("read", "true");
+		Attribute queuewrite = new BasicAttribute("write", "true");
+
+		brokerQueueEntry.put(oc);
+		brokerQueueEntry.put(queueread);
+		brokerQueueEntry.put(queuewrite);
+
+		// Queue (Name or ID) from which User can Read
+
 		brokerQueue_Name_EntryDN = "description=" + userId
 				+ ",description=queue,description=broker," + "uid=" + userId
 				+ ",cn=devices,dc=smartcity";
 
+		Attributes brokerQueue_Name_Entry = new BasicAttributes();
+		Attribute queue_Name_read = new BasicAttribute("read", "true");
+		Attribute queue_Name_write = new BasicAttribute("write", "true");
+
+		brokerQueue_Name_Entry.put(oc);
+		brokerQueue_Name_Entry.put(queue_Name_read);
+		brokerQueue_Name_Entry.put(queue_Name_write);
+
+		// Queue Follow (Name or ID) from which User can Read
+
+		brokerQueue_Name_Follow_EntryDN = "description=" + userId + ".follow"
+				+ ",description=queue,description=broker," + "uid=" + userId
+				+ ",cn=devices,dc=smartcity";
+
+		Attributes brokerQueue_Follow_Name_Entry = new BasicAttributes();
+		Attribute queue_Follow_Name_read = new BasicAttribute("read", "true");
+		Attribute queue_Follow_Name_write = new BasicAttribute("write", "true");
+
+		brokerQueue_Follow_Name_Entry.put(oc);
+		brokerQueue_Follow_Name_Entry.put(queue_Follow_Name_read);
+		brokerQueue_Follow_Name_Entry.put(queue_Follow_Name_write);
+		
+		// Share
+
+		brokerShareEntryDN = "description=share,description=broker," + "uid="
+				+ userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerShareEntry = new BasicAttributes();
+		Attribute shareread = new BasicAttribute("read", "true");
+		Attribute sharewrite = new BasicAttribute("write", "true");
+
+		brokerShareEntry.put(oc);
+		brokerShareEntry.put(shareread);
+		brokerShareEntry.put(sharewrite);
+
+		// Share (Name or ID) from which User can Read
+
+		brokerShare_Name_EntryDN = "description=" + userId
+				+ ",description=share,description=broker," + "uid=" + userId
+				+ ",cn=devices,dc=smartcity";
+
+		Attributes brokerShare_Name_Entry = new BasicAttributes();
+		Attribute Share_Name_read = new BasicAttribute("read", "true");
+		Attribute Share_Name_write = new BasicAttribute("write", "true");
+
+		brokerShare_Name_Entry.put(oc);
+		brokerShare_Name_Entry.put(Share_Name_read);
+		brokerShare_Name_Entry.put(Share_Name_write);
+
+
 		try {
-
-			LDAPEntry = dirContext.getAttributes(entryDN).toString();
-			System.out.println(LDAPEntry);
-
-			String providerName = decoded_authorization_data[0];
-			String apiKey = decoded_authorization_data[1];
-
-			if (LDAPEntry.contains(providerName)) {
-				System.out.println("Valid Device of the User");
-			} else {
-				System.out.println("Invalid Device of the User");
-			}
-
-			System.out.println("User ID is : " + userId);
-
+			
+			dirContext.destroySubcontext(brokerShare_Name_EntryDN);
+			dirContext.destroySubcontext(brokerShareEntryDN);
+			dirContext.destroySubcontext(brokerQueue_Name_Follow_EntryDN);
 			dirContext.destroySubcontext(brokerQueue_Name_EntryDN);
-			System.out.println("Deleted " + brokerQueue_Name_EntryDN);
-
 			dirContext.destroySubcontext(brokerQueueEntryDN);
-			System.out.println("Deleted " + brokerQueueEntryDN);
-
-			dirContext
-					.destroySubcontext(brokerExchange_DeviceName_Configure_EntryDN);
-			System.out.println("Deleted "
-					+ brokerExchange_DeviceName_Configure_EntryDN);
-
+			dirContext.destroySubcontext(
+					brokerExchange_DeviceName_Follow_EntryDN);
+			dirContext.destroySubcontext(
+					brokerExchange_DeviceName_Protected_EntryDN);
+			dirContext.destroySubcontext(
+					brokerExchange_DeviceName_Public_EntryDN);
+			dirContext.destroySubcontext(
+					brokerExchange_DeviceName_Private_EntryDN);
+			dirContext.destroySubcontext(
+					brokerExchange_DeviceName_Configure_EntryDN);
 			dirContext.destroySubcontext(brokerExchange_DeviceName_EntryDN);
-			System.out.println("Deleted " + brokerExchange_DeviceName_EntryDN);
-
 			dirContext.destroySubcontext(brokerExchangeEntryDN);
-			System.out.println("Deleted " + brokerExchangeEntryDN);
-
 			dirContext.destroySubcontext(brokerEntryDN);
-			System.out.println("Deleted " + brokerEntryDN);
-
 			dirContext.destroySubcontext(entryDN);
-			System.out.println("Deleted " + entryDN);
+					
+			System.out.println("Deleted Entry");
 
-		} catch (NamingException e) {
+			flag = true;
+
+			System.out.println("Deleted entryDN : "+entryDN );
+			System.out.println("Deleted brokerEntryDN : "+brokerEntryDN);
+			System.out.println("Deleted brokerExchangeEntryDN : "+brokerExchangeEntryDN);
+			System.out.println("Deleted brokerExchange_DeviceName_EntryDN : "+brokerExchange_DeviceName_EntryDN);
+			System.out.println("Deleted brokerExchange_DeviceName_Configure_EntryDN : "+brokerExchange_DeviceName_Configure_EntryDN);
+			System.out.println("Deleted brokerExchange_DeviceName_Private_EntryDN : "+brokerExchange_DeviceName_Private_EntryDN);
+			System.out.println("Deleted brokerExchange_DeviceName_Protected_EntryDN : "+brokerExchange_DeviceName_Protected_EntryDN);
+			System.out.println("Deleted brokerExchange_DeviceName_Public_EntryDN : "+brokerExchange_DeviceName_Public_EntryDN);
+			System.out.println("Deleted brokerExchange_DeviceName_Follow_EntryDN : "+brokerExchange_DeviceName_Follow_EntryDN);
+			System.out.println("Deleted brokerQueueEntryDN : "+brokerQueueEntryDN);
+			System.out.println("Deleted brokerQueue_Name_EntryDN : "+brokerQueue_Name_EntryDN);
+			System.out.println("Deleted brokerQueue_Name_Follow_EntryDN : "+brokerQueue_Name_Follow_EntryDN);
+			System.out.println("Deleted brokerShareEntryDN : "+brokerShareEntryDN);
+			System.out.println("Deleted brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
+	
+	} catch (NamingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

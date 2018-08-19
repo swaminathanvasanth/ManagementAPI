@@ -134,72 +134,22 @@ public class apiGateway {
 		String response = null;
 		parser = new JsonParser();
 
+		System.out.println(_value);
 		try {
-			URL url = new URL(_url + "/consumers/");
-			Map<String, Object> params = new LinkedHashMap<>();
-			params.put("username", _value);
-
-			StringBuilder postData = new StringBuilder();
-			for (Map.Entry<String, Object> param : params.entrySet()) {
-				if (postData.length() != 0)
-					postData.append('&');
-				postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
-				postData.append('=');
-				postData.append(URLEncoder.encode(
-						String.valueOf(param.getValue()), "UTF-8"));
-			}
-
-			byte[] postDataBytes = postData.toString().getBytes("UTF-8");
-
+			URL url = new URL(_url + "/consumers/" + _value);
+		
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("DELETE");
 			conn.setRequestProperty("Content-Type",
 					"application/x-www-form-urlencoded");
-			conn.setRequestProperty("Content-Length",
-					String.valueOf(postDataBytes.length));
-			conn.setDoOutput(true);
-			conn.setConnectTimeout(3000);
-			conn.getOutputStream().write(postDataBytes);
+			
+			System.out.println(conn.getResponseCode());
+			response = "Deleted consumer in KONG";
+			
 
-			Reader in = new BufferedReader(new InputStreamReader(
-					conn.getInputStream(), "UTF-8"));
-			StringBuilder sb = new StringBuilder();
-			for (int c; (c = in.read()) >= 0;)
-				sb.append((char) c);
-			response = sb.toString();
-
-			System.out.println(response);
-
-			if (response != null) {
-				System.out.println(response);
-				jsonTree = parser.parse(response);
-				jsonObject = jsonTree.getAsJsonObject();
-				System.out.println(jsonObject.toString());
-			}
-		} catch (SocketTimeoutException s) {
-			response_jsonObject = new JsonObject();
-			response_jsonObject.addProperty("Registration", "failure");
-			response_jsonObject.addProperty("Reason", "Server Not Reachable");
-			response = response_jsonObject.toString();
-			System.out.println("--------------");
-			System.out.println(response);
-			System.out.println("--------------");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			response_jsonObject = new JsonObject();
-			response_jsonObject.addProperty("Registration", "failure");
-			response_jsonObject
-					.addProperty("Reason",
-							"ID not available. Please Use a Unique ID for Registration.");
-
-			response = response_jsonObject.toString();
-			System.out.println("--------------");
-			System.out.println(response);
-			System.out.println("--------------");
-
+		} catch (Exception e) {
+			response = "Failed to delete";
 		}
-
 		return response;
 
 		// Add a FLAG to process the Registration further
