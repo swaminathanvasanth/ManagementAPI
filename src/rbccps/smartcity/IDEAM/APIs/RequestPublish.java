@@ -51,10 +51,6 @@ public class RequestPublish extends HttpServlet {
 		}
 		catch(Exception e)
 		{
-
-		}
-		finally
-		{
 			routingKey="#";
 		}
 		

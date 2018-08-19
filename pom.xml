@@ -6,7 +6,7 @@
 	<groupId>RegisterAPI</groupId>
 	<artifactId>RegisterAPI</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<properties>
 		<jersey.version>1.18.3</jersey.version>

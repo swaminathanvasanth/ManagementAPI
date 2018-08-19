@@ -3,6 +3,7 @@ package rbccps.smartcity.IDEAM.APIs;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Instant;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,9 @@ import java.util.Hashtable;
 
 public class RequestBind extends HttpServlet 
 {
-	static String password;
+	static String ldap_pwd;
+	static String rmq_pwd;
+	
 	public void readldappwd() {
 		System.out.println("constructer to LDAP bind");
 		
@@ -31,7 +34,7 @@ public class RequestBind extends HttpServlet
 		{
 			BufferedReader br=new BufferedReader(new FileReader("/etc/pwd"));
 			
-			password=br.readLine();			
+			ldap_pwd=br.readLine();			
 			br.close();
 			
 		}
@@ -41,10 +44,24 @@ public class RequestBind extends HttpServlet
 		}
 	}
 	
+	public static void readbrokerpassword() {
+		try {
+			BufferedReader br = new BufferedReader(new FileReader("/etc/rmqpwd"));
+
+			rmq_pwd = br.readLine();
+
+			br.close();
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		readldappwd();
+		readbrokerpassword();
 		String queue=request.getRequestURI().split("/")[3];
 		String exchange=request.getRequestURI().split("/")[4];
 		
@@ -55,8 +72,6 @@ public class RequestBind extends HttpServlet
 			routingKey=request.getHeader("routingKey");
 		}
 		catch(Exception e)
-		{}
-		finally
 		{
 			routingKey="#";
 		}
@@ -64,88 +79,114 @@ public class RequestBind extends HttpServlet
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("Apikey");
 		
-		Hashtable<String, Object> env = new Hashtable<String, Object>();
-		
-		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389");
-		env.put(Context.SECURITY_AUTHENTICATION, "simple");
-		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
-		env.put(Context.SECURITY_CREDENTIALS, password);
-		
-		DirContext ctx=null;
-		try 
-		{
-			ctx = new InitialDirContext(env);
-		} 
-		catch (NamingException e1) 
-		{
-			e1.printStackTrace();
-		}
-		
-		SearchControls searchControls = new SearchControls();
-		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		searchControls.setCountLimit(10);
-		NamingEnumeration<SearchResult> namingEnumeration=null;
-		
-		try 
-		{
-			namingEnumeration = ctx.search("", "(description=share,description=broker,uid="+exchange.split(".")[0]+"cn=devices,dc=smartcity)", new Object[]{}, searchControls);
-		} 
-		catch (NamingException e1) 
-		{
-			e1.printStackTrace();
-		}
-		
-		try 
-		{
-			while (namingEnumeration.hasMore()) 
-			{
-			    SearchResult sr = namingEnumeration.next();
-			    System.out.println("Name " + sr.getName());
-			}
-		} 
-		catch (NamingException e1) 
-		{
-			e1.printStackTrace();
-		}
-		
-		try 
-		{
-			ctx.close();
-		} 
-		catch (NamingException e1) 
-		{
-			e1.printStackTrace();
-		}
-
 		Connection connection;
 		Channel channel=null;
 		ConnectionFactory factory = new ConnectionFactory();
 			
-		factory.setUsername(username);
-		factory.setPassword(apikey);
+		factory.setUsername("admin.ideam");
+		factory.setPassword(rmq_pwd);
 		factory.setVirtualHost("/");
 		factory.setHost("rabbitmq");
 		factory.setPort(5672);
 		
+		//If the exchange and queue belongs to the same device
 		
-		try {
-			connection = factory.newConnection();
-			channel = connection.createChannel();
-			channel.queueBind(queue,exchange,routingKey,null);
-			System.out.println("Bind queue OK");
-			response.getWriter().println("Bind Queue OK");
-		}
-		catch(Exception e)
+		if(queue.equalsIgnoreCase(exchange.split("\\.")[0]))
 		{
-			e.printStackTrace();
-			response.getWriter().println("Unable to bind queue");
+			try {
+				connection = factory.newConnection();
+				channel = connection.createChannel();
+				channel.queueBind(queue,exchange,routingKey,null);
+				response.getWriter().println("Bind Queue OK");
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				response.getWriter().println("Unable to bind queue");
+			}
+		}
+		else
+		{
+			Hashtable<String, Object> env = new Hashtable<String, Object>();
+			
+			env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+			env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+			env.put(Context.SECURITY_AUTHENTICATION, "simple");
+			env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
+			env.put(Context.SECURITY_CREDENTIALS, ldap_pwd);
+			
+			DirContext ctx=null;
+			
+			try 
+			{
+				ctx = new InitialDirContext(env);
+			} 
+			catch (NamingException e1) 
+			{
+				e1.printStackTrace();
+			}
+			
+			SearchControls searchControls = new SearchControls();
+			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+			searchControls.setCountLimit(10);
+			NamingEnumeration<SearchResult> namingEnumeration=null;
+			
+			try 
+			{
+				namingEnumeration = ctx.search("description="+queue+",description=share,description=broker,uid="+exchange.split("\\.")[0]+",cn=devices", "(description=*)", new Object[]{}, searchControls);
+			} 
+			catch (NamingException e1) 
+			{
+				response.getWriter().println("Share entry does not exist");
+				return;
+			}
+			
+			try 
+			{
+				while (namingEnumeration.hasMore()) 
+				{
+				   SearchResult sr = namingEnumeration.next();
+				   
+				   long validity=Long.parseLong(sr.getAttributes().get("validity").toString().split(":")[1].trim().split("\\.")[0]);
+				   
+				   if(Instant.now().getEpochSecond()<validity)
+				   {
+						try 
+						{
+							connection = factory.newConnection();
+							channel = connection.createChannel();
+							channel.queueBind(queue,exchange,routingKey,null);
+							response.getWriter().println("Bind Queue OK");
+							break;
+						}
+						catch(Exception e)
+						{
+							e.printStackTrace();
+							response.getWriter().println("Unable to bind queue");
+						}
+				   }
+				   else
+				   {
+					   response.getWriter().println("Your data lease time has expired");
+				   }
+				}
+				
+				ctx.close();
+			} 
+			catch (NamingException e1) 
+			{
+				e1.printStackTrace();
+			}
+			
 		}
 	}
 	
 	@Override
 	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
+		readldappwd();
+		readbrokerpassword();
+		
 		String queue=request.getRequestURI().split("/")[3];
 		String exchange=request.getRequestURI().split("/")[4];
 		
@@ -156,10 +197,6 @@ public class RequestBind extends HttpServlet
 			routingKey=request.getHeader("routingKey");
 		}
 		catch(Exception e)
-		{
-			System.out.println("Routing key not specified");
-		}
-		finally
 		{
 			routingKey="#";
 		}
@@ -178,16 +215,70 @@ public class RequestBind extends HttpServlet
 		factory.setPort(5672);
 		
 		
-		try {
-			connection = factory.newConnection();
-			channel = connection.createChannel();
-			channel.queueUnbind(queue,exchange,routingKey,null);
-			response.getWriter().println("Unbind Queue OK");
-		}
-		catch(Exception e)
+		if(queue.equalsIgnoreCase(exchange.split("\\.")[0]))
 		{
-			e.printStackTrace();
-			response.getWriter().println("Unable to unbind queue");
+			try {
+				connection = factory.newConnection();
+				channel = connection.createChannel();
+				channel.queueUnbind(queue,exchange,routingKey,null);
+				response.getWriter().println("Unbind Queue OK");
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				response.getWriter().println("Unable to unbind queue");
+			}
+		}
+		else
+		{
+			Hashtable<String, Object> env = new Hashtable<String, Object>();
+			
+			env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+			env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+			env.put(Context.SECURITY_AUTHENTICATION, "simple");
+			env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
+			env.put(Context.SECURITY_CREDENTIALS, ldap_pwd);
+			
+			DirContext ctx=null;
+			
+			try 
+			{
+				ctx = new InitialDirContext(env);
+			} 
+			catch (NamingException e1) 
+			{
+				e1.printStackTrace();
+			}
+			
+			SearchControls searchControls = new SearchControls();
+			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+			searchControls.setCountLimit(10);
+			NamingEnumeration<SearchResult> namingEnumeration=null;
+			
+			try 
+			{
+				namingEnumeration = ctx.search("description="+queue+",description=share,description=broker,uid="+exchange.split("\\.")[0]+",cn=devices", "(description=*)", new Object[]{}, searchControls);
+			} 
+			catch (NamingException e1) 
+			{
+				response.setStatus(401);
+				return;
+			}
+
+			try 
+			{
+				connection = factory.newConnection();
+				channel = connection.createChannel();
+				channel.queueUnbind(queue,exchange,routingKey,null);
+				response.getWriter().println("Unbind Queue OK");
+				ctx.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				response.getWriter().println("Unable to unbind queue");
+			}
+			
 		}
 	}
 }
