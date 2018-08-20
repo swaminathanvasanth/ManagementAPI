@@ -40,7 +40,7 @@ public class deleteEntityJSONParser {
 		String response_deleteQueue = null;
 		String response_deleteExchange = null;
 		String response_deleteLDAPEntry = null;
-		String response_deleteCat = null;
+		int response_deleteCat = 0;
 
 		RequestRegister controller = new RequestRegister();
 		String json = controller.getBody();
@@ -149,7 +149,7 @@ public class deleteEntityJSONParser {
 				}
 			
 				// STEP 5
-				if(response_deleteCat != null){
+				if(response_deleteCat >=200 && response_deleteCat<300){
 					response.addProperty("De-Registration", "success");
 					response.addProperty("entityID", ID);
 				} else {

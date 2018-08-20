@@ -74,6 +74,7 @@ public class RequestRegister extends HttpServlet {
 
 		if (returnData.contains("ID already used")) {
 			resp.setStatus(CONFLICT);
+			clearEntries();
 			return resp;
 		}
 
@@ -89,6 +90,7 @@ public class RequestRegister extends HttpServlet {
 				System.out.println(e.getMessage());
 			}
 			resp.setStatus(SERVICE_UNAVAILABLE);
+			clearEntries();
 			return resp;
 		}
 
@@ -106,9 +108,11 @@ public class RequestRegister extends HttpServlet {
 				System.out.println(e.getMessage());
 			}
 			resp.setStatus(BAD_REQUEST);
+			clearEntries();
 			return resp;
 		} else
 			resp.setStatus(200, returnData);
+		    clearEntries();
 		return resp;
 	}
 
@@ -235,5 +239,12 @@ public class RequestRegister extends HttpServlet {
 
 	public static String getBody() {
 		return body;
+	}
+	
+	public static void clearEntries()
+	{
+		entity.setEntityapikey("");
+		entity.setEntityID("");
+		entity.setEntitySchemaObject("");
 	}
 }

@@ -327,6 +327,7 @@ public class createEntityJSONParser {
 					broker.createExchange(ID + ".protected");
 					broker.createExchange(ID + ".configure");
 					broker.createExchange(ID + ".follow");
+					broker.createExchange(ID + ".notify");
 
 					System.out.println("+++++++++++Calling create Database Binding Block+++++++++++");
 
@@ -334,6 +335,7 @@ public class createEntityJSONParser {
 					response_createQueue = broker.createQueue(ID + ".configure");
 					response_createQueue = broker.createQueue(ID + ".follow");
 					response_createQueue = broker.createQueue(ID + ".priority");
+					response_createQueue = broker.createQueue(ID + ".notifs");
 
 					broker.createBinding(ID + ".private", "database");
 					broker.createBinding(ID + ".public", "database");
@@ -343,6 +345,7 @@ public class createEntityJSONParser {
 
 					broker.createBinding(ID + ".follow", ID + ".follow");
 					broker.createBinding(ID + ".configure", ID + ".configure");
+					broker.createBinding(ID + ".notify", ID + ".notifs");
 
 				} else {
 					System.out.println("Its a videoCamera");
