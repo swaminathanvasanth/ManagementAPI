@@ -116,7 +116,10 @@ public class createsubscriberEntity {
 			if (response_assignwhitelist.contains("created")) {
 				state = 4;
 				System.out.println("------STEP 4------");
-				response_createQueue = broker.createQueue(ID);
+				broker.createExchange(ID + ".notify");
+				broker.createQueue(ID);
+				response_createQueue = broker.createQueue(ID + ".notify");
+				broker.createBinding(ID + ".notify", ID + ".notify");
 				System.out.println("------STEP 4------");
 
 			} else {

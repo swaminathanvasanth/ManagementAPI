@@ -244,21 +244,6 @@ public class createEntityJSONParser {
 				return response.toString();
 			}
 
-			ID = ID.toLowerCase();
-			System.out.println("Converted to lower case");
-			System.out.println(ID);
-			Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(ID);
-			boolean idvalidator = matcher.find();
-
-			if (idvalidator) {
-				System.out.println("There is a special character in " + ID);
-				System.out.println(ID);
-				response.addProperty("Registration", "failure");
-				response.addProperty("Reason", "ID contains Special Characters");
-				return response.toString();
-			}
-
 			ID = ID.replaceAll("^\"|\"$", "");
 			System.out.println(ID);
 
@@ -355,13 +340,13 @@ public class createEntityJSONParser {
 					broker.createExchange(ID + ".follow");
 					broker.createExchange(ID + ".notify");
 
-					System.out.println("+++++++++++Calling create Database Binding Block+++++++++++");
-
 					response_createQueue = broker.createQueue(ID);
 					response_createQueue = broker.createQueue(ID + ".configure");
 					response_createQueue = broker.createQueue(ID + ".follow");
 					response_createQueue = broker.createQueue(ID + ".priority");
-					response_createQueue = broker.createQueue(ID + ".notifs");
+					response_createQueue = broker.createQueue(ID + ".notify");
+
+					System.out.println("+++++++++++Calling create Database Binding Block+++++++++++");
 
 					broker.createBinding(ID + ".private", "database");
 					broker.createBinding(ID + ".public", "database");
@@ -371,7 +356,7 @@ public class createEntityJSONParser {
 
 					broker.createBinding(ID + ".follow", ID + ".follow");
 					broker.createBinding(ID + ".configure", ID + ".configure");
-					broker.createBinding(ID + ".notify", ID + ".notifs");
+					broker.createBinding(ID + ".notify", ID + ".notify");
 
 				} else {
 					System.out.println("Its a videoCamera");
