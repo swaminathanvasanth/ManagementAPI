@@ -10,6 +10,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import rbccps.smartcity.IDEAM.APIs.RequestRegister;
 import rbccps.smartcity.IDEAM.registerapi.broker.broker;
@@ -215,6 +217,21 @@ public class createEntityJSONParser {
 
 			ID = entity.getEntityID().toString();
 			System.out.println(ID);
+			
+			ID = ID.toLowerCase();
+			System.out.println("Converted to lower case");
+			System.out.println(ID);
+			Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+			Matcher matcher = pattern.matcher(ID);
+			boolean idvalidator = matcher.find();
+
+			if (idvalidator) {
+			   System.out.println("There is a special character in " +ID);
+			   System.out.println(ID);
+				response.addProperty("Registration", "failure");
+				response.addProperty("Reason", "ID contains Special Characters");
+				return response.toString();
+			}
 
 			ID = ID.replaceAll("^\"|\"$", "");
 			System.out.println(ID);
@@ -410,7 +427,7 @@ public class createEntityJSONParser {
 				response.addProperty("Reason", "LDAP update Failure");
 			}
 
-			if (response_updateCat == 201) {
+			if (response_updateCat >= 200 && response_updateCat <= 300) {
 				response.addProperty("Registration", "success");
 				response.addProperty("entityID", ID);
 				response.addProperty("apiKey", apiKey);
