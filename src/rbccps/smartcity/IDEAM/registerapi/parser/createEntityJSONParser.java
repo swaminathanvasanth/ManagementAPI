@@ -215,7 +215,7 @@ public class createEntityJSONParser {
 			subscriber_response = createsubscriberEntity.createEntity(ID);
 			response = subscriber_response;
 			System.out.println(subscriber_response);
-			
+			isSubscriber = false;
 			return subscriber_response.toString();
 		}
 
