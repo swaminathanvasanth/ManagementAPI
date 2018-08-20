@@ -64,6 +64,8 @@ public class createEntityJSONParser {
 	static String serverType;
 	static boolean videoCamera = false;
 	static int state;
+	static boolean isSubscriber = false;
+	static JsonObject subscriber_response;
 
 	public static String JSONParser() {
 
@@ -208,6 +210,15 @@ public class createEntityJSONParser {
 		state = 0;
 		String _dataSchema = _entitySchemaParser.parse(jsonObject, access_jsonTree);
 
+		if (isSubscriber) {
+			ID = _dataSchema;
+			subscriber_response = createsubscriberEntity.createEntity(ID);
+			response = subscriber_response;
+			System.out.println(subscriber_response);
+			
+			return subscriber_response.toString();
+		}
+
 		// Store entitySchema and ID in entity class for easy access.
 		entity.setEntitySchemaObject(_dataSchema);
 
@@ -228,6 +239,21 @@ public class createEntityJSONParser {
 			if (idvalidator) {
 			   System.out.println("There is a special character in " +ID);
 			   System.out.println(ID);
+				response.addProperty("Registration", "failure");
+				response.addProperty("Reason", "ID contains Special Characters");
+				return response.toString();
+			}
+
+			ID = ID.toLowerCase();
+			System.out.println("Converted to lower case");
+			System.out.println(ID);
+			Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+			Matcher matcher = pattern.matcher(ID);
+			boolean idvalidator = matcher.find();
+
+			if (idvalidator) {
+				System.out.println("There is a special character in " + ID);
+				System.out.println(ID);
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "ID contains Special Characters");
 				return response.toString();

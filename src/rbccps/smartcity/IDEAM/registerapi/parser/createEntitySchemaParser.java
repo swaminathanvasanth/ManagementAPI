@@ -10,11 +10,13 @@ public class createEntitySchemaParser {
 
 	JsonObject entitySchemaObject;
 	JsonElement id_element;
-	String id;
+
+	JsonElement ID;
+	String _ID;
+
+	
 	
 	public String parse(JsonObject jsonObject, JsonElement access_jsonTree){
-		
-		Gson gson = new Gson();
 		
 		try {
 			entity entityInfo = new entity();			
@@ -47,8 +49,22 @@ public class createEntitySchemaParser {
 */
 		} catch (Exception e) {
 			System.out.println("Error : entitySchema not found");
-			return "Possible missing fields";
+			System.out.println("Its an application registration !!!");
 		}
+		
+		
+		try {
+			ID = jsonObject.get("id");
+			_ID = ID.toString().replaceAll("^\"|\"$", "");
+			System.out.println(_ID);
+			createEntityJSONParser.isSubscriber = true;
+			return _ID;
+			
+		} catch (Exception e) {
+			
+		}
+		
+		
 		return entitySchemaObject.toString();
 	}
 }

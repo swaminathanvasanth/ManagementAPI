@@ -33,9 +33,11 @@ public class LDAP {
 	static String brokerExchange_DeviceName_Public_EntryDN;
 	static String brokerExchange_DeviceName_Protected_EntryDN;
 	static String brokerExchange_DeviceName_Follow_EntryDN;
+	static String brokerExchange_DeviceName_Notify_EntryDN;
 	static String brokerQueueEntryDN;
 	static String brokerQueue_Name_EntryDN;
 	static String brokerQueue_Name_Follow_EntryDN;
+	static String brokerQueue_Name_Notify_EntryDN;
 	static String brokerShareEntryDN;
 	static String brokerShare_Name_EntryDN;
 	static String LDAPEntry;
@@ -230,6 +232,24 @@ public class LDAP {
 				.put(exchange_DeviceName_Follow_write);
 
 		
+		// Exchange Name (Notify) to which User can Read / Write
+
+		brokerExchange_DeviceName_Notify_EntryDN = "description=" + userId
+				+ ".notify,description=exchange,description=broker,"
+				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Notify_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Notify_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Notify_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Notify_Entry.put(oc);
+		brokerExchange_DeviceName_Notify_Entry
+				.put(exchange_DeviceName_Notify_read);
+		brokerExchange_DeviceName_Notify_Entry
+				.put(exchange_DeviceName_Notify_write);
+	
 		// Queue
 
 		brokerQueueEntryDN = "description=queue,description=broker," + "uid="
@@ -270,6 +290,20 @@ public class LDAP {
 		brokerQueue_Follow_Name_Entry.put(oc);
 		brokerQueue_Follow_Name_Entry.put(queue_Follow_Name_read);
 		brokerQueue_Follow_Name_Entry.put(queue_Follow_Name_write);
+		
+		// Queue Notify (Name or ID) from which User can Read
+
+		brokerQueue_Name_Notify_EntryDN = "description=" + userId + ".notify"
+				+ ",description=queue,description=broker," + "uid=" + userId
+				+ ",cn=devices,dc=smartcity";
+
+		Attributes brokerQueue_Notify_Name_Entry = new BasicAttributes();
+		Attribute queue_Notify_Name_read = new BasicAttribute("read", "true");
+		Attribute queue_Notify_Name_write = new BasicAttribute("write", "true");
+
+		brokerQueue_Notify_Name_Entry.put(oc);
+		brokerQueue_Notify_Name_Entry.put(queue_Notify_Name_read);
+		brokerQueue_Notify_Name_Entry.put(queue_Notify_Name_write);
 		
 		// Share
 
@@ -321,11 +355,16 @@ public class LDAP {
 			dirContext.createSubcontext(
 					brokerExchange_DeviceName_Follow_EntryDN,
 					brokerExchange_DeviceName_Follow_Entry);
+			dirContext.createSubcontext(
+					brokerExchange_DeviceName_Notify_EntryDN,
+					brokerExchange_DeviceName_Notify_Entry);
 			dirContext.createSubcontext(brokerQueueEntryDN, brokerQueueEntry);
 			dirContext.createSubcontext(brokerQueue_Name_EntryDN,
 					brokerQueue_Name_Entry);
 			dirContext.createSubcontext(brokerQueue_Name_Follow_EntryDN,
 					brokerQueue_Follow_Name_Entry);
+			dirContext.createSubcontext(brokerQueue_Name_Notify_EntryDN,
+					brokerQueue_Notify_Name_Entry);
 			dirContext.createSubcontext(brokerShareEntryDN, brokerShareEntry);
 			dirContext.createSubcontext(brokerShare_Name_EntryDN,
 					brokerShare_Name_Entry);
@@ -341,9 +380,11 @@ public class LDAP {
 			System.out.println("brokerExchange_DeviceName_Protected_EntryDN : "+brokerExchange_DeviceName_Protected_EntryDN);
 			System.out.println("brokerExchange_DeviceName_Public_EntryDN : "+brokerExchange_DeviceName_Public_EntryDN);
 			System.out.println("brokerExchange_DeviceName_Follow_EntryDN : "+brokerExchange_DeviceName_Follow_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Notify_EntryDN : "+brokerExchange_DeviceName_Notify_EntryDN);
 			System.out.println("brokerQueueEntryDN : "+brokerQueueEntryDN);
 			System.out.println("brokerQueue_Name_EntryDN : "+brokerQueue_Name_EntryDN);
 			System.out.println("brokerQueue_Name_Follow_EntryDN : "+brokerQueue_Name_Follow_EntryDN);
+			System.out.println("brokerQueue_Name_Notify_EntryDN : "+brokerQueue_Name_Notify_EntryDN);
 			System.out.println("brokerShareEntryDN : "+brokerShareEntryDN);
 			System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
 
@@ -353,7 +394,179 @@ public class LDAP {
 		}
 		return flag;
 	}
+	
+	// Attributes to be set for new entry creation
+		public boolean addsubscriberRegistrationEntry(String providerId, String userId, String apiKey) {
+			boolean flag = false;
 
+			System.out.println(providerId + userId + apiKey);
+
+			Attribute OWNER = new BasicAttribute("owner", providerId);
+			Attribute PASSWORD = new BasicAttribute("userPassword", apiKey);
+			Attribute BLOCK = new BasicAttribute("block", "false");
+
+			// ObjectClass attributes
+			Attribute oc = new BasicAttribute("objectClass");
+			oc.add("broker");
+			oc.add("exchange");
+			oc.add("queue");
+			oc.add("share");
+
+			Attributes entry = new BasicAttributes();
+
+			entry.put(OWNER);
+			entry.put(PASSWORD);
+			entry.put(BLOCK);
+			entry.put(oc);
+
+			entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
+			System.out.println("entryDN :" + entryDN + " Entry :"
+					+ entry.toString());
+
+			// Broker Object
+			// Broker Entry
+			brokerEntryDN = "description=broker," + "uid=" + userId
+					+ ",cn=devices,dc=smartcity";
+			Attributes brokerEntry = new BasicAttributes();
+			Attribute brokerread = new BasicAttribute("read", "true");
+			Attribute brokerwrite = new BasicAttribute("write", "true");
+
+			brokerEntry.put(brokerread);
+			brokerEntry.put(brokerwrite);
+			brokerEntry.put(oc);
+
+			// Exchange
+
+			brokerExchangeEntryDN = "description=exchange,description=broker,"
+					+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+			Attributes brokerExchangeEntry = new BasicAttributes();
+	
+			brokerExchangeEntry.put(oc);
+			
+			// Exchange Name (Notify) to which User can Read / Write
+
+			brokerExchange_DeviceName_Notify_EntryDN = "description=" + userId
+					+ ".notify,description=exchange,description=broker,"
+					+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+			Attributes brokerExchange_DeviceName_Notify_Entry = new BasicAttributes();
+			Attribute exchange_DeviceName_Notify_read = new BasicAttribute(
+					"read", "true");
+			Attribute exchange_DeviceName_Notify_write = new BasicAttribute(
+					"write", "true");
+
+			brokerExchange_DeviceName_Notify_Entry.put(oc);
+			brokerExchange_DeviceName_Notify_Entry
+					.put(exchange_DeviceName_Notify_read);
+			brokerExchange_DeviceName_Notify_Entry
+					.put(exchange_DeviceName_Notify_write);
+
+			
+			// Queue
+
+			brokerQueueEntryDN = "description=queue,description=broker," + "uid="
+					+ userId + ",cn=devices,dc=smartcity";
+
+			Attributes brokerQueueEntry = new BasicAttributes();
+			Attribute queueread = new BasicAttribute("read", "true");
+			Attribute queuewrite = new BasicAttribute("write", "true");
+
+			brokerQueueEntry.put(oc);
+			brokerQueueEntry.put(queueread);
+			brokerQueueEntry.put(queuewrite);
+
+			// Queue (Name or ID) from which User can Read
+
+			brokerQueue_Name_EntryDN = "description=" + userId
+					+ ",description=queue,description=broker," + "uid=" + userId
+					+ ",cn=devices,dc=smartcity";
+
+			Attributes brokerQueue_Name_Entry = new BasicAttributes();
+			Attribute queue_Name_read = new BasicAttribute("read", "true");
+			Attribute queue_Name_write = new BasicAttribute("write", "true");
+
+			brokerQueue_Name_Entry.put(oc);
+			brokerQueue_Name_Entry.put(queue_Name_read);
+			brokerQueue_Name_Entry.put(queue_Name_write);
+
+			// Queue Notify (Name or ID) from which User can Read
+
+			brokerQueue_Name_Notify_EntryDN = "description=" + userId + ".notify"
+					+ ",description=queue,description=broker," + "uid=" + userId
+					+ ",cn=devices,dc=smartcity";
+
+			Attributes brokerQueue_Notify_Name_Entry = new BasicAttributes();
+			Attribute queue_Notify_Name_read = new BasicAttribute("read", "true");
+			Attribute queue_Notify_Name_write = new BasicAttribute("write", "true");
+
+			brokerQueue_Notify_Name_Entry.put(oc);
+			brokerQueue_Notify_Name_Entry.put(queue_Notify_Name_read);
+			brokerQueue_Notify_Name_Entry.put(queue_Notify_Name_write);
+			
+			// Share
+
+			brokerShareEntryDN = "description=share,description=broker," + "uid="
+					+ userId + ",cn=devices,dc=smartcity";
+
+			Attributes brokerShareEntry = new BasicAttributes();
+			Attribute shareread = new BasicAttribute("read", "true");
+			Attribute sharewrite = new BasicAttribute("write", "true");
+
+			brokerShareEntry.put(oc);
+			brokerShareEntry.put(shareread);
+			brokerShareEntry.put(sharewrite);
+
+			// Share (Name or ID) from which User can Read
+
+			brokerShare_Name_EntryDN = "description=" + userId
+					+ ",description=share,description=broker," + "uid=" + userId
+					+ ",cn=devices,dc=smartcity";
+
+			Attributes brokerShare_Name_Entry = new BasicAttributes();
+			Attribute Share_Name_read = new BasicAttribute("read", "true");
+			Attribute Share_Name_write = new BasicAttribute("write", "true");
+
+			brokerShare_Name_Entry.put(oc);
+			brokerShare_Name_Entry.put(Share_Name_read);
+			brokerShare_Name_Entry.put(Share_Name_write);
+
+			try {
+				dirContext.createSubcontext(entryDN, entry);
+				dirContext.createSubcontext(brokerEntryDN, brokerEntry);
+				dirContext.createSubcontext(brokerExchangeEntryDN,
+						brokerExchangeEntry);
+				dirContext.createSubcontext(
+						brokerExchange_DeviceName_Notify_EntryDN,
+						brokerExchange_DeviceName_Notify_Entry);
+				dirContext.createSubcontext(brokerQueueEntryDN, brokerQueueEntry);
+				dirContext.createSubcontext(brokerQueue_Name_EntryDN,
+						brokerQueue_Name_Entry);
+				dirContext.createSubcontext(brokerQueue_Name_Notify_EntryDN,
+						brokerQueue_Notify_Name_Entry);
+				dirContext.createSubcontext(brokerShareEntryDN, brokerShareEntry);
+				dirContext.createSubcontext(brokerShare_Name_EntryDN,
+						brokerShare_Name_Entry);
+
+				flag = true;
+
+				System.out.println("entryDN : "+entryDN );
+				System.out.println("brokerEntryDN : "+brokerEntryDN);
+				System.out.println("brokerExchangeEntryDN : "+brokerExchangeEntryDN);
+				System.out.println("brokerExchange_DeviceName_EntryDN : "+brokerExchange_DeviceName_EntryDN);
+				System.out.println("brokerExchange_DeviceName_Notify_EntryDN : "+brokerExchange_DeviceName_Notify_EntryDN);
+				System.out.println("brokerQueueEntryDN : "+brokerQueueEntryDN);
+				System.out.println("brokerQueue_Name_EntryDN : "+brokerQueue_Name_EntryDN);
+				System.out.println("brokerShareEntryDN : "+brokerShareEntryDN);
+				System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
+
+			} catch (Exception e) {
+				System.out.println("error: " + e.getMessage());
+				return flag;
+			}
+			return flag;
+		}
+	
 	// Attributes to be set for new entry creation
 	public boolean addVideoEntry(String providerId, String userId, String apiKey) {
 		boolean flag = false;
