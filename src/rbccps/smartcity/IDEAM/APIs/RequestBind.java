@@ -20,7 +20,11 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Objects;
 
 public class RequestBind extends HttpServlet 
 {
@@ -96,7 +100,10 @@ public class RequestBind extends HttpServlet
 			try {
 				connection = factory.newConnection();
 				channel = connection.createChannel();
-				channel.queueBind(queue,exchange,routingKey,null);
+				
+				Map<String, Object> args=new HashMap<String, Object>();
+				args.put("durable", "true");
+				channel.queueBind(queue,exchange,routingKey,args);
 				response.getWriter().println("Bind Queue OK");
 			}
 			catch(Exception e)
@@ -155,7 +162,9 @@ public class RequestBind extends HttpServlet
 						{
 							connection = factory.newConnection();
 							channel = connection.createChannel();
-							channel.queueBind(queue,exchange,routingKey,null);
+							Map<String, Object> args=new HashMap<String, Object>();
+							args.put("durable", "true");
+							channel.queueBind(queue,exchange,routingKey,args);
 							response.getWriter().println("Bind Queue OK");
 							break;
 						}

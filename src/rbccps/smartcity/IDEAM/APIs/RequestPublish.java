@@ -108,6 +108,7 @@ class publish implements Runnable
 
 			try 
 			{
+				System.out.println(token+" "+exchange+" "+body);
 				connection = factory.newConnection();
 				channel = connection.createChannel();
 			} 
@@ -146,6 +147,7 @@ class publish implements Runnable
 		
 		try 
 		{
+			
 			pool.get(token).basicPublish(exchange, key, null, body.getBytes("UTF-8"));
 		} 
 		catch (Exception e) 

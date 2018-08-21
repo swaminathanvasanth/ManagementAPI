@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import rbccps.smartcity.IDEAM.APIs.RequestRegister;
@@ -131,7 +133,9 @@ public class broker {
 			connection = factory.newConnection();
 			channel = connection.createChannel();
 			
-			channel.queueBind(queueID, resourceID, "#");
+			Map<String, Object> args=new HashMap<String, Object>();
+			args.put("durable", "true");
+			channel.queueBind(queueID, resourceID, "#",args);
 			response="Bind queue OK"; 
 			System.out.println("Bound "+resourceID+" to "+queueID);
 			connection .close();
