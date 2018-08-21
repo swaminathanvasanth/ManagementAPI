@@ -43,16 +43,13 @@ public class RequestPublish extends HttpServlet {
 		apikey = request.getHeader("apikey");
 		exchange = requestURI[1];
 		
-		String routingKey;
-	
-		try
-		{
-			routingKey=request.getHeader("routingKey");
-		}
-		catch(Exception e)
+		routingKey=request.getHeader("routingKey");
+		
+		if(routingKey==null)
 		{
 			routingKey="#";
 		}
+		
 		
 		token=X_Consumer_Username+":"+apikey;
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
@@ -108,7 +105,6 @@ class publish implements Runnable
 
 			try 
 			{
-				System.out.println(token+" "+exchange+" "+body);
 				connection = factory.newConnection();
 				channel = connection.createChannel();
 			} 

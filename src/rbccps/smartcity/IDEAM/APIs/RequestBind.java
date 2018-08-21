@@ -32,7 +32,6 @@ public class RequestBind extends HttpServlet
 	static String rmq_pwd;
 	
 	public void readldappwd() {
-		System.out.println("constructer to LDAP bind");
 		
 		try
 		{
@@ -44,7 +43,7 @@ public class RequestBind extends HttpServlet
 		}
 		catch(Exception e)
 		{
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -57,7 +56,7 @@ public class RequestBind extends HttpServlet
 			br.close();
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -70,16 +69,15 @@ public class RequestBind extends HttpServlet
 		String exchange=request.getRequestURI().split("/")[4];
 		
 		String routingKey;
+	
+		routingKey=request.getHeader("routingKey");
 		
-		try
-		{
-			routingKey=request.getHeader("routingKey");
-		}
-		catch(Exception e)
+		if(routingKey== null)
 		{
 			routingKey="#";
 		}
 		
+
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("Apikey");
 		
