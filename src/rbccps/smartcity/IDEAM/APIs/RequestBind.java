@@ -199,24 +199,29 @@ public class RequestBind extends HttpServlet
 		
 		String routingKey;
 		
-		try
-		{
-			routingKey=request.getHeader("routingKey");
-		}
-		catch(Exception e)
+		routingKey=request.getHeader("routingKey");
+		
+		if(routingKey== null)
 		{
 			routingKey="#";
 		}
 		
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("Apikey");
+		
+		if(!username.equalsIgnoreCase(queue))
+		{
+			response.setStatus(401);
+			response.getWriter().println("You do not have access to unbind this queue");
+			return;
+		}
 
 		Connection connection;
 		Channel channel=null;
 		ConnectionFactory factory = new ConnectionFactory();
 			
-		factory.setUsername(username);
-		factory.setPassword(apikey);
+		factory.setUsername("admin.ideam");
+		factory.setPassword(rmq_pwd);
 		factory.setVirtualHost("/");
 		factory.setHost("rabbitmq");
 		factory.setPort(5672);
@@ -227,7 +232,9 @@ public class RequestBind extends HttpServlet
 			try {
 				connection = factory.newConnection();
 				channel = connection.createChannel();
-				channel.queueUnbind(queue,exchange,routingKey,null);
+				Map<String, Object> args=new HashMap<String, Object>();
+				args.put("durable", "true");
+				channel.queueUnbind(queue,exchange,routingKey,args);
 				response.getWriter().println("Unbind Queue OK");
 			}
 			catch(Exception e)
@@ -276,7 +283,9 @@ public class RequestBind extends HttpServlet
 			{
 				connection = factory.newConnection();
 				channel = connection.createChannel();
-				channel.queueUnbind(queue,exchange,routingKey,null);
+				Map<String, Object> args=new HashMap<String, Object>();
+				args.put("durable", "true");
+				channel.queueUnbind(queue,exchange,routingKey,args);
 				response.getWriter().println("Unbind Queue OK");
 				ctx.close();
 			}
