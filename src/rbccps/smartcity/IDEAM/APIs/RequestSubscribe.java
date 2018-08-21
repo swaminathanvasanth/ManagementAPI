@@ -90,14 +90,15 @@ public class RequestSubscribe extends HttpServlet
 					 try 
 					 {
 						message=(JSONObject)parser.parse(data);
+						obj.put("data", message);
 					 } 
 					 catch (Exception e) 
 					 {
-						e.printStackTrace();
+						 obj.put("data", data);
 					 }
-					 obj.put("data", message);
-					 obj.put("datasource", resp.getEnvelope().getExchange());
-					 obj.put("datatype", resp.getEnvelope().getRoutingKey());
+					 
+					 obj.put("from", resp.getEnvelope().getExchange());
+					 obj.put("topic", resp.getEnvelope().getRoutingKey());
 		
 					 res.add(obj);
 					 count++;
