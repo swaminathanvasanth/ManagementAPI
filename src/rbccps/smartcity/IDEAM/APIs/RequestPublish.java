@@ -41,6 +41,12 @@ public class RequestPublish extends HttpServlet {
 		requestURI = request.getPathInfo().toString().split("/");
 		X_Consumer_Username = request.getHeader("X-Consumer-Username");
 		apikey = request.getHeader("apikey");
+		
+		if(apikey==null);
+		{
+			apikey=request.getParameter("apikey");
+		}
+		
 		exchange = requestURI[1];
 		
 		routingKey=request.getHeader("routingKey");

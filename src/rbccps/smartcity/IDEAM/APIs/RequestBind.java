@@ -81,6 +81,11 @@ public class RequestBind extends HttpServlet
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("Apikey");
 		
+		if (apikey==null)
+		{
+			apikey=request.getParameter("apikey");
+		}
+		
 		Connection connection;
 		Channel channel=null;
 		ConnectionFactory factory = new ConnectionFactory();
@@ -91,9 +96,16 @@ public class RequestBind extends HttpServlet
 		factory.setHost("rabbitmq");
 		factory.setPort(5672);
 		
+		if(!username.equalsIgnoreCase(queue.split("\\.")[0]))
+		{
+			response.setStatus(401);
+			response.getWriter().println("You do not have access to unbind this queue");
+			return;
+		}
+		
 		//If the exchange and queue belongs to the same device
 		
-		if(queue.equalsIgnoreCase(exchange.split("\\.")[0]))
+		if(queue.split("\\.")[0].equalsIgnoreCase(exchange.split("\\.")[0]))
 		{
 			try {
 				connection = factory.newConnection();
@@ -138,7 +150,7 @@ public class RequestBind extends HttpServlet
 			
 			try 
 			{
-				namingEnumeration = ctx.search("description="+queue+",description=share,description=broker,uid="+exchange.split("\\.")[0]+",cn=devices", "(description=*)", new Object[]{}, searchControls);
+				namingEnumeration = ctx.search("description="+queue.split("\\.")[0]+",description=share,description=broker,uid="+exchange.split("\\.")[0]+",cn=devices", "(description=*)", new Object[]{}, searchControls);
 			} 
 			catch (NamingException e1) 
 			{
@@ -209,7 +221,12 @@ public class RequestBind extends HttpServlet
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("Apikey");
 		
-		if(!username.equalsIgnoreCase(queue))
+		if (apikey==null)
+		{
+			apikey=request.getParameter("apikey");
+		}
+		
+		if(!username.equalsIgnoreCase(queue.split("\\.")[0]))
 		{
 			response.setStatus(401);
 			response.getWriter().println("You do not have access to unbind this queue");
@@ -227,7 +244,7 @@ public class RequestBind extends HttpServlet
 		factory.setPort(5672);
 		
 		
-		if(queue.equalsIgnoreCase(exchange.split("\\.")[0]))
+		if(queue.split("\\.")[0].equalsIgnoreCase(exchange.split("\\.")[0]))
 		{
 			try {
 				connection = factory.newConnection();
@@ -271,7 +288,7 @@ public class RequestBind extends HttpServlet
 			
 			try 
 			{
-				namingEnumeration = ctx.search("description="+queue+",description=share,description=broker,uid="+exchange.split("\\.")[0]+",cn=devices", "(description=*)", new Object[]{}, searchControls);
+				namingEnumeration = ctx.search("description="+queue.split("\\.")[0]+",description=share,description=broker,uid="+exchange.split("\\.")[0]+",cn=devices", "(description=*)", new Object[]{}, searchControls);
 			} 
 			catch (NamingException e1) 
 			{

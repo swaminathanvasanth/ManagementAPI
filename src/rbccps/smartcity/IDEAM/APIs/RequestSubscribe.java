@@ -35,6 +35,11 @@ public class RequestSubscribe extends HttpServlet
 		int num=Integer.parseInt(request.getRequestURI().split("/")[4]);
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("apikey");
+		
+		if(apikey==null)
+		{
+			apikey=request.getParameter("apikey");
+		}
 
 		Connection connection;
 		Channel channel=null;
@@ -50,6 +55,7 @@ public class RequestSubscribe extends HttpServlet
 		try {
 			connection = factory.newConnection();
 			channel = connection.createChannel();
+
 		}
 		catch(Exception e)
 		{
@@ -69,8 +75,7 @@ public class RequestSubscribe extends HttpServlet
 			{
 				 try 
 				 {
-					resp=channel.basicGet(queue, true);
-					
+					resp=channel.basicGet(queue, false);
 				 } 
 				 catch (Exception e) 
 				 {
