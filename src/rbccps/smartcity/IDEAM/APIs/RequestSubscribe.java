@@ -75,7 +75,7 @@ public class RequestSubscribe extends HttpServlet
 			{
 				 try 
 				 {
-					resp=channel.basicGet(queue, false);
+					resp=channel.basicGet(queue, true);
 				 } 
 				 catch (Exception e) 
 				 {
