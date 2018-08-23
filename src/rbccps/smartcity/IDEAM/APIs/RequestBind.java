@@ -81,10 +81,6 @@ public class RequestBind extends HttpServlet
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("Apikey");
 		
-		if (apikey==null)
-		{
-			apikey=request.getParameter("apikey");
-		}
 		
 		Connection connection;
 		Channel channel=null;

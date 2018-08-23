@@ -36,10 +36,6 @@ public class RequestSubscribe extends HttpServlet
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("apikey");
 		
-		if(apikey==null)
-		{
-			apikey=request.getParameter("apikey");
-		}
 
 		Connection connection;
 		Channel channel=null;
