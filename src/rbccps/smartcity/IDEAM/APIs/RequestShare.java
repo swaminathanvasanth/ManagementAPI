@@ -1,32 +1,48 @@
 package rbccps.smartcity.IDEAM.APIs;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.StreamingOutput;
 
 import org.json.simple.JSONObject;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.AMQP.Basic.Return;
 
 import rbccps.smartcity.IDEAM.registerapi.ldap.LDAP;
 
-public class RequestShare extends HttpServlet{
+public class RequestShare extends HttpServlet
+{
 	
-	/**
-	 * 
-	 */
 	public static final long serialVersionUID = 1L;
 	static JSONObject responseObj;
 	static String response;
@@ -62,99 +78,145 @@ public class RequestShare extends HttpServlet{
 	static long epoch;
 	
 	static String temp = null;
-
-	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{
-		
-		System.out.println("++++++++++++++++++++++++++++++++++++++++++");
-		System.out.println("In RequestRedirect");
-		System.out.println("++++++++++++++++++++++++++++++++++++++++++");
-		response.sendRedirect("http://rbccps.org/smartcity/");
-		return;
-}
+	static String rmq_pwd;
+	static String ldap_pwd;
 	
-	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		
-		System.out.println("------------");
-		System.out.println(request.getRequestURI());
-		System.out.println("------------");
-		
-		try {
-			getHeaderInfo(request);
-			body = getBody(request);
-			getshareinfo(body);
-			sendsharerequest(_entityID, _permission, _requestorID, _validity);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+	public static void readbrokerpassword() 
+	{
+		try 
+		{
+			BufferedReader br = new BufferedReader(new FileReader("/etc/rmqpwd"));
+			rmq_pwd = br.readLine();
+			br.close();
+
+		} 
+		catch (Exception e) 
+		{
 			e.printStackTrace();
 		}
-		}
-
-	private void getHeaderInfo(HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		System.out.println("In Request Header");
-		
-		System.out.println("------------HEADERS----------------");
-		
-		authorization = request.getHeader("authorization");
-		System.out.println(authorization);
-		
-		X_Consumer_Custom_ID = request.getHeader("X-Consumer-Custom-ID");
-		System.out.println(X_Consumer_Custom_ID);
-		
-		X_Consumer_Username = request.getHeader("X-Consumer-Username");
-		System.out.println(X_Consumer_Username);
-		
-		apikey = request.getHeader("apikey");
-		System.out.println(apikey);
-		X_Consumer_Groups = request.getHeader("X-Consumer-Groups");
-		System.out.println(X_Consumer_Groups);
-		
-		System.out.println("------------HEADERS----------------");
-	}
-
-	private String getBody(HttpServletRequest request) throws IOException {
-		// TODO Auto-generated method stub
-		
-		System.out.println("In Request Body");
-		
-		String body = null;
-	    StringBuilder stringBuilder = new StringBuilder();
-	    BufferedReader bufferedReader = null;
-
-	    try {
-	        InputStream inputStream = request.getInputStream();
-	        if (inputStream != null) {
-	            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-	            char[] charBuffer = new char[128];
-	            int bytesRead = -1;
-	            while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-	                stringBuilder.append(charBuffer, 0, bytesRead);
-	            }
-	        } else {
-	             stringBuilder.append("");
-	        }
-	    } catch (IOException ex) {
-	        throw ex;
-	    } finally {
-	        if (bufferedReader != null) {
-	            try {
-	                bufferedReader.close();
-	            } catch (IOException ex) {
-	                throw ex;
-	            }
-	        }
-	    }
-	    body = stringBuilder.toString();
-	    return body;
 	}
 	
-	private void getshareinfo(String json) {
-		// TODO Auto-generated method stub
-		System.out.println(json);
+	public void readldappwd() 
+	{	
+		try
+		{
+			BufferedReader br=new BufferedReader(new FileReader("/etc/pwd"));
+			ldap_pwd=br.readLine();			
+			br.close();
+			
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
+		try 
+		{
+			body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+			
+			boolean flag = getshareinfo(body);
+			
+			if(!flag)
+			{
+				response.setStatus(400);
+				response.getWriter().println("Possible missing fields");
+				return;
+			}
+			
+			String resp=sendsharerequest();
+			
+			if(resp.contains("Failed"))
+			{
+				response.setStatus(502);
+			}
+			
+			response.getWriter().println(resp);
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+			response.setStatus(502);
+			return;
+		}
+	}
+	
+	@Override
+	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException
+	{
+		readldappwd();
+		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+		boolean flag = getshareinfo(body);
 		
+		Hashtable<String, Object> env = new Hashtable<String, Object>();
+		
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
+		env.put(Context.SECURITY_CREDENTIALS, ldap_pwd);
+		
+		DirContext ctx=null;
+		
+		try 
+		{
+			ctx = new InitialDirContext(env);
+		} 
+		catch (NamingException e1) 
+		{
+			e1.printStackTrace();
+		}
+		
+		SearchControls searchControls = new SearchControls();
+		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		searchControls.setCountLimit(10);
+		
+		System.out.println(_entityID+" "+requestorID);
+		
+		try 
+		{
+			ctx.destroySubcontext("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices");
+		} 
+		catch (NamingException e1) 
+		{
+			response.getWriter().println("Share entry does not exist");
+			return;
+		}
+		
+		Connection connection;
+		Channel channel=null;
+		ConnectionFactory factory = new ConnectionFactory();
+			
+		factory.setUsername("admin.ideam");
+		factory.setPassword(rmq_pwd);
+		factory.setVirtualHost("/");
+		factory.setHost("rabbitmq");
+		factory.setPort(5672);
+		
+		
+		try 
+		{
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			Map<String, Object> args=new HashMap<String, Object>();
+			args.put("durable", "true");
+			channel.queueUnbind(_requestorID,_entityID+".protected","#",args);
+			response.getWriter().println("Successfully unshared from "+_requestorID);
+		}
+			
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			response.setStatus(502);
+			response.getWriter().println("Unable to unbind queue");
+		}
+	}
+	
+	public boolean getshareinfo(String json) 
+	{	
 		try
 		{
 			parser = new JsonParser();
@@ -175,23 +237,32 @@ public class RequestShare extends HttpServlet{
 						
 			permission = jsonObject.get("permission");
 			_permission= permission.toString().replace("\"", "");
-
+			
+			if((!(_permission.equalsIgnoreCase("read")))&&(!(_permission.equalsIgnoreCase("write")))&&(!(_permission.equalsIgnoreCase("read-write"))))	
+			return false;
+			
 			System.out.println(_permission);
 			
 			validity = jsonObject.get("validity");
 			_validity= validity.toString().replace("\"", "");
-
+			
+			if((_validity.charAt(_validity.length()-1)!='M')&&(_validity.charAt(_validity.length()-1)!='Y')&&(_validity.charAt(_validity.length()-1)!='D'))
+			return false;
+			
+			
 			System.out.println(_validity);
+			
+			return true;
 		}
 		catch(Exception e)
 		{
-			System.out.println("Error : Not found");
+			return false;
 
 		}
 	}
 	
-	private void sendsharerequest(String _entityID, String _permission, String _requestorID, String _validity) {
-		// TODO Auto-generated method stub
+	public static String sendsharerequest() 
+	{
 		
 		if(_permission.contains("read")) {
 			_read = "true";
@@ -203,53 +274,105 @@ public class RequestShare extends HttpServlet{
 			_read = "true";
 			_write = "true";
 		}		
-
-		// YMDhms
 		
-		if(_validity.contains("Y")) {
+		if(_validity.charAt(_validity.length()-1)=='Y') 
+		{
 			_validityUnits = "Year";
-		} else if(_validity.contains("M")) {
+		} 
+		else if(_validity.charAt(_validity.length()-1)=='M') 
+		{
 			_validityUnits = "Month";
-		} else if(_validity.contains("D")) {
+		} 
+		else if(_validity.charAt(_validity.length()-1)=='D') 
+		{
 			_validityUnits = "Day";
-		} else if(_validity.contains("h")) {
-			_validityUnits = "hour";
-		} else if(_validity.contains("m")) { 
-			_validityUnits = "minute";
-		} else if(_validity.contains("s")) {
-			_validityUnits = "seconds";
-		}
+		} 
+		
 		System.out.println(_validityUnits);
-		temp = "";
-		for(int i = 0; i< _validity.length() -1; i ++) {
-			System.out.println(_validity.charAt(i));
-			temp = temp + _validity.charAt(i);
-		}
+		
+		temp = _validity.substring(0, _validity.length()-1);
+		
+		System.out.println(temp);
+		
 
-		if(_validityUnits == "Year") {
+		if(_validityUnits.equalsIgnoreCase("Year")) 
+		{
 			_expireDate = LocalDate.now().plusYears(Long.parseLong(temp));
-		} else if(_validityUnits == "Month") {
+		} 
+		else if(_validityUnits.equalsIgnoreCase("Month")) 
+		{
 			_expireDate = LocalDate.now().plusMonths(Long.parseLong(temp));
-		}  else if(_validityUnits == "Day") {
+		}  
+		else if(_validityUnits.equalsIgnoreCase("Day")) 
+		{
 			_expireDate = LocalDate.now().plusDays(Long.parseLong(temp));	
 		} 
 		
-		 _expiretime = LocalTime.now();
+		_expiretime = LocalTime.now();
 		
-		 System.out.println("Expiry Date is : "+_expireDate.toString());
-		 System.out.println("Expiry Time is : "+_expiretime.toString()); 
+		System.out.println("Expiry Date is : "+_expireDate.toString());
+		System.out.println("Expiry Time is : "+_expiretime.toString()); 
 		 
-		 _expiry = LocalDateTime.of(_expireDate, _expiretime);
+		_expiry = LocalDateTime.of(_expireDate, _expiretime);
 		 
-		 System.out.println("Expiry is : "+_expiry.toString());
-		 zoneId = ZoneId.systemDefault();
-		 epoch = _expiry.atZone(zoneId).toInstant().toEpochMilli();
+		System.out.println("Expiry is : "+_expiry.toString());
+		zoneId = ZoneId.systemDefault();
+		epoch = _expiry.atZone(zoneId).toInstant().toEpochMilli();
 		 
-		 System.out.println("Epoch is : "+epoch);
-		 _validity = epoch+"";
+		System.out.println("Epoch is : "+epoch);
+		_validity = epoch+"";
 		 
 		LDAP addShareEntryToLdap = new LDAP();
-		addShareEntryToLdap.addShareEntry(_entityID, _requestorID, _read, _write, _validity);
-
+		boolean ldap=addShareEntryToLdap.addShareEntry(_entityID, _requestorID, _read, _write, _validity);
+		boolean pub=publish(_entityID, _requestorID);
+		
+		JsonObject response=new JsonObject();
+		if(ldap&&pub)
+		{
+			response.addProperty("status","Share request approved for "+_requestorID+" with permission "+_permission+" at "+Instant.now());
+		}
+		else 
+		{
+			response.addProperty("status", "Failed to approve share request");
+		}
+		
+		return response.toString();
+	}
+	
+	public static boolean publish(String entityID, String requestorID)
+	{
+		readbrokerpassword();
+		Connection connection;
+		Channel channel;
+		ConnectionFactory factory = new ConnectionFactory();
+			
+		factory.setUsername("admin.ideam");
+		factory.setPassword(rmq_pwd);
+		factory.setVirtualHost("/");
+		factory.setHost("rabbitmq");
+		factory.setPort(5672);
+			
+		try
+		{
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			
+			JsonObject object=new JsonObject();
+			
+			object.addProperty("Status update for follow request sent to "+entityID, "Approved. You can now bind to "+entityID+".protected");
+			
+			channel.basicPublish(requestorID+".notify", "#", null, object.toString().getBytes("UTF-8"));
+	
+			connection.close();
+			
+			return true;
+		}
+			
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+		
 	}
 }

@@ -1,18 +1,33 @@
 package rbccps.smartcity.IDEAM.APIs;
 
 import java.io.IOException;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.json.simple.JSONObject;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 
 import rbccps.smartcity.IDEAM.registerapi.lora.loraserverConfigurationFields;
 
@@ -35,10 +50,13 @@ public class RequestFollow extends HttpServlet {
 	static JsonParser parser;
 	static JsonElement jsonTree;
 	static JsonObject jsonObject;
-	static String requestorID = null;
+	
 
 	static JsonElement entityID;
 	static String _entityID = null;
+	
+	static JsonElement requestorID;
+	static String _requestorID = null;
 
 	static JsonElement permission;
 	static String _permission = null;
@@ -47,101 +65,149 @@ public class RequestFollow extends HttpServlet {
 	static String _validity = null;
 
 	static rbccps.smartcity.IDEAM.registerapi.broker.broker broker;
+	
+	static String rmq_pwd;
+	static String ldap_pwd;
+	
+	public static void readbrokerpassword() 
+	{
+		try 
+		{
+			BufferedReader br = new BufferedReader(new FileReader("/etc/rmqpwd"));
+			rmq_pwd = br.readLine();
+			br.close();
 
-	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-		System.out.println("++++++++++++++++++++++++++++++++++++++++++");
-		System.out.println("In RequestRedirect");
-		System.out.println("++++++++++++++++++++++++++++++++++++++++++");
-		response.sendRedirect("http://rbccps.org/smartcity/");
-		return;
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
 	}
-
-	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-
-		System.out.println("------------");
-		System.out.println(request.getRequestURI());
-		System.out.println("------------");
-
-		try {
-			getHeaderInfo(request);
-			body = getBody(request);
-			getfollowID(body);
-			sendfollowrequest(_entityID, _permission, X_Consumer_Username, _validity);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+	
+	public void readldappwd() 
+	{	
+		try
+		{
+			BufferedReader br=new BufferedReader(new FileReader("/etc/pwd"));
+			ldap_pwd=br.readLine();			
+			br.close();
+			
+		}
+		catch(Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	private void getHeaderInfo(HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		System.out.println("In Request Header");
-
-		System.out.println("------------HEADERS----------------");
-
-		authorization = request.getHeader("authorization");
-		System.out.println(authorization);
-
-		X_Consumer_Custom_ID = request.getHeader("X-Consumer-Custom-ID");
-		System.out.println(X_Consumer_Custom_ID);
-
-		X_Consumer_Username = request.getHeader("X-Consumer-Username");
-		System.out.println(X_Consumer_Username);
-
-		apikey = request.getHeader("apikey");
-		System.out.println(apikey);
-		X_Consumer_Groups = request.getHeader("X-Consumer-Groups");
-		System.out.println(X_Consumer_Groups);
-
-		System.out.println("------------HEADERS----------------");
-	}
-
-	private String getBody(HttpServletRequest request) throws IOException {
-		// TODO Auto-generated method stub
-
-		System.out.println("In Request Body");
-
-		String body = null;
-		StringBuilder stringBuilder = new StringBuilder();
-		BufferedReader bufferedReader = null;
-
-		try {
-			InputStream inputStream = request.getInputStream();
-			if (inputStream != null) {
-				bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-				char[] charBuffer = new char[128];
-				int bytesRead = -1;
-				while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-					stringBuilder.append(charBuffer, 0, bytesRead);
-				}
-			} else {
-				stringBuilder.append("");
+	@Override
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
+		try 
+		{
+			body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+			boolean flag = getfollowInfo(body);
+			
+			if(!flag)
+			{
+				response.setStatus(400);
+				response.getWriter().println("Possible missing fields");
+				return;
 			}
-		} catch (IOException ex) {
-			throw ex;
-		} finally {
-			if (bufferedReader != null) {
-				try {
-					bufferedReader.close();
-				} catch (IOException ex) {
-					throw ex;
-				}
+			
+			String resp=sendfollowrequest();
+			
+			if(resp.contains("Failed"))
+			{
+				response.setStatus(502);
 			}
+			
+			response.getWriter().println(resp);
+			
+		} 
+		catch (IOException e) 
+		{
+			response.setStatus(400);
+			response.getWriter().println("Invalid request");
+			return;
 		}
-		body = stringBuilder.toString();
-		return body;
+	}
+	
+	@Override
+	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException
+	{
+		readldappwd();
+		readbrokerpassword();
+		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+		boolean flag = getfollowInfo(body);
+		
+		Hashtable<String, Object> env = new Hashtable<String, Object>();
+		
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
+		env.put(Context.SECURITY_CREDENTIALS, ldap_pwd);
+		
+		DirContext ctx=null;
+		
+		try 
+		{
+			ctx = new InitialDirContext(env);
+		} 
+		catch (NamingException e1) 
+		{
+			e1.printStackTrace();
+		}
+		
+		SearchControls searchControls = new SearchControls();
+		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		searchControls.setCountLimit(10);
+		
+		try 
+		{
+			ctx.destroySubcontext("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices");
+		} 
+		catch (NamingException e1) 
+		{
+			response.getWriter().println("Share entry does not exist");
+			return;
+		}
+		
+		Connection connection;
+		Channel channel=null;
+		ConnectionFactory factory = new ConnectionFactory();
+			
+		factory.setUsername("admin.ideam");
+		factory.setPassword(rmq_pwd);
+		factory.setVirtualHost("/");
+		factory.setHost("rabbitmq");
+		factory.setPort(5672);
+		
+		
+		try 
+		{
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			Map<String, Object> args=new HashMap<String, Object>();
+			args.put("durable", "true");
+			channel.queueUnbind(_requestorID,_entityID+".protected","#",args);
+			response.getWriter().println("Successfully unfollowed "+_entityID);
+		}
+			
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			response.setStatus(502);
+			response.getWriter().println("Unable to unbind queue");
+		}
 	}
 
-	private void getfollowID(String json) {
-		// TODO Auto-generated method stub
+	private boolean getfollowInfo(String json) 
+	{
 		System.out.println(json);
 
-		try {
+		try 
+		{
 			parser = new JsonParser();
 			jsonTree = parser.parse(json);
 			jsonObject = jsonTree.getAsJsonObject();
@@ -150,30 +216,44 @@ public class RequestFollow extends HttpServlet {
 
 			entityID = jsonObject.get("entityID");
 			_entityID = entityID.toString().replace("\"", "");
-			_entityID = _entityID + ".follow";
 
 			System.out.println(_entityID);
+			
+			requestorID = jsonObject.get("requestorID");
+			_requestorID = requestorID.toString().replace("\"", "");
 
 			permission = jsonObject.get("permission");
 			_permission = permission.toString().replace("\"", "");
+			
+			if((!(_permission.equalsIgnoreCase("read")))&&(!(_permission.equalsIgnoreCase("write")))&&(!(_permission.equalsIgnoreCase("read-write"))))	
+			return false;
 
 			System.out.println(_permission);
 
 			validity = jsonObject.get("validity");
 			_validity = validity.toString().replace("\"", "");
+			
+			if((_validity.charAt(_validity.length()-1)!='M')&&(_validity.charAt(_validity.length()-1)!='Y')&&(_validity.charAt(_validity.length()-1)!='D'))
+			return false;
 
 			System.out.println(_validity);
-		} catch (Exception e) {
-			System.out.println("Error : Not found");
-
+			
+			return true;
+			
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			return false;
 		}
 	}
 
-	private void sendfollowrequest(String _entityID, String _permission, String _requestorID, String _validity) {
-		// TODO Auto-generated method stub
-
+	private String sendfollowrequest() 
+	{
 		broker = new rbccps.smartcity.IDEAM.registerapi.broker.broker();
-		broker.publish(_entityID, _permission, _requestorID, _validity);
+		String resp=broker.publish(_entityID+".follow", _permission, _requestorID, _validity);
+		
+		return resp;
 
 	}
 

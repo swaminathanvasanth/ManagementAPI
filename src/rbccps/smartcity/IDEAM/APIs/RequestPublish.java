@@ -37,7 +37,6 @@ public class RequestPublish extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		System.out.println("In publish");
 
 		requestURI = request.getPathInfo().toString().split("/");
 		X_Consumer_Username = request.getHeader("X-Consumer-Username");
@@ -53,10 +52,7 @@ public class RequestPublish extends HttpServlet {
 		}
 		
 		
-		
 		token=X_Consumer_Username+":"+apikey;
-		
-		System.out.println(token);
 		
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		pub.token=token;
@@ -149,7 +145,6 @@ class publish implements Runnable
 		
 		try 
 		{
-			
 			pool.get(token).basicPublish(exchange, key, null, body.getBytes("UTF-8"));
 		} 
 		catch (Exception e) 

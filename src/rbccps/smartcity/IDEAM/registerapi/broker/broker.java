@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -217,84 +218,49 @@ public class broker {
 	}
 
 	
-	public static String publish(String _entityID, String _permission, String _requestorID, String _validity) {
-		// TODO Auto-generated method stub
-
-		// $ curl -i -X POST "http://127.0.0.1:8080/publish" -d \
-		// '{"exchange": "e1", "key": "bb", "deliverymode": 1, "priority": 99, "body":
-		// "hahaha"}'
-
+	public static String publish(String _entityID, String _permission, String _requestorID, String _validity) 
+	{
 		readbrokerpassword();
-
-		publish_jsonObject = new JsonObject();
-		_url = URLs.getBrokerURL();
-		_value = _entityID;
-		response = null;
-		System.out.println("+++++++++++In publish message Block+++++++++++");
-		// curl -i -X POST http://127.0.0.1:8080/exchange -d \
-		// '{"name": "e1", "type": "topic", "durable": true, "autodelete": false}'
-		try {
-			URL url = new URL(_url + "/publish"); // RabbitMQ Docker
-			String _postData;
-			System.out.println(_entityID);
-
-			// Create a structured JSON as per the Broker requirement
-
-			// '{"exchange": "e1", "key": "bb", "deliverymode": 1, "priority": 99, "body":
-			// "hahaha"}'
+		Connection connection;
+		Channel channel;
+		ConnectionFactory factory = new ConnectionFactory();
 			
-			publish_jsonObject.addProperty("requestorID", _requestorID);
-			publish_jsonObject.addProperty("permission", _permission);
-			publish_jsonObject.addProperty("validity", _validity);
+		factory.setUsername("admin.ideam");
+		factory.setPassword(password);
+		factory.setVirtualHost("/");
+		factory.setHost("rabbitmq");
+		factory.setPort(5672);
+		
+		JsonObject response=new JsonObject();
 			
-			System.out.println(publish_jsonObject.toString());
+		try
+		{
+			connection = factory.newConnection();
+			channel = connection.createChannel();
 			
-			_postData = "{\"exchange\":" + "\"" + _entityID + "\"" + "," 
-					+ "\"key\":" + "\"" + _entityID + "\"" + ","
-					+ "\"body\":" + "\"" + publish_jsonObject.toString() +"\"" + "}";
+			JsonObject object=new JsonObject();
+			
+			object.addProperty("requestor", _requestorID);
+			object.addProperty("permission", _permission);
+			object.addProperty("validity", _validity);
+			object.addProperty("timestamp", Instant.now().toString());
 
-			System.out
-					.println("+++++++++++In publish message try Block+++++++++++" + "\n" + _postData.toString() + "\n");
-
-			byte[] postDataBytes = _postData.toString().getBytes("UTF-8");
-
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			conn.setRequestProperty("X-Consumer-Username", "admin.ideam");
-			conn.setRequestProperty("Apikey", password);
-
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-			conn.setDoOutput(true);
-			conn.getOutputStream().write(postDataBytes);
-			Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-			StringBuilder sb = new StringBuilder();
-			for (int c; (c = in.read()) >= 0;)
-				sb.append((char) c);
-			response = sb.toString();
-			System.out.println(response);
-			System.out.println("In  publish message");
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			channel.basicPublish(_entityID, "#", null, object.toString().getBytes("UTF-8"));
+			
+			response.addProperty("status","Follow request has been made to "+_entityID+" with permission "+_permission+" at "+Instant.now());
+	
+			connection.close();
+			
+			return response.toString();
+		}
+			
+		catch(Exception e)
+		{
 			e.printStackTrace();
-
-			response_jsonObject = new JsonObject();
-			response_jsonObject.addProperty("Registration", "failure");
-			response_jsonObject.addProperty("Reason", "Cannot create Exchange.");
-
-			System.out.println("--------------");
-			System.out.println(response_jsonObject.toString());
-			System.out.println("--------------");
-
-			System.out.println("+++++++++++In createExchange catch Block+++++++++++" + e.toString());
-			response = response_jsonObject.toString();
+			response.addProperty("status","Failed to make follow request");
 
 		}
-		return response;
-
-		// Add a FLAG to process the Registration further
+		return response.toString();
 
 	}
 }
