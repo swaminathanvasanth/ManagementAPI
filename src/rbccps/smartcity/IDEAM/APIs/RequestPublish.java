@@ -102,7 +102,7 @@ class publish implements Runnable
 			factory.setUsername(token.split(":")[0]);
 			factory.setPassword(token.split(":")[1]);
 			factory.setVirtualHost("/");
-			factory.setHost("rabbitmq");
+			factory.setHost("broker");
 			factory.setPort(5672);
 
 			try 
@@ -125,7 +125,7 @@ class publish implements Runnable
 				factory.setUsername(token.split(":")[0]);
 				factory.setPassword(token.split(":")[1]);
 				factory.setVirtualHost("/");
-				factory.setHost("rabbitmq");
+				factory.setHost("broker");
 				factory.setPort(5672);
 
 				try 

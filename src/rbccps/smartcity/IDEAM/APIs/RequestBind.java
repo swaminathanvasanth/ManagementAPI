@@ -89,7 +89,7 @@ public class RequestBind extends HttpServlet
 		factory.setUsername("admin.ideam");
 		factory.setPassword(rmq_pwd);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 		
 		if(!username.equalsIgnoreCase(queue.split("\\.")[0]))
@@ -236,7 +236,7 @@ public class RequestBind extends HttpServlet
 		factory.setUsername("admin.ideam");
 		factory.setPassword(rmq_pwd);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 		
 		

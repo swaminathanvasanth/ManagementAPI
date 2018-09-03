@@ -180,7 +180,7 @@ public class RequestFollow extends HttpServlet {
 		factory.setUsername("admin.ideam");
 		factory.setPassword(rmq_pwd);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 		
 		

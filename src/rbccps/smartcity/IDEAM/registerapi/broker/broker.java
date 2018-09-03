@@ -57,7 +57,7 @@ public class broker {
 		factory.setUsername("admin.ideam");
 		factory.setPassword(password);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 		
 		try {
@@ -90,7 +90,7 @@ public class broker {
 		factory.setUsername("admin.ideam");
 		factory.setPassword(password);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 			
 		try
@@ -126,7 +126,7 @@ public class broker {
 		factory.setUsername("admin.ideam");
 		factory.setPassword(password);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 			
 		try
@@ -163,7 +163,7 @@ public class broker {
 		factory.setUsername("admin.ideam");
 		factory.setPassword(password);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 		
 		try {
@@ -196,7 +196,7 @@ public class broker {
 		factory.setUsername("admin.ideam");
 		factory.setPassword(password);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 			
 		try
@@ -228,7 +228,7 @@ public class broker {
 		factory.setUsername("admin.ideam");
 		factory.setPassword(password);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 		
 		JsonObject response=new JsonObject();

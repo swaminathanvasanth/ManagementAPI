@@ -31,7 +31,7 @@ public class RequestQueue extends HttpServlet
 		factory.setUsername(username);
 		factory.setPassword(apikey);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 		
 		
@@ -63,7 +63,7 @@ public class RequestQueue extends HttpServlet
 		factory.setUsername(username);
 		factory.setPassword(apikey);
 		factory.setVirtualHost("/");
-		factory.setHost("rabbitmq");
+		factory.setHost("broker");
 		factory.setPort(5672);
 		
 		
