@@ -10,17 +10,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.http.HttpResponse;
 import org.json.simple.JSONObject;
 
 import rbccps.smartcity.IDEAM.registerapi.kong.Register;
 import rbccps.smartcity.IDEAM.registerapi.parser.createEntityJSONParser;
+import rbccps.smartcity.IDEAM.registerapi.parser.deleteEntityJSONParser;
 import rbccps.smartcity.IDEAM.registerapi.parser.entity;
 import rbccps.smartcity.IDEAM.registerapi.parser.owner;
 import rbccps.smartcity.IDEAM.registerapi.deregister.*;
 
 public class RequestRegister extends HttpServlet {
 
-	private static final createEntityJSONParser DeleteEntityJSONParser = null;
+	private static final deleteEntityJSONParser DeleteEntityJSONParser = null;
 
 	Register register = new Register();
 
@@ -48,10 +51,25 @@ public class RequestRegister extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		
 		resp = (HttpServletResponse) getAPIKey(req, resp);
 		out = resp.getWriter();
 		resp.setContentType("application/json");
 		out.print(returnData);
+	}
+
+	
+	
+	@Override
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+	
+		resp = (HttpServletResponse) deleteAPIKey(req,resp);
+		System.out.println("Completed : " + returnData);
+		out = resp.getWriter();
+		resp.setContentType("application/json");
+		out.print(returnData);
+		
 	}
 
 	public HttpServletResponse getAPIKey(HttpServletRequest request, HttpServletResponse resp) {
@@ -116,7 +134,7 @@ public class RequestRegister extends HttpServlet {
 		return resp;
 	}
 
-	public String deleteAPIKey(HttpServletRequest request) {
+	public HttpServletResponse deleteAPIKey(HttpServletRequest request, HttpServletResponse response) {
 
 		try {
 			getHeaderInfo(request);
@@ -127,10 +145,11 @@ public class RequestRegister extends HttpServlet {
 			e.printStackTrace();
 		}
 
-		String returnData = DeleteEntityJSONParser.JSONParser();
+		
+		returnData = DeleteEntityJSONParser.JSONParser();
 		System.out.println(returnData);
-
-		return returnData;
+		response.setStatus(200, returnData);
+		return response;
 	}
 
 	private void getHeaderInfo(HttpServletRequest request) {

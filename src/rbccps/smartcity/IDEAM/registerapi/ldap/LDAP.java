@@ -835,6 +835,25 @@ public class LDAP {
 		brokerExchange_DeviceName_Follow_Entry
 				.put(exchange_DeviceName_Follow_write);
 
+
+		// Exchange Name (Notify) to which User can Read / Write
+
+		brokerExchange_DeviceName_Notify_EntryDN = "description=" + userId
+				+ ".notify,description=exchange,description=broker,"
+				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+
+		Attributes brokerExchange_DeviceName_Notify_Entry = new BasicAttributes();
+		Attribute exchange_DeviceName_Notify_read = new BasicAttribute(
+				"read", "true");
+		Attribute exchange_DeviceName_Notify_write = new BasicAttribute(
+				"write", "true");
+
+		brokerExchange_DeviceName_Notify_Entry.put(oc);
+		brokerExchange_DeviceName_Notify_Entry
+				.put(exchange_DeviceName_Notify_read);
+		brokerExchange_DeviceName_Notify_Entry
+				.put(exchange_DeviceName_Notify_write);
+	
 		
 		// Queue
 
@@ -877,6 +896,21 @@ public class LDAP {
 		brokerQueue_Follow_Name_Entry.put(queue_Follow_Name_read);
 		brokerQueue_Follow_Name_Entry.put(queue_Follow_Name_write);
 		
+		
+		// Queue Notify (Name or ID) from which User can Read
+
+		brokerQueue_Name_Notify_EntryDN = "description=" + userId + ".notify"
+				+ ",description=queue,description=broker," + "uid=" + userId
+				+ ",cn=devices,dc=smartcity";
+
+		Attributes brokerQueue_Notify_Name_Entry = new BasicAttributes();
+		Attribute queue_Notify_Name_read = new BasicAttribute("read", "true");
+		Attribute queue_Notify_Name_write = new BasicAttribute("write", "true");
+
+		brokerQueue_Notify_Name_Entry.put(oc);
+		brokerQueue_Notify_Name_Entry.put(queue_Notify_Name_read);
+		brokerQueue_Notify_Name_Entry.put(queue_Notify_Name_write);
+		
 		// Share
 
 		brokerShareEntryDN = "description=share,description=broker," + "uid="
@@ -910,6 +944,7 @@ public class LDAP {
 			dirContext.destroySubcontext(brokerShare_Name_EntryDN);
 			dirContext.destroySubcontext(brokerShareEntryDN);
 			dirContext.destroySubcontext(brokerQueue_Name_Follow_EntryDN);
+			dirContext.destroySubcontext(brokerQueue_Name_Notify_EntryDN);
 			dirContext.destroySubcontext(brokerQueue_Name_EntryDN);
 			dirContext.destroySubcontext(brokerQueueEntryDN);
 			dirContext.destroySubcontext(
@@ -923,6 +958,7 @@ public class LDAP {
 			dirContext.destroySubcontext(
 					brokerExchange_DeviceName_Configure_EntryDN);
 			dirContext.destroySubcontext(brokerExchange_DeviceName_EntryDN);
+			dirContext.destroySubcontext(brokerExchange_DeviceName_Notify_EntryDN);
 			dirContext.destroySubcontext(brokerExchangeEntryDN);
 			dirContext.destroySubcontext(brokerEntryDN);
 			dirContext.destroySubcontext(entryDN);
@@ -953,14 +989,15 @@ public class LDAP {
 		return true;
 	}
 
-	public boolean verifyProvider(String userId,
+	public static boolean verifyProvider(String userId,
 			String[] decoded_authorization_data) {
 
 		boolean flag = false;
 		entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
+		System.out.println("In verifyProvider");
 
 		try {
-
+			readldappwd();
 			LDAPEntry = dirContext.getAttributes(entryDN).toString();
 			System.out.println(LDAPEntry);
 
@@ -969,9 +1006,13 @@ public class LDAP {
 			String[] providerName = LDAPEntry_Split[0].split("=");
 			String[] provider = providerName[1].split(":");
 			provider[1] = provider[1].replaceAll("\\s+", "");
+			
 
 			String submitted_providerName = decoded_authorization_data[0];
 
+			System.out.println(provider[1] + "   --  " + decoded_authorization_data[0] + " --  " + decoded_authorization_data[1]);
+			
+			
 			if (provider[1].contains(submitted_providerName)) {
 				System.out.println("Valid Device of the User");
 				flag = true;

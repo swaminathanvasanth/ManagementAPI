@@ -96,4 +96,47 @@ public class uCat {
 	}
 
 	
+	public static int deleteCat(String _id){
+
+		System.out.println("+++++++++++In on-board uCat Block+++++++++++");
+		
+		try 
+		{
+			_url = URLs.getuCatURL();
+			
+			URL url = new URL(_url + "?id=" + entity.getEntityID());
+
+			System.out.println("uCat Entry URL : "+url.toString());
+			
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			
+			conn.setRequestMethod("DELETE");
+			conn.setRequestProperty("Content-Type",
+					"application/json");
+			conn.setRequestProperty("no-check","1");
+			conn.setRequestProperty("pwd", "local123");
+			
+			conn.setDoOutput(true);
+            responseCode = conn.getResponseCode();
+            Reader in = new BufferedReader(new InputStreamReader(
+					conn.getInputStream(), "UTF-8"));
+			StringBuilder sb = new StringBuilder();
+			for (int c; (c = in.read()) >= 0;)
+				sb.append((char) c);
+			response = sb.toString();
+			System.out.println(response);
+			System.out.println(responseCode);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} return responseCode; 
+	}
+
+	
 }
