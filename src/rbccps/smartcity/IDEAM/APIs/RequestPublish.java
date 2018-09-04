@@ -51,7 +51,6 @@ public class RequestPublish extends HttpServlet {
 			routingKey="#";
 		}
 		
-		
 		token=X_Consumer_Username+":"+apikey;
 		
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
@@ -62,8 +61,7 @@ public class RequestPublish extends HttpServlet {
 		out = response.getWriter();
 		response.setStatus(STATUS_OK);
 		
-		executor.execute(pub);
-		
+		executor.execute(pub);		
 	}
 }
 

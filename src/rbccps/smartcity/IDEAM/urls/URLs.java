@@ -4,7 +4,7 @@ public class URLs {
 
 
 	  public static String brokerURL = "http://webserver:8080"; 
-	  public static String apiGatewayURL = "http://kong:8001"; 
+	  public static String apiGatewayURL = "http://apigateway:8001"; 
 	  public static String uCatURL = "http://catalogue:8000/cat"; 
 	  public static String mCatURL; 
 	  public static String LDAPURL = "ldap://ldapd:8389"; 
