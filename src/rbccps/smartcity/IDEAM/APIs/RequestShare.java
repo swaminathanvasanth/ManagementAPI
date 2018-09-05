@@ -18,8 +18,11 @@ import java.util.stream.Collectors;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.servlet.ServletException;
@@ -96,7 +99,7 @@ public class RequestShare extends HttpServlet
 		}
 	}
 	
-	public void readldappwd() 
+	public static void readldappwd() 
 	{	
 		try
 		{
@@ -148,6 +151,7 @@ public class RequestShare extends HttpServlet
 	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		readldappwd();
+		
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		boolean flag = getshareinfo(body);
 		
@@ -173,50 +177,87 @@ public class RequestShare extends HttpServlet
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		searchControls.setCountLimit(10);
-		
-		System.out.println(_entityID+" "+requestorID);
+		NamingEnumeration<SearchResult> namingEnumeration=null;
 		
 		try 
 		{
-			ctx.destroySubcontext("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices");
-		} 
+			namingEnumeration = ctx.search("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices", "(description=*)", new Object[]{}, searchControls);
+			
+			while (namingEnumeration.hasMore()) 
+			{
+				SearchResult sr = namingEnumeration.next();
+				   
+				_read=sr.getAttributes().get("read").toString().split(":")[1].trim();
+				_write=sr.getAttributes().get("write").toString().split(":")[1].trim();
+			}
+			
+			if(_permission.equalsIgnoreCase("read"))
+			{
+				_read="false";
+			}
+			
+			else if (_permission.equalsIgnoreCase("write"))
+			{
+				_write="false";
+			}
+			
+			else if(_permission.equalsIgnoreCase("read-write"))
+			{
+				_read="false";
+				_write="false";
+			}
+			
+			if(_read.equals("false")&&_write.equals("false"))
+			{
+				ctx.destroySubcontext("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices");
+				
+				boolean unbind=unbind();
+				
+				if(!unbind)
+				{
+					response.setStatus(502);
+					response.getWriter().println("Unable to unbind queue");
+				}
+			}
+		    
+			else 
+			{
+				if(_read.equals("false"))
+				{
+					boolean unbind=unbind();
+					
+					if(!unbind)
+					{
+						response.setStatus(502);
+						response.getWriter().println("Unable to unbind queue");
+					}
+				}
+				
+				Attribute read = new BasicAttribute("read",_read);
+				Attribute write = new BasicAttribute("write",_write);
+					
+				ModificationItem[] item = new ModificationItem[2];
+					
+				item[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,read);
+				item[1] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, write);
+					
+				ctx.modifyAttributes("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices", item);
+			}
+		}
+		
 		catch (NamingException e1) 
 		{
 			response.getWriter().println("Share entry does not exist");
 			return;
 		}
 		
-		Connection connection;
-		Channel channel=null;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(rmq_pwd);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
+		response.getWriter().println("Successfully unshared from "+_requestorID);
 		
-		
-		try 
-		{
-			connection = factory.newConnection();
-			channel = connection.createChannel();
-			Map<String, Object> args=new HashMap<String, Object>();
-			args.put("durable", "true");
-			channel.queueUnbind(_requestorID,_entityID+".protected","#",args);
-			response.getWriter().println("Successfully unshared from "+_requestorID);
-		}
-			
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			response.setStatus(502);
-			response.getWriter().println("Unable to unbind queue");
-		}
 	}
 	
 	public boolean getshareinfo(String json) 
 	{	
+		
 		try
 		{
 			parser = new JsonParser();
@@ -264,67 +305,146 @@ public class RequestShare extends HttpServlet
 	public static String sendsharerequest() 
 	{
 		
-		if(_permission.contains("read")) {
-			_read = "true";
-			_write = "false";
-		} else if(_permission.contains("write")) {
-			_read = "false";
-			_write = "true";
-		} else if(_permission.contains("read-write")) {
-			_read = "true";
-			_write = "true";
-		}		
+		readldappwd();
 		
-		if(_validity.charAt(_validity.length()-1)=='Y') 
+		boolean ldap=false,pub=false;
+		
+		Hashtable<String, Object> env = new Hashtable<String, Object>();
+		
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
+		env.put(Context.SECURITY_CREDENTIALS, ldap_pwd);
+		
+		DirContext ctx=null;
+		
+		try 
 		{
-			_validityUnits = "Year";
+			ctx = new InitialDirContext(env);
 		} 
-		else if(_validity.charAt(_validity.length()-1)=='M') 
+		catch (NamingException e1) 
 		{
-			_validityUnits = "Month";
-		} 
-		else if(_validity.charAt(_validity.length()-1)=='D') 
+			e1.printStackTrace();
+		}
+		
+		SearchControls searchControls = new SearchControls();
+		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		searchControls.setCountLimit(10);
+		NamingEnumeration<SearchResult> namingEnumeration=null;
+		
+		try 
 		{
-			_validityUnits = "Day";
+			namingEnumeration = ctx.search("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices", "(description=*)", new Object[]{}, searchControls);
+			
+			while (namingEnumeration.hasMore()) 
+			{
+				SearchResult sr = namingEnumeration.next();
+				   
+				_read=sr.getAttributes().get("read").toString().split(":")[1].trim();
+				_write=sr.getAttributes().get("write").toString().split(":")[1].trim();
+			}
+				
+			if(_permission.equalsIgnoreCase("read"))
+			{
+				_read="true";
+			}
+			
+			else if (_permission.equalsIgnoreCase("write"))
+			{
+				_write="true";
+			}
+			
+			else if(_permission.equalsIgnoreCase("read-write"))
+			{
+				_read="true";
+				_write="true";
+			}
+				
+			Attribute read = new BasicAttribute("read",_read);
+			Attribute write = new BasicAttribute("write",_write);
+				
+			ModificationItem[] item = new ModificationItem[2];
+				
+			item[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,read);
+			item[1] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, write);
+				
+			ctx.modifyAttributes("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices", item);
+			ldap=true;
+						
 		} 
 		
-		System.out.println(_validityUnits);
-		
-		temp = _validity.substring(0, _validity.length()-1);
-		
-		System.out.println(temp);
-		
+		catch (NamingException e1) 
+		{
+			if(_permission.equalsIgnoreCase("read")) 
+			{
+				_read = "true";
+				_write = "false";
+			} 
+			
+			else if(_permission.equalsIgnoreCase("write")) 
+			{
+				_read = "false";
+				_write = "true";
+			} 
+			
+			else if(_permission.equalsIgnoreCase("read-write")) 
+			{
+				_read = "true";
+				_write = "true";
+			}		
+			
+			if(_validity.charAt(_validity.length()-1)=='Y') 
+			{
+				_validityUnits = "Year";
+			} 
+			else if(_validity.charAt(_validity.length()-1)=='M') 
+			{
+				_validityUnits = "Month";
+			} 
+			else if(_validity.charAt(_validity.length()-1)=='D') 
+			{
+				_validityUnits = "Day";
+			} 
+			
+			System.out.println(_validityUnits);
+			
+			temp = _validity.substring(0, _validity.length()-1);
+			
+			System.out.println(temp);
+			
 
-		if(_validityUnits.equalsIgnoreCase("Year")) 
-		{
-			_expireDate = LocalDate.now().plusYears(Long.parseLong(temp));
-		} 
-		else if(_validityUnits.equalsIgnoreCase("Month")) 
-		{
-			_expireDate = LocalDate.now().plusMonths(Long.parseLong(temp));
-		}  
-		else if(_validityUnits.equalsIgnoreCase("Day")) 
-		{
-			_expireDate = LocalDate.now().plusDays(Long.parseLong(temp));	
-		} 
-		
-		_expiretime = LocalTime.now();
-		
-		System.out.println("Expiry Date is : "+_expireDate.toString());
-		System.out.println("Expiry Time is : "+_expiretime.toString()); 
-		 
-		_expiry = LocalDateTime.of(_expireDate, _expiretime);
-		 
-		System.out.println("Expiry is : "+_expiry.toString());
-		zoneId = ZoneId.systemDefault();
-		epoch = _expiry.atZone(zoneId).toInstant().toEpochMilli();
-		 
-		System.out.println("Epoch is : "+epoch);
-		_validity = epoch+"";
-		 
-		LDAP addShareEntryToLdap = new LDAP();
-		boolean ldap=addShareEntryToLdap.addShareEntry(_entityID, _requestorID, _read, _write, _validity);
-		boolean pub=publish(_entityID, _requestorID);
+			if(_validityUnits.equalsIgnoreCase("Year")) 
+			{
+				_expireDate = LocalDate.now().plusYears(Long.parseLong(temp));
+			} 
+			else if(_validityUnits.equalsIgnoreCase("Month")) 
+			{
+				_expireDate = LocalDate.now().plusMonths(Long.parseLong(temp));
+			}  
+			else if(_validityUnits.equalsIgnoreCase("Day")) 
+			{
+				_expireDate = LocalDate.now().plusDays(Long.parseLong(temp));	
+			} 
+			
+			_expiretime = LocalTime.now();
+			
+			System.out.println("Expiry Date is : "+_expireDate.toString());
+			System.out.println("Expiry Time is : "+_expiretime.toString()); 
+			 
+			_expiry = LocalDateTime.of(_expireDate, _expiretime);
+			 
+			System.out.println("Expiry is : "+_expiry.toString());
+			zoneId = ZoneId.systemDefault();
+			epoch = _expiry.atZone(zoneId).toInstant().toEpochMilli();
+			 
+			System.out.println("Epoch is : "+epoch);
+			_validity = epoch+"";
+			
+			LDAP addShareEntryToLdap = new LDAP();
+			ldap=addShareEntryToLdap.addShareEntry(_entityID, _requestorID, _read, _write, _validity);
+			pub=publish(_entityID, _requestorID);
+		}
 		
 		JsonObject response=new JsonObject();
 		if(ldap&&pub)
@@ -374,5 +494,37 @@ public class RequestShare extends HttpServlet
 			return false;
 		}
 		
+	}
+	
+	public static boolean unbind()
+	{
+		Connection connection;
+		Channel channel=null;
+		ConnectionFactory factory = new ConnectionFactory();
+			
+		factory.setUsername("admin.ideam");
+		factory.setPassword(rmq_pwd);
+		factory.setVirtualHost("/");
+		factory.setHost("broker");
+		factory.setPort(5672);
+		
+		
+		try 
+		{
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			Map<String, Object> args=new HashMap<String, Object>();
+			args.put("durable", "true");
+			channel.queueUnbind(_requestorID,_entityID+".protected","#",args);
+			
+			return true;
+			
+		}
+			
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
 	}
 }
