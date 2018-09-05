@@ -281,6 +281,10 @@ public class createEntityJSONParser {
 				// Delete the created ID in KONG
 				apiGateway.deleteUser(ID);
 				return response.toString();
+			} else if (response_createID.contains("ID not available. Please Use a Unique ID for Registration.")) {
+				response.addProperty("Registration", "failure");
+				response.addProperty("Reason", "ID already used. Please Use a Unique ID for Registration.");
+				return response.toString();
 			} else {
 				apiGateway.deleteUser(ID);
 				response.addProperty("Registration", "failure");
