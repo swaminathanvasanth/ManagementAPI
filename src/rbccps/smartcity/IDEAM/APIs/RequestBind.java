@@ -101,7 +101,7 @@ public class RequestBind extends HttpServlet
 		
 		//If the exchange and queue belongs to the same device
 		
-		if(queue.split("\\.")[0].equalsIgnoreCase(exchange.split("\\.")[0]))
+		if((queue.split("\\.")[0].equalsIgnoreCase(exchange.split("\\.")[0]))||(exchange.split("\\.")[1].equalsIgnoreCase("public")))
 		{
 			try {
 				connection = factory.newConnection();

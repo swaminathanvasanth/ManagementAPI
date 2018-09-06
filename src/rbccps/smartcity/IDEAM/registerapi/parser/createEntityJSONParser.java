@@ -250,6 +250,7 @@ public class createEntityJSONParser {
 			if (ID != null) {
 				state = 1;
 				response_createID = apiGateway.createUser(ID);
+			
 				System.out.println("------STEP 1------");
 				System.out.println("------------");
 				System.out.println(response_createID);
