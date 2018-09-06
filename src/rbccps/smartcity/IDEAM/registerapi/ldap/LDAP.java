@@ -12,6 +12,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
 
 import rbccps.smartcity.IDEAM.urls.URLs;
 
@@ -988,6 +989,45 @@ public class LDAP {
 		}
 		return true;
 	}
+	
+//	public static boolean deleteEntry(String providerId, String userId, String apiKey)
+//	{
+//		Hashtable<String, Object> env = new Hashtable<String, Object>();
+//		
+//		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+//		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+//		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+//		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
+//		env.put(Context.SECURITY_CREDENTIALS, password);
+//		
+//		DirContext ctx=null;
+//		
+//		try 
+//		{
+//			ctx = new InitialDirContext(env);
+//		} 
+//		catch (NamingException e1) 
+//		{
+//			e1.printStackTrace();
+//		}
+//		
+//		SearchControls searchControls = new SearchControls();
+//		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+//		searchControls.setCountLimit(10);
+//		
+//		try 
+//		{
+//			ctx.destroySubcontext("uid="+userId+",cn=devices");
+//			System.out.println("Success");
+//			return true;
+//		} 
+//		catch (NamingException e1) 
+//		{
+//			e1.printStackTrace();
+//			System.out.println("Could not delete from ldap");
+//			return false;
+//		}
+//	}
 
 	public static boolean verifyProvider(String userId,
 			String[] decoded_authorization_data) {
