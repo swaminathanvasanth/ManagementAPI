@@ -35,7 +35,7 @@ public class deleteEntitySchemaParser {
 			//id_element = (JsonElement) gson.fromJson(id, JsonElement.class);
 			//entitySchemaObject.add("id", id_element);
 			entityInfo.setEntityID(entitySchemaObject.get("id").toString());
-			System.out.println(entitySchemaObject.get("id").toString());
+			//System.out.println(entitySchemaObject.get("id").toString());
 			
 /*
 			System.out.println("\n-------ADDED--------\n");

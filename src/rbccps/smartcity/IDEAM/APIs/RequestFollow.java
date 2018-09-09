@@ -29,6 +29,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import rbccps.smartcity.IDEAM.registerapi.broker.Pool;
 import rbccps.smartcity.IDEAM.registerapi.lora.loraserverConfigurationFields;
 
 /**
@@ -68,21 +69,6 @@ public class RequestFollow extends HttpServlet {
 	
 	static String rmq_pwd;
 	static String ldap_pwd;
-	
-	public static void readbrokerpassword() 
-	{
-		try 
-		{
-			BufferedReader br = new BufferedReader(new FileReader("/etc/rmqpwd"));
-			rmq_pwd = br.readLine();
-			br.close();
-
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-	}
 	
 	public void readldappwd() 
 	{	
@@ -136,7 +122,7 @@ public class RequestFollow extends HttpServlet {
 	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		readldappwd();
-		readbrokerpassword();
+		
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		boolean flag = getfollowInfo(body);
 		
@@ -173,24 +159,11 @@ public class RequestFollow extends HttpServlet {
 			return;
 		}
 		
-		Connection connection;
-		Channel channel=null;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(rmq_pwd);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
-		
-		
 		try 
 		{
-			connection = factory.newConnection();
-			channel = connection.createChannel();
 			Map<String, Object> args=new HashMap<String, Object>();
 			args.put("durable", "true");
-			channel.queueUnbind(_requestorID,_entityID+".protected","#",args);
+			Pool.getAdminChannel().queueUnbind(_requestorID,_entityID+".protected","#",args);
 			response.getWriter().println("Successfully unfollowed "+_entityID);
 		}
 			

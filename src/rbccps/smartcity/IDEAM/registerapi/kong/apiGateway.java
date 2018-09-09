@@ -48,20 +48,23 @@ public class apiGateway {
 		bits.put(5, 86);
 	}
 	
-	public static String createUser(String resourceID) {
-		// TODO Auto-generated method stub
+	public static String createUser(String resourceID) 
+	{
 		_url = URLs.getApiGatewayURL();
 		_value = resourceID;
 		String response = null;
 		parser = new JsonParser();
 
-		try {
+		try 
+		{
 			URL url = new URL(_url + "/consumers/");
 			Map<String, Object> params = new LinkedHashMap<>();
 			params.put("username", _value);
 
 			StringBuilder postData = new StringBuilder();
-			for (Map.Entry<String, Object> param : params.entrySet()) {
+			
+			for (Map.Entry<String, Object> param : params.entrySet()) 
+			{
 				if (postData.length() != 0)
 					postData.append('&');
 				postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
@@ -84,29 +87,37 @@ public class apiGateway {
 
 			Reader in = new BufferedReader(new InputStreamReader(
 					conn.getInputStream(), "UTF-8"));
+			
 			StringBuilder sb = new StringBuilder();
+			
 			for (int c; (c = in.read()) >= 0;)
 				sb.append((char) c);
+			
 			response = sb.toString();
 
-			System.out.println(response);
+			//System.out.println(response);
 
-			if (response != null) {
-				System.out.println(response);
+			if (response != null) 
+			{
+				//System.out.println(response);
 				jsonTree = parser.parse(response);
 				jsonObject = jsonTree.getAsJsonObject();
-				System.out.println(jsonObject.toString());
+				//System.out.println(jsonObject.toString());
 			}
-		} catch (SocketTimeoutException s) {
+		} 
+		
+		catch (SocketTimeoutException s) 
+		{
 			response_jsonObject = new JsonObject();
 			response_jsonObject.addProperty("Registration", "failure");
 			response_jsonObject.addProperty("Reason", "Server Not Reachable");
 			response = response_jsonObject.toString();
-			System.out.println("--------------");
-			System.out.println(response);
-			System.out.println("--------------");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			//System.out.println("--------------");
+			//System.out.println(response);
+			//System.out.println("--------------");
+		} 
+		catch (IOException e) 
+		{
 			e.printStackTrace();
 			response_jsonObject = new JsonObject();
 			response_jsonObject.addProperty("Registration", "failure");
@@ -115,9 +126,9 @@ public class apiGateway {
 							"ID not available. Please Use a Unique ID for Registration.");
 
 			response = response_jsonObject.toString();
-			System.out.println("--------------");
-			System.out.println(response);
-			System.out.println("--------------");
+			//System.out.println("--------------");
+			//System.out.println(response);
+			//System.out.println("--------------");
 
 		}
 
@@ -127,15 +138,16 @@ public class apiGateway {
 
 	}
 
-	public static String deleteUser(String resourceID) {
-		// TODO Auto-generated method stub
+	public static String deleteUser(String resourceID) 
+	{
 		_url = URLs.getApiGatewayURL();
 		_value = resourceID;
 		String response = null;
 		parser = new JsonParser();
 
-		System.out.println(_value);
-		try {
+		//System.out.println(_value);
+		try 
+		{
 			URL url = new URL(_url + "/consumers/" + _value);
 		
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -143,21 +155,25 @@ public class apiGateway {
 			conn.setRequestProperty("Content-Type",
 					"application/x-www-form-urlencoded");
 			
-			System.out.println(conn.getResponseCode());
+			//System.out.println(conn.getResponseCode());
 			response = "Deleted consumer in KONG";
 			
 
-		} catch (Exception e) {
+		} 
+		
+		catch (Exception e) 
+		{
 			response = "Failed to delete";
 		}
+		
 		return response;
 
 		// Add a FLAG to process the Registration further
 
 	}
 
-	public static String generateAPIKey(String resourceID) throws Exception {
-		// TODO Auto-generated method stub
+	public static String generateAPIKey(String resourceID) throws Exception 
+	{
 		URL url = null;
 		String response = null;
 		security_level=RequestRegister.getSecurityLevel();
@@ -165,12 +181,14 @@ public class apiGateway {
 		if(Integer.parseInt(security_level)>5)
 			return "Security level must be between 1-5";
 	
-		if (loraserverConfigurationFields.serverConfiguration) {
-			if (loraserverConfigurationFields.LoRaServer) {
-				System.out
-						.println("apiGateway -- loraserverConfigurationFields.LoRaServer = TRUE");
-				if (loraserverConfigurationFields.appKeyFlag) {
-					
+		if (loraserverConfigurationFields.serverConfiguration) 
+		{
+			if (loraserverConfigurationFields.LoRaServer) 
+			{
+				System.out.println("apiGateway -- loraserverConfigurationFields.LoRaServer = TRUE");
+				
+				if (loraserverConfigurationFields.appKeyFlag) 
+				{
 					System.out.println("LoRA Key Available");
 					
 					String apiKey = loraserverConfigurationFields.getAppKey().replaceAll("^\"|\"$", "");
@@ -214,13 +232,18 @@ public class apiGateway {
 
 					entity.setEntityapikey(_apikey);
 	
-				} else {
+				} 
+				
+				else 
+				{
 					url = new URL(_url + "/consumers/" + resourceID + "/key-auth");
 					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 					
 					
 					String key = "key="+genAPIKey(bits.get(Integer.parseInt(security_level)));
+					
 					byte[] postDataBytes = key.getBytes("UTF-8");					
+					
 					conn.setRequestMethod("POST");
 					conn.setRequestProperty("Content-Type",
 								"application/x-www-form-urlencoded");
@@ -269,7 +292,7 @@ public class apiGateway {
 						}
 					}
 					
-					System.out.println(response);
+					//System.out.println(response);
 
 					parser = new JsonParser();
 					jsonTree = parser.parse(response);
@@ -279,32 +302,35 @@ public class apiGateway {
 
 					_apikey = _apikey_JsonElement.toString();
 
-					System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
+					//System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
 					//System.out.println(key);
 
 					entity.setEntityapikey(_apikey);
 				} 
 			}
-		} else {
+		} 
+		
+		else 
+		{
 			url = new URL(_url + "/consumers/" + resourceID + "/key-auth");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			
 		
 			String key = "key="+genAPIKey(bits.get(Integer.parseInt(security_level)));
+			
 			byte[] postDataBytes = key.getBytes("UTF-8");				
+			
 			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type",
-						"application/x-www-form-urlencoded");
-			conn.setRequestProperty("Content-Length",
-			String.valueOf(postDataBytes.length));
+			conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+			conn.setRequestProperty("Content-Length",String.valueOf(postDataBytes.length));
 			conn.setDoOutput(true);
 	        conn.setDoInput(true);
 	      
 	        conn.getOutputStream().write(postDataBytes);
-			Reader in = new BufferedReader(new InputStreamReader(
-						conn.getInputStream(), "UTF-8"));
+			Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
 
 			StringBuilder sb = new StringBuilder();
+			
 			for (int c; (c = in.read()) >= 0;)
 				sb.append((char) c);
 			
@@ -338,7 +364,7 @@ public class apiGateway {
 			}
 			
 			
-			System.out.println(response);
+			//System.out.println(response);
 
 			parser = new JsonParser();
 			jsonTree = parser.parse(response);
@@ -348,7 +374,7 @@ public class apiGateway {
 
 			_apikey = _apikey_JsonElement.toString();
 
-			System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
+			//System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
 
 			entity.setEntityapikey(_apikey);
 
@@ -360,49 +386,54 @@ public class apiGateway {
 
 	}
 
-	public static String assignWhiteListGroup(String resourceID,
-			String serviceType) {
-
-		// Assign Consumer to WhiteList based on resourceType
+	public static String assignWhiteListGroup(String resourceID,String serviceType) 
+	{	// Assign Consumer to WhiteList based on resourceType
 
 		_value = resourceID;
 		String response = null;
 		String _url = URLs.getApiGatewayURL();
 
-		try {
+		try 
+		{
 			URL url = new URL(_url + "/consumers/" + _value + "/acls");
 			Map<String, Object> params = new LinkedHashMap<>();
 			params.put("group", serviceType);
 
 			StringBuilder postData = new StringBuilder();
-			for (Map.Entry<String, Object> param : params.entrySet()) {
+			
+			for (Map.Entry<String, Object> param : params.entrySet()) 
+			{
 				if (postData.length() != 0)
 					postData.append('&');
+				
 				postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
 				postData.append('=');
-				postData.append(URLEncoder.encode(
-						String.valueOf(param.getValue()), "UTF-8"));
+				postData.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
 			}
+			
 			byte[] postDataBytes = postData.toString().getBytes("UTF-8");
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			
 			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type",
-					"application/x-www-form-urlencoded");
-			conn.setRequestProperty("Content-Length",
-					String.valueOf(postDataBytes.length));
+			conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+			conn.setRequestProperty("Content-Length",String.valueOf(postDataBytes.length));
 			conn.setDoOutput(true);
 			conn.getOutputStream().write(postDataBytes);
-			Reader in = new BufferedReader(new InputStreamReader(
-					conn.getInputStream(), "UTF-8"));
+			
+			Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
 			StringBuilder sb = new StringBuilder();
+			
 			for (int c; (c = in.read()) >= 0;)
 				sb.append((char) c);
+			
 			response = sb.toString();
-			System.out.println(response);
+			//System.out.println(response);
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} 
+		
+		catch (IOException e) 
+		{
 			e.printStackTrace();
 			response = "Cannot add to ServiceList.";
 		}
@@ -416,11 +447,14 @@ public class apiGateway {
 	public static String genAPIKey(int len)
 	{
 		String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+		
 		SecureRandom rnd = new SecureRandom();
 		StringBuilder sb = new StringBuilder( len );
-		   for( int i = 0; i < len; i++ ) 
-		      sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
-		   return sb.toString();
+		
+		for( int i = 0; i < len; i++ ) 
+		   sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+		
+		return sb.toString();
 	}
 
 }

@@ -41,6 +41,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.AMQP.Basic.Return;
 
+import rbccps.smartcity.IDEAM.registerapi.broker.Pool;
 import rbccps.smartcity.IDEAM.registerapi.ldap.LDAP;
 
 public class RequestShare extends HttpServlet
@@ -83,21 +84,6 @@ public class RequestShare extends HttpServlet
 	static String temp = null;
 	static String rmq_pwd;
 	static String ldap_pwd;
-	
-	public static void readbrokerpassword() 
-	{
-		try 
-		{
-			BufferedReader br = new BufferedReader(new FileReader("/etc/rmqpwd"));
-			rmq_pwd = br.readLine();
-			br.close();
-
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-	}
 	
 	public static void readldappwd() 
 	{	
@@ -461,29 +447,14 @@ public class RequestShare extends HttpServlet
 	
 	public static boolean publish(String entityID, String requestorID)
 	{
-		readbrokerpassword();
-		Connection connection;
-		Channel channel;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(rmq_pwd);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
 			
 		try
-		{
-			connection = factory.newConnection();
-			channel = connection.createChannel();
-			
+		{	
 			JsonObject object=new JsonObject();
 			
 			object.addProperty("Status update for follow request sent to "+entityID, "Approved. You can now bind to "+entityID+".protected");
 			
-			channel.basicPublish(requestorID+".notify", "#", null, object.toString().getBytes("UTF-8"));
-	
-			connection.close();
+			Pool.getAdminChannel().basicPublish(requestorID+".notify", "#", null, object.toString().getBytes("UTF-8"));
 			
 			return true;
 		}
@@ -497,25 +468,12 @@ public class RequestShare extends HttpServlet
 	}
 	
 	public static boolean unbind()
-	{
-		Connection connection;
-		Channel channel=null;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(rmq_pwd);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
-		
-		
+	{		
 		try 
 		{
-			connection = factory.newConnection();
-			channel = connection.createChannel();
 			Map<String, Object> args=new HashMap<String, Object>();
 			args.put("durable", "true");
-			channel.queueUnbind(_requestorID,_entityID+".protected","#",args);
+			Pool.getAdminChannel().queueUnbind(_requestorID,_entityID+".protected","#",args);
 			
 			return true;
 			

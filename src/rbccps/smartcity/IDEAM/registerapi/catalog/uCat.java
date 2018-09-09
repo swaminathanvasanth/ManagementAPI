@@ -47,7 +47,7 @@ public class uCat {
 
 	public static int postCat(String _dataSchema){
 
-		System.out.println("+++++++++++In on-board uCat Block+++++++++++");
+		//System.out.println("+++++++++++In on-board uCat Block+++++++++++");
 		
 		try 
 		{
@@ -59,14 +59,15 @@ public class uCat {
 			
 			URL url = new URL(_url + "?id=" + entity.getEntityID());
 
-			System.out.println("uCat Entry URL : "+url.toString());
-			System.out.println("Data in body is : "+_dataSchema);
+			//System.out.println("uCat Entry URL : "+url.toString());
+			//System.out.println("Data in body is : "+_dataSchema);
 			
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type",
 					"application/json");
+			
 			conn.setRequestProperty("no-check","1");
 			conn.setRequestProperty("pwd", "local123");
 			conn.setRequestProperty("Content-Length",
@@ -74,31 +75,35 @@ public class uCat {
 			
 			conn.setDoOutput(true);
             conn.getOutputStream().write(postDataBytes);
+            
             responseCode = conn.getResponseCode();
+            
             Reader in = new BufferedReader(new InputStreamReader(
 					conn.getInputStream(), "UTF-8"));
-			StringBuilder sb = new StringBuilder();
-			for (int c; (c = in.read()) >= 0;)
+			
+            StringBuilder sb = new StringBuilder();
+			
+            for (int c; (c = in.read()) >= 0;)
 				sb.append((char) c);
-			response = sb.toString();
-			System.out.println(response);
-			System.out.println(responseCode);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
+			
+            response = sb.toString();
+			//System.out.println(response);
+			//System.out.println(responseCode);
+		} 
+		
+		catch (Exception e) 
+		{
 			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} return responseCode; 
+			return -1;
+		} 
+		
+		return responseCode; 
 	}
 
 	
 	public static int deleteCat(String _id){
 
-		System.out.println("+++++++++++In on-board uCat Block+++++++++++");
+		//System.out.println("+++++++++++In on-board uCat Block+++++++++++");
 		
 		try 
 		{
@@ -106,36 +111,37 @@ public class uCat {
 			
 			URL url = new URL(_url + "?id=" + entity.getEntityID());
 
-			System.out.println("uCat Entry URL : "+url.toString());
+			//System.out.println("uCat Entry URL : "+url.toString());
 			
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			
 			conn.setRequestMethod("DELETE");
-			conn.setRequestProperty("Content-Type",
-					"application/json");
+			conn.setRequestProperty("Content-Type","application/json");
 			conn.setRequestProperty("no-check","1");
 			conn.setRequestProperty("pwd", "local123");
 			
 			conn.setDoOutput(true);
-            responseCode = conn.getResponseCode();
-            Reader in = new BufferedReader(new InputStreamReader(
-					conn.getInputStream(), "UTF-8"));
+            
+			responseCode = conn.getResponseCode();
+            
+			Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+			
 			StringBuilder sb = new StringBuilder();
+			
 			for (int c; (c = in.read()) >= 0;)
 				sb.append((char) c);
+			
 			response = sb.toString();
-			System.out.println(response);
-			System.out.println(responseCode);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
+			
+			//System.out.println(response);
+			//System.out.println(responseCode);
+		} 
+		catch (Exception e) 
+		{
 			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} return responseCode; 
+		} 
+		
+		return responseCode; 
 	}
 
 	

@@ -38,7 +38,7 @@ public class createEntitySchemaParser {
 			//id_element = (JsonElement) gson.fromJson(id, JsonElement.class);
 			//entitySchemaObject.add("id", id_element);
 			entityInfo.setEntityID(entitySchemaObject.get("id").toString());
-			System.out.println(entitySchemaObject.get("id").toString());
+			//System.out.println(entitySchemaObject.get("id").toString());
 			
 /*
 			System.out.println("\n-------ADDED--------\n");
@@ -56,7 +56,7 @@ public class createEntitySchemaParser {
 		try {
 			ID = jsonObject.get("id");
 			_ID = ID.toString().replaceAll("^\"|\"$", "");
-			System.out.println(_ID);
+			//System.out.println(_ID);
 			createEntityJSONParser.isSubscriber = true;
 			return _ID;
 			

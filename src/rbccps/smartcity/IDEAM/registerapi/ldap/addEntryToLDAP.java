@@ -19,26 +19,31 @@ public class addEntryToLDAP {
 	String password = "secret0";
 	Hashtable<String, String> environment = new Hashtable<String, String>();
 
-	public addEntryToLDAP() {
-		System.out.println("constructer to LDAP bind");
-		try {
-
-			environment.put(Context.INITIAL_CONTEXT_FACTORY,
-					"com.sun.jndi.ldap.LdapCtxFactory");
+	public addEntryToLDAP() 
+	{
+		//System.out.println("constructer to LDAP bind");
+		
+		try 
+		{
+			environment.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
 			environment.put(Context.PROVIDER_URL, url);
 			environment.put(Context.SECURITY_AUTHENTICATION, conntype);
 			environment.put(Context.SECURITY_PRINCIPAL, AdminDn);
 			environment.put(Context.SECURITY_CREDENTIALS, password);
 			dirContext = new InitialDirContext(environment);
-			System.out.println("Bind successful");
+			//System.out.println("Bind successful");
 
-		} catch (Exception exception) {
+		} 
+		catch (Exception exception) 
+		{
 			exception.printStackTrace();
+			return;
 		}
 	}
 
 	// Attributes to be set for new entry creation
-	public boolean addEntry(String providerId, String userId, String apiKey) {
+	public boolean addEntry(String providerId, String userId, String apiKey) 
+	{
 		boolean flag = false;
 
 		Attribute OWNER = new BasicAttribute("owner", providerId);
@@ -57,14 +62,12 @@ public class addEntryToLDAP {
 		entry.put(oc);
 
 		String entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
-		System.out.println("entryDN :" + entryDN + " Entry :"
-				+ entry.toString());
+		//System.out.println("entryDN :" + entryDN + " Entry :"+ entry.toString());
 
 
 		// Video Object
 		// Video Entry
-		String videoEntryDN = "description=video," + "uid=" + userId
-				+ ",cn=devices,dc=smartcity";
+		String videoEntryDN = "description=video," + "uid=" + userId+ ",cn=devices,dc=smartcity";
 		Attributes videoEntry = new BasicAttributes();
 		Attribute videoread = new BasicAttribute("read", "true");
 		Attribute videowrite = new BasicAttribute("write", "true");
@@ -76,8 +79,7 @@ public class addEntryToLDAP {
 		
 		// Broker Object
 		// Broker Entry
-		String brokerEntryDN = "description=broker," + "uid=" + userId
-				+ ",cn=devices,dc=smartcity";
+		String brokerEntryDN = "description=broker," + "uid=" + userId+ ",cn=devices,dc=smartcity";
 		Attributes brokerEntry = new BasicAttributes();
 		Attribute brokerread = new BasicAttribute("read", "true");
 		Attribute brokerwrite = new BasicAttribute("write", "true");
@@ -88,8 +90,7 @@ public class addEntryToLDAP {
 
 		// Exchange
 
-		String brokerExchangeEntryDN = "description=exchange,description=broker,"
-				+ "uid=" + userId + ",cn=devices,dc=smartcity";
+		String brokerExchangeEntryDN = "description=exchange,description=broker,"+ "uid=" + userId + ",cn=devices,dc=smartcity";
 
 		Attributes brokerExchangeEntry = new BasicAttributes();
 		// Attribute exchangeread = new BasicAttribute("read", "true");
@@ -107,8 +108,7 @@ public class addEntryToLDAP {
 
 		Attributes brokerExchange_DeviceName_Entry = new BasicAttributes();
 		Attribute exchange_DeviceName_read = new BasicAttribute("read", "true");
-		Attribute exchange_DeviceName_write = new BasicAttribute("write",
-				"true");
+		Attribute exchange_DeviceName_write = new BasicAttribute("write","true");
 
 		brokerExchange_DeviceName_Entry.put(oc);
 		brokerExchange_DeviceName_Entry.put(exchange_DeviceName_read);
@@ -122,16 +122,12 @@ public class addEntryToLDAP {
 				+ "uid=" + userId + ",cn=devices,dc=smartcity";
 
 		Attributes brokerExchange_DeviceName_Configure_Entry = new BasicAttributes();
-		Attribute exchange_DeviceName_Configure_read = new BasicAttribute(
-				"read", "true");
-		Attribute exchange_DeviceName_Configure_write = new BasicAttribute(
-				"write", "true");
+		Attribute exchange_DeviceName_Configure_read = new BasicAttribute("read", "true");
+		Attribute exchange_DeviceName_Configure_write = new BasicAttribute("write", "true");
 
 		brokerExchange_DeviceName_Configure_Entry.put(oc);
-		brokerExchange_DeviceName_Configure_Entry
-				.put(exchange_DeviceName_Configure_read);
-		brokerExchange_DeviceName_Configure_Entry
-				.put(exchange_DeviceName_Configure_write);
+		brokerExchange_DeviceName_Configure_Entry.put(exchange_DeviceName_Configure_read);
+		brokerExchange_DeviceName_Configure_Entry.put(exchange_DeviceName_Configure_write);
 
 		// Queue
 
@@ -160,34 +156,41 @@ public class addEntryToLDAP {
 		brokerQueue_Name_Entry.put(queue_Name_read);
 		brokerQueue_Name_Entry.put(queue_Name_write);
 
-		System.out.println("brokerentryDN :" + brokerQueueEntryDN + " Entry :"
-				+ brokerQueueEntry.toString());
+		//System.out.println("brokerentryDN :" + brokerQueueEntryDN + " Entry :"
+		//		+ brokerQueueEntry.toString());
 		
-		try {
+		try 
+		{
 			dirContext.createSubcontext(entryDN, entry);
 			dirContext.createSubcontext(videoEntryDN, videoEntry);
 			dirContext.createSubcontext(brokerEntryDN, brokerEntry);
-			dirContext.createSubcontext(brokerExchangeEntryDN,
-					brokerExchangeEntry);
+			dirContext.createSubcontext(brokerExchangeEntryDN,brokerExchangeEntry);
 			dirContext.createSubcontext(brokerExchange_DeviceName_EntryDN,
 					brokerExchange_DeviceName_Entry);
+			
 			dirContext.createSubcontext(
 					brokerExchange_DeviceName_Configure_EntryDN,
 					brokerExchange_DeviceName_Configure_Entry);
+			
 			dirContext.createSubcontext(brokerQueueEntryDN, brokerQueueEntry);
 			dirContext.createSubcontext(brokerQueue_Name_EntryDN,
 					brokerQueue_Name_Entry);
+			
 			flag = true;
 
-		} catch (Exception e) {
+		} 
+		catch (Exception e) 
+		{
 			System.out.println("error: " + e.getMessage());
-			return flag;
+			return false;
 		}
+		
 		return flag;
 	}
 
 	// Attributes to be set for new entry creation
-	public boolean addVideoEntry(String providerId, String userId, String apiKey) {
+	public boolean addVideoEntry(String providerId, String userId, String apiKey) 
+	{
 		boolean flag = false;
 
 		Attribute OWNER = new BasicAttribute("owner", providerId);
@@ -204,8 +207,8 @@ public class addEntryToLDAP {
 		entry.put(oc);
 
 		String entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
-		System.out.println("entryDN :" + entryDN + " Entry :"
-				+ entry.toString());
+		//System.out.println("entryDN :" + entryDN + " Entry :"
+		//		+ entry.toString());
 
 		// video Object
 		// video Entry
@@ -219,12 +222,15 @@ public class addEntryToLDAP {
 		videoEntry.put(videowrite);
 		videoEntry.put(oc);
 
-		try {
+		try 
+		{
 			dirContext.createSubcontext(entryDN, entry);
 			dirContext.createSubcontext(videoEntryDN, videoEntry);
 			flag = true;
 
-		} catch (Exception e) {
+		} 
+		catch (Exception e) 
+		{
 			System.out.println("error: " + e.getMessage());
 			return flag;
 		}

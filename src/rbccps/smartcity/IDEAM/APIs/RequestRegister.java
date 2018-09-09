@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -72,23 +73,28 @@ public class RequestRegister extends HttpServlet {
 
 	public HttpServletResponse getAPIKey(HttpServletRequest request, HttpServletResponse resp) {
 
-		System.out.println("------------");
-		System.out.println(request.getRequestURI());
-		System.out.println("------------");
+		//System.out.println("------------");
+		//System.out.println(request.getRequestURI());
+		//System.out.println("------------");
 
-		try {
+		try 
+		{
 			getHeaderInfo(request);
-			body = getBody(request);
+			body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 			// System.out.println(body);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (IOException e) 
+		{
 			e.printStackTrace();
+			return null;
 		}
 
 		returnData = createEntityJSONParser.JSONParser();
+		
 		System.out.println(returnData);
 
-		if (returnData.contains("ID already used")) {
+		if (returnData.contains("ID already used")) 
+		{
 			resp.setStatus(CONFLICT);
 			clearEntries();
 			return resp;
@@ -97,14 +103,19 @@ public class RequestRegister extends HttpServlet {
 		else if (returnData.contains("uCat update Failure") || returnData.contains("Server Not Reachable")
 				|| returnData.contains("API KeyGen failed") || returnData.contains("Failed in Broker")
 				|| returnData.contains("Failed in adding ID into the ACL") || returnData.contains("LDAP update Failure")
-				|| returnData.contains("Queue Deletion Failure") || returnData.contains("uCat deletion Failure")) {
-			try {
+				|| returnData.contains("Queue Deletion Failure") || returnData.contains("uCat deletion Failure")) 
+		{
+			try 
+			{
 				String response = Deregister.removeEntries(getApikey(), entity.getEntityID());
 				System.out.println(response);
 
-			} catch (Exception e) {
+			} 
+			catch (Exception e) 
+			{
 				System.out.println(e.getMessage());
 			}
+			
 			resp.setStatus(SERVICE_UNAVAILABLE);
 			clearEntries();
 			return resp;
@@ -115,32 +126,44 @@ public class RequestRegister extends HttpServlet {
 				|| returnData.contains("Missing LoRa information") || returnData.contains("Missing Video information")
 				|| returnData.contains("Cannot Onboard Video camera in VideoServer. POST Error.")
 				|| returnData.contains("serverConfiguration_credentials, some field not found in json")
-				|| returnData.contains("PlayURL is not specified in json")) {
-			try {
+				|| returnData.contains("PlayURL is not specified in json")) 
+		{
+			try 
+			{
 				String response = Deregister.removeEntries(getApikey(), entity.getEntityID());
 				System.out.println(response);
 
-			} catch (Exception e) {
+			} 
+			catch (Exception e) 
+			{
 				System.out.println(e.getMessage());
 			}
+			
 			resp.setStatus(BAD_REQUEST);
 			clearEntries();
 			return resp;
-		} else
+		} 
+		else
+		{
 			resp.setStatus(200, returnData);
 		    clearEntries();
+		}
+			
 		return resp;
 	}
 
 	public HttpServletResponse deleteAPIKey(HttpServletRequest request, HttpServletResponse response) {
 
-		try {
+		try 
+		{
 			getHeaderInfo(request);
-			body = getBody(request);
+			body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 			System.out.println(body);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (IOException e) 
+		{
 			e.printStackTrace();
+			return null;
 		}
 
 		
@@ -187,43 +210,6 @@ public class RequestRegister extends HttpServlet {
 		System.out.println(X_Consumer_Groups);
 
 		System.out.println("------------HEADERS----------------");
-	}
-
-	private String getBody(HttpServletRequest request) throws IOException {
-		// TODO Auto-generated method stub
-
-		System.out.println("In Request Body");
-
-		String body = null;
-		StringBuilder stringBuilder = new StringBuilder();
-		BufferedReader bufferedReader = null;
-
-		try {
-			InputStream inputStream = request.getInputStream();
-			if (inputStream != null) {
-				bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-				char[] charBuffer = new char[128];
-				int bytesRead = -1;
-				while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-					stringBuilder.append(charBuffer, 0, bytesRead);
-				}
-			} else {
-				stringBuilder.append("");
-			}
-		} catch (IOException ex) {
-			throw ex;
-		} finally {
-			if (bufferedReader != null) {
-				try {
-					bufferedReader.close();
-				} catch (IOException ex) {
-					throw ex;
-				}
-			}
-		}
-
-		body = stringBuilder.toString();
-		return body;
 	}
 
 	public static String getAuthorization() {

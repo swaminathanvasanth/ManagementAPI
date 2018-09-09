@@ -13,6 +13,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import rbccps.smartcity.IDEAM.registerapi.broker.Pool;
+
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -47,24 +49,11 @@ public class RequestBind extends HttpServlet
 		}
 	}
 	
-	public static void readbrokerpassword() {
-		try {
-			BufferedReader br = new BufferedReader(new FileReader("/etc/rmqpwd"));
-
-			rmq_pwd = br.readLine();
-
-			br.close();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		readldappwd();
-		readbrokerpassword();
+	
 		String queue=request.getRequestURI().split("/")[3];
 		String exchange=request.getRequestURI().split("/")[4];
 		
@@ -82,20 +71,10 @@ public class RequestBind extends HttpServlet
 		String apikey=request.getHeader("Apikey");
 		
 		
-		Connection connection;
-		Channel channel=null;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(rmq_pwd);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
-		
 		if(!username.equalsIgnoreCase(queue.split("\\.")[0]))
 		{
 			response.setStatus(401);
-			response.getWriter().println("You do not have access to unbind this queue");
+			response.getWriter().println("You do not have access to bind this queue");
 			return;
 		}
 		
@@ -103,13 +82,11 @@ public class RequestBind extends HttpServlet
 		
 		if((queue.split("\\.")[0].equalsIgnoreCase(exchange.split("\\.")[0]))||(exchange.split("\\.")[1].equalsIgnoreCase("public")))
 		{
-			try {
-				connection = factory.newConnection();
-				channel = connection.createChannel();
-				
+			try 
+			{	
 				Map<String, Object> args=new HashMap<String, Object>();
 				args.put("durable", "true");
-				channel.queueBind(queue,exchange,routingKey,args);
+				Pool.getAdminChannel().queueBind(queue,exchange,routingKey,args);
 				response.getWriter().println("Bind Queue OK");
 			}
 			catch(Exception e)
@@ -166,11 +143,12 @@ public class RequestBind extends HttpServlet
 				   {
 						try 
 						{
-							connection = factory.newConnection();
-							channel = connection.createChannel();
+							//So that the binding survives a server restart
+							
 							Map<String, Object> args=new HashMap<String, Object>();
 							args.put("durable", "true");
-							channel.queueBind(queue,exchange,routingKey,args);
+							
+							Pool.getAdminChannel().queueBind(queue,exchange,routingKey,args);
 							response.getWriter().println("Bind Queue OK");
 							break;
 						}
@@ -200,7 +178,6 @@ public class RequestBind extends HttpServlet
 	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		readldappwd();
-		readbrokerpassword();
 		
 		String queue=request.getRequestURI().split("/")[3];
 		String exchange=request.getRequestURI().split("/")[4];
@@ -228,28 +205,18 @@ public class RequestBind extends HttpServlet
 			response.getWriter().println("You do not have access to unbind this queue");
 			return;
 		}
-
-		Connection connection;
-		Channel channel=null;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(rmq_pwd);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
 		
 		
 		if(queue.split("\\.")[0].equalsIgnoreCase(exchange.split("\\.")[0]))
 		{
-			try {
-				connection = factory.newConnection();
-				channel = connection.createChannel();
+			try 
+			{
 				Map<String, Object> args=new HashMap<String, Object>();
 				args.put("durable", "true");
-				channel.queueUnbind(queue,exchange,routingKey,args);
+				Pool.getAdminChannel().queueUnbind(queue,exchange,routingKey,args);
 				response.getWriter().println("Unbind Queue OK");
 			}
+			
 			catch(Exception e)
 			{
 				e.printStackTrace();
@@ -294,14 +261,13 @@ public class RequestBind extends HttpServlet
 
 			try 
 			{
-				connection = factory.newConnection();
-				channel = connection.createChannel();
 				Map<String, Object> args=new HashMap<String, Object>();
 				args.put("durable", "true");
-				channel.queueUnbind(queue,exchange,routingKey,args);
+				Pool.getAdminChannel().queueUnbind(queue,exchange,routingKey,args);
 				response.getWriter().println("Unbind Queue OK");
 				ctx.close();
 			}
+			
 			catch(Exception e)
 			{
 				e.printStackTrace();

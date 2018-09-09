@@ -31,46 +31,21 @@ public class broker {
 	static String password = "";
 	static String _message;
 
-	public static void readbrokerpassword() {
-		try {
-			BufferedReader br = new BufferedReader(new FileReader("/etc/rmqpwd"));
 
-			password = br.readLine();
-
-			br.close();
-
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-	}
-
-	public static String createExchange(String resourceID) {
-
-		readbrokerpassword();
+	public static String createExchange(String resourceID) 
+	{
 		response = null;
-		System.out.println("+++++++++++In createExchange Block+++++++++++");
-
-		Connection connection;
-		Channel channel;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(password);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
+		//System.out.println("+++++++++++In createExchange Block+++++++++++");
 		
-		try {
-			connection = factory.newConnection();
-			channel = connection.createChannel();
-			channel.exchangeDeclare(resourceID, "topic",true);
+		try 
+		{
+			Pool.getAdminChannel().exchangeDeclare(resourceID, "topic",true);
 			response="Created Exchange "+resourceID;  
-			connection.close();
-			
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
+			return null;
 		}
 
 		
@@ -81,31 +56,18 @@ public class broker {
 	public static String createQueue(String resourceID) {
 		
 		response = null;
-		System.out.println("+++++++++++In createQueue Block+++++++++++");
-
-		Connection connection;
-		Channel channel;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(password);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
+		//System.out.println("+++++++++++In createQueue Block+++++++++++");
 			
 		try
-		{
-			connection = factory.newConnection();
-			channel = connection.createChannel();
-			
-			channel.queueDeclare(resourceID, true, false, false, null);
+		{	
+			Pool.getAdminChannel().queueDeclare(resourceID, true, false, false, null);
 			response="Created Queue "+resourceID;
-			connection.close();
 		}
 			
 		catch(Exception e)
 		{
 			e.printStackTrace();
+			return null;
 		}
 		return response;
 
@@ -113,33 +75,22 @@ public class broker {
 
 	public static String createBinding(String resourceID, String queueID) {
 
-		System.out.println("+++++++++++In createBinding Block+++++++++++");
+		//System.out.println("+++++++++++In createBinding Block+++++++++++");
 
 		String response = "";
 		
 		response = null;
-
-		Connection connection;
-		Channel channel;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(password);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
 			
 		try
 		{
-			connection = factory.newConnection();
-			channel = connection.createChannel();
 			
 			Map<String, Object> args=new HashMap<String, Object>();
 			args.put("durable", "true");
-			channel.queueBind(queueID, resourceID, "#",args);
+			
+			Pool.getAdminChannel().queueBind(queueID, resourceID, "#",args);
 			response="Bind queue OK"; 
-			System.out.println("Bound "+resourceID+" to "+queueID);
-			connection .close();
+			
+			//System.out.println("Bound "+resourceID+" to "+queueID);
 		}
 			
 		catch(Exception e)
@@ -154,31 +105,17 @@ public class broker {
 
 		
 		response = null;
-		System.out.println("+++++++++++In deleteExchange Block+++++++++++");
-
-		Connection connection;
-		Channel channel;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(password);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
+		//System.out.println("+++++++++++In deleteExchange Block+++++++++++");
 		
-		try {
-			connection = factory.newConnection();
-			channel = connection.createChannel();
-			channel.exchangeDelete(resourceID);
+		try 
+		{	
+			Pool.getAdminChannel().exchangeDelete(resourceID);
 			response="Deleted Exchange "+resourceID;  
-			connection.close();
-			
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
-
 		
 		return response;
 
@@ -187,32 +124,19 @@ public class broker {
 	public static String deleteQueue(String resourceID) {
 		
 		response = null;
-		System.out.println("+++++++++++In deleteQueue Block+++++++++++");
-
-		Connection connection;
-		Channel channel;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(password);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
+		//System.out.println("+++++++++++In deleteQueue Block+++++++++++");
 			
 		try
-		{
-			connection = factory.newConnection();
-			channel = connection.createChannel();
-			
-			channel.queueDelete(resourceID);
+		{	
+			Pool.getAdminChannel().queueDelete(resourceID);
 			response="Deleted Queue "+resourceID;
-			connection.close();
 		}
 			
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
+		
 		return response;
 
 	}
@@ -220,24 +144,11 @@ public class broker {
 	
 	public static String publish(String _entityID, String _permission, String _requestorID, String _validity) 
 	{
-		readbrokerpassword();
-		Connection connection;
-		Channel channel;
-		ConnectionFactory factory = new ConnectionFactory();
-			
-		factory.setUsername("admin.ideam");
-		factory.setPassword(password);
-		factory.setVirtualHost("/");
-		factory.setHost("broker");
-		factory.setPort(5672);
 		
 		JsonObject response=new JsonObject();
 			
 		try
-		{
-			connection = factory.newConnection();
-			channel = connection.createChannel();
-			
+		{	
 			JsonObject object=new JsonObject();
 			
 			object.addProperty("requestor", _requestorID);
@@ -245,11 +156,9 @@ public class broker {
 			object.addProperty("validity", _validity);
 			object.addProperty("timestamp", Instant.now().toString());
 
-			channel.basicPublish(_entityID, "#", null, object.toString().getBytes("UTF-8"));
+			Pool.getAdminChannel().basicPublish(_entityID, "#", null, object.toString().getBytes("UTF-8"));
 			
 			response.addProperty("status","Follow request has been made to "+_entityID+" with permission "+_permission+" at "+Instant.now());
-	
-			connection.close();
 			
 			return response.toString();
 		}
@@ -258,8 +167,8 @@ public class broker {
 		{
 			e.printStackTrace();
 			response.addProperty("status","Failed to make follow request");
-
 		}
+		
 		return response.toString();
 
 	}

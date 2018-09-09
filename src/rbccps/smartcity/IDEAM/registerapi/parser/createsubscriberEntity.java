@@ -28,30 +28,30 @@ public class createsubscriberEntity {
 
 			response = new JsonObject();
 			ID = _ID.toLowerCase();
-			System.out.println("Converted to lower case");
-			System.out.println(ID);
+			//System.out.println("Converted to lower case");
+			//System.out.println(ID);
 			Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
 			Matcher matcher = pattern.matcher(ID);
 			boolean idvalidator = matcher.find();
 
 			if (idvalidator) {
-				System.out.println("There is a special character in " + ID);
-				System.out.println(ID);
+				//System.out.println("There is a special character in " + ID);
+				//System.out.println(ID);
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "ID contains Special Characters");
 				return response;
 			}
 
 			ID = ID.replaceAll("^\"|\"$", "");
-			System.out.println(ID);
+			//System.out.println(ID);
 
 			if (ID != null) {
 				state = 1;
 				response_createID = apiGateway.createUser(ID);
-				System.out.println("------STEP 1------");
-				System.out.println("------------");
-				System.out.println(response_createID);
-				System.out.println("------------");
+//				System.out.println("------STEP 1------");
+//				System.out.println("------------");
+//				System.out.println(response_createID);
+//				System.out.println("------------");
 			} else {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "ID not provided");
@@ -69,10 +69,10 @@ public class createsubscriberEntity {
 					return response;
 				}
 
-				System.out.println("------STEP 2------");
-				System.out.println("------------");
-				System.out.println(response_generateapiKey);
-				System.out.println("------------");
+//				System.out.println("------STEP 2------");
+//				System.out.println("------------");
+//				System.out.println(response_generateapiKey);
+//				System.out.println("------------");
 			} else if (response_createID.contains("Server Not Reachable")) {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "Server Not Reachable");
@@ -89,22 +89,22 @@ public class createsubscriberEntity {
 			if (response_generateapiKey.contains("key")) {
 				state = 3;
 				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID, "publish");
-				System.out.println("------STEP 3------");
-				System.out.println("------------");
-				System.out.println(response_assignwhitelist);
-				System.out.println("------------");
+//				System.out.println("------STEP 3------");
+//				System.out.println("------------");
+//				System.out.println(response_assignwhitelist);
+//				System.out.println("------------");
 
 				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID, "subscribe");
-				System.out.println("------STEP 3------");
-				System.out.println("------------");
-				System.out.println(response_assignwhitelist);
-				System.out.println("------------");
+//				System.out.println("------STEP 3------");
+//				System.out.println("------------");
+//				System.out.println(response_assignwhitelist);
+//				System.out.println("------------");
 
 				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID, "db");
-				System.out.println("------STEP 3------");
-				System.out.println("------------");
-				System.out.println(response_assignwhitelist);
-				System.out.println("------------");
+//				System.out.println("------STEP 3------");
+//				System.out.println("------------");
+//				System.out.println(response_assignwhitelist);
+//				System.out.println("------------");
 
 			} else {
 				response.addProperty("Registration", "failure");
@@ -115,12 +115,12 @@ public class createsubscriberEntity {
 
 			if (response_assignwhitelist.contains("created")) {
 				state = 4;
-				System.out.println("------STEP 4------");
+				//System.out.println("------STEP 4------");
 				broker.createExchange(ID + ".notify");
 				broker.createQueue(ID);
 				response_createQueue = broker.createQueue(ID + ".notify");
 				broker.createBinding(ID + ".notify", ID + ".notify");
-				System.out.println("------STEP 4------");
+				//System.out.println("------STEP 4------");
 
 			} else {
 				response.addProperty("Registration", "failure");
@@ -132,22 +132,22 @@ public class createsubscriberEntity {
 			if (response_createQueue.contains("Created")) {
 
 				state = 5;
-				System.out.println("LDAP for subscriber application");
-				System.out.println(ID);
-				System.out.println(entity.getEntityapikey());
+				//System.out.println("LDAP for subscriber application");
+				//System.out.println(ID);
+				//System.out.println(entity.getEntityapikey());
 
 				ID = ID.replaceAll("^\"|\"$", "");
-				System.out.println(ID);
+				//System.out.println(ID);
 
 				apiKey = entity.getEntityapikey().toString().replaceAll("^\"|\"$", "");
-				System.out.println(apiKey);
+				//System.out.println(apiKey);
 
 				response_updateLDAPEntry = updateLDAP.createsubscriberEntry(RequestRegister.getX_Consumer_Username(), ID, apiKey);
-				System.out.println("LDAP Success !!!");
-				System.out.println("------STEP 5------");
-				System.out.println("------------");
-				System.out.println(response_updateLDAPEntry);
-				System.out.println("------------");
+//				System.out.println("LDAP Success !!!");
+//				System.out.println("------STEP 5------");
+//				System.out.println("------------");
+//				System.out.println(response_updateLDAPEntry);
+//				System.out.println("------------");
 
 				response.addProperty("Registration", "success");
 				response.addProperty("entityID", ID);
