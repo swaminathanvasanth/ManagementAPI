@@ -95,14 +95,14 @@ public class apiGateway {
 			
 			response = sb.toString();
 
-			//System.out.println(response);
+			System.out.println(response);
 
 			if (response != null) 
 			{
-				//System.out.println(response);
+				System.out.println(response);
 				jsonTree = parser.parse(response);
 				jsonObject = jsonTree.getAsJsonObject();
-				//System.out.println(jsonObject.toString());
+				System.out.println(jsonObject.toString());
 			}
 		} 
 		
@@ -112,9 +112,9 @@ public class apiGateway {
 			response_jsonObject.addProperty("Registration", "failure");
 			response_jsonObject.addProperty("Reason", "Server Not Reachable");
 			response = response_jsonObject.toString();
-			//System.out.println("--------------");
-			//System.out.println(response);
-			//System.out.println("--------------");
+			System.out.println("--------------");
+			System.out.println(response);
+			System.out.println("--------------");
 		} 
 		catch (IOException e) 
 		{
@@ -126,9 +126,9 @@ public class apiGateway {
 							"ID not available. Please Use a Unique ID for Registration.");
 
 			response = response_jsonObject.toString();
-			//System.out.println("--------------");
-			//System.out.println(response);
-			//System.out.println("--------------");
+			System.out.println("--------------");
+			System.out.println(response);
+			System.out.println("--------------");
 
 		}
 
@@ -292,7 +292,7 @@ public class apiGateway {
 						}
 					}
 					
-					//System.out.println(response);
+					System.out.println(response);
 
 					parser = new JsonParser();
 					jsonTree = parser.parse(response);
@@ -302,8 +302,8 @@ public class apiGateway {
 
 					_apikey = _apikey_JsonElement.toString();
 
-					//System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
-					//System.out.println(key);
+					System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
+					System.out.println(key);
 
 					entity.setEntityapikey(_apikey);
 				} 
@@ -364,7 +364,7 @@ public class apiGateway {
 			}
 			
 			
-			//System.out.println(response);
+			System.out.println(response);
 
 			parser = new JsonParser();
 			jsonTree = parser.parse(response);
@@ -374,7 +374,7 @@ public class apiGateway {
 
 			_apikey = _apikey_JsonElement.toString();
 
-			//System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
+			System.out.println("APIKey is : " + _apikey + " Generated for LoRa");
 
 			entity.setEntityapikey(_apikey);
 
@@ -428,7 +428,7 @@ public class apiGateway {
 				sb.append((char) c);
 			
 			response = sb.toString();
-			//System.out.println(response);
+			System.out.println(response);
 
 		} 
 		

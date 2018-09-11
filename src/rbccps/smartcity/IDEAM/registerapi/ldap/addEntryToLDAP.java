@@ -21,7 +21,7 @@ public class addEntryToLDAP {
 
 	public addEntryToLDAP() 
 	{
-		//System.out.println("constructer to LDAP bind");
+		System.out.println("constructer to LDAP bind");
 		
 		try 
 		{
@@ -31,7 +31,7 @@ public class addEntryToLDAP {
 			environment.put(Context.SECURITY_PRINCIPAL, AdminDn);
 			environment.put(Context.SECURITY_CREDENTIALS, password);
 			dirContext = new InitialDirContext(environment);
-			//System.out.println("Bind successful");
+			System.out.println("Bind successful");
 
 		} 
 		catch (Exception exception) 
@@ -62,7 +62,7 @@ public class addEntryToLDAP {
 		entry.put(oc);
 
 		String entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
-		//System.out.println("entryDN :" + entryDN + " Entry :"+ entry.toString());
+		System.out.println("entryDN :" + entryDN + " Entry :"+ entry.toString());
 
 
 		// Video Object
@@ -156,8 +156,8 @@ public class addEntryToLDAP {
 		brokerQueue_Name_Entry.put(queue_Name_read);
 		brokerQueue_Name_Entry.put(queue_Name_write);
 
-		//System.out.println("brokerentryDN :" + brokerQueueEntryDN + " Entry :"
-		//		+ brokerQueueEntry.toString());
+		System.out.println("brokerentryDN :" + brokerQueueEntryDN + " Entry :"
+				+ brokerQueueEntry.toString());
 		
 		try 
 		{
@@ -207,8 +207,8 @@ public class addEntryToLDAP {
 		entry.put(oc);
 
 		String entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
-		//System.out.println("entryDN :" + entryDN + " Entry :"
-		//		+ entry.toString());
+		System.out.println("entryDN :" + entryDN + " Entry :"
+				+ entry.toString());
 
 		// video Object
 		// video Entry

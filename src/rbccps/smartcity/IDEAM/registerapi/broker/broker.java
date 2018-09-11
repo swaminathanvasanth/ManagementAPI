@@ -35,7 +35,7 @@ public class broker {
 	public static String createExchange(String resourceID) 
 	{
 		response = null;
-		//System.out.println("+++++++++++In createExchange Block+++++++++++");
+		System.out.println("+++++++++++In createExchange Block+++++++++++");
 		
 		try 
 		{
@@ -56,7 +56,7 @@ public class broker {
 	public static String createQueue(String resourceID) {
 		
 		response = null;
-		//System.out.println("+++++++++++In createQueue Block+++++++++++");
+		System.out.println("+++++++++++In createQueue Block+++++++++++");
 			
 		try
 		{	
@@ -75,7 +75,7 @@ public class broker {
 
 	public static String createBinding(String resourceID, String queueID) {
 
-		//System.out.println("+++++++++++In createBinding Block+++++++++++");
+		System.out.println("+++++++++++In createBinding Block+++++++++++");
 
 		String response = "";
 		
@@ -90,7 +90,7 @@ public class broker {
 			Pool.getAdminChannel().queueBind(queueID, resourceID, "#",args);
 			response="Bind queue OK"; 
 			
-			//System.out.println("Bound "+resourceID+" to "+queueID);
+			System.out.println("Bound "+resourceID+" to "+queueID);
 		}
 			
 		catch(Exception e)
@@ -105,7 +105,7 @@ public class broker {
 
 		
 		response = null;
-		//System.out.println("+++++++++++In deleteExchange Block+++++++++++");
+		System.out.println("+++++++++++In deleteExchange Block+++++++++++");
 		
 		try 
 		{	
@@ -116,7 +116,7 @@ public class broker {
 		{
 			e.printStackTrace();
 		}
-		
+		System.out.println(response);
 		return response;
 
 	}
@@ -124,7 +124,7 @@ public class broker {
 	public static String deleteQueue(String resourceID) {
 		
 		response = null;
-		//System.out.println("+++++++++++In deleteQueue Block+++++++++++");
+		System.out.println("+++++++++++In deleteQueue Block+++++++++++");
 			
 		try
 		{	
@@ -137,6 +137,7 @@ public class broker {
 			e.printStackTrace();
 		}
 		
+		System.out.println(response);
 		return response;
 
 	}

@@ -74,7 +74,7 @@ public class createEntityJSONParser {
 		// Find resourceID
 
 		videoCamera = false;
-		//System.out.println("JSONParser");
+		System.out.println("JSONParser");
 
 		// Access Mechanism JSON
 		JsonObject requestAccessSite_jsonObject = new JsonObject();
@@ -111,24 +111,24 @@ public class createEntityJSONParser {
 
 		String s = "{\n\t\"requestAccessSite\": {\n\t\t\"describes\": \"URI for getting permissions to access the device\",\n\t\t\"value\": \"http://rbccps.org/middleware/requestAccess\"\n\t},\n\t\"accessEndPoint\": {\n\t\t\"value\": \"https://rbccps.org/middleware/api/{api_ver}/db\",\n\t\t\"describes\": \"End point to access the archived values (database access endpoint)\"\n\t},\n\t\"subscriptionEndPoint\": {\n\t\t\"value\": \"mqtt://rbccps.org/subscription/live\",\n\t\t\"describes\": \"End point for subscribing to LIVE data\"\n\t},\n\t\"additionalResourceInfo\": {\n\t\t\"value\": \"http://rbccps.org/resourceInfo/{id}\",\n\t\t\"describes\": \"Additional information about the device\"\n\t},\n\t\"resourceAPIInfo\": {\n\t\t\"value\": \"http://rbccps.org/resourceInfo/api\",\n\t\t\"describes\": \"Information on how to use various APIs (access, update, cat) associated with this resource\"\n\t}\n}";
 
-		//System.out.println("First ------- ");
-		//System.out.println(accessModifier_Entries_jsonObject.toString());
+		System.out.println("First ------- ");
+		System.out.println(accessModifier_Entries_jsonObject.toString());
 
 		accessMechanism_json = accessModifier_Entries_jsonObject.toString();
 
 		accessMechanism_json = s;
-		//System.out.println("Second ------- ");
-		//System.out.println(accessMechanism_json);
+		System.out.println("Second ------- ");
+		System.out.println(accessMechanism_json);
 
-		// accessMechanism_json = accessMechanism_json.replaceAll("\\\\", "");
+		accessMechanism_json = accessMechanism_json.replaceAll("\\\\", "");
 
-		// System.out.println(accessMechanism_json.replaceAll("\\\\", ""));
+		System.out.println(accessMechanism_json.replaceAll("\\\\", ""));
 
 		controller = new RequestRegister();
 		json = controller.getBody();
 
-		//System.out.println("------------------BODY------------------");
-		//System.out.println(json);
+		System.out.println("------------------BODY------------------");
+		System.out.println(json);
 		
 		response = new JsonObject();
 
@@ -160,7 +160,7 @@ public class createEntityJSONParser {
 			 * System.out.println(jsonObject.toString() + "\n---------------\n");
 			 */
 
-			//System.out.println("Kick Start the flow");
+			System.out.println("Kick Start the flow");
 
 			// Check if it is a LoRa or Video or IP Device
 
@@ -227,7 +227,7 @@ public class createEntityJSONParser {
 			
 			else 
 			{
-				//System.out.println("Looks Good!, Its an IP Device");
+				System.out.println("Looks Good!, Its an IP Device");
 				startFlow();
 			}
 		}
@@ -244,7 +244,7 @@ public class createEntityJSONParser {
 			ID = _dataSchema;
 			subscriber_response = createsubscriberEntity.createEntity(ID);
 			response = subscriber_response;
-			//System.out.println(subscriber_response);
+			System.out.println(subscriber_response);
 			isSubscriber = false;
 			return subscriber_response.toString();
 		}
@@ -254,23 +254,23 @@ public class createEntityJSONParser {
 
 		try 
 		{
-			//System.out.println(entity.getEntitySchemaObject());
-			//System.out.println(entity.getEntityID().toString());
+			System.out.println(entity.getEntitySchemaObject());
+			System.out.println(entity.getEntityID().toString());
 
 			ID = entity.getEntityID().toString();
 			System.out.println(ID);
 			
 			ID = ID.toLowerCase();
-			//System.out.println("Converted to lower case");
-			//System.out.println(ID);
+			System.out.println("Converted to lower case");
+			System.out.println(ID);
 			Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
 			Matcher matcher = pattern.matcher(ID);
 			boolean idvalidator = matcher.find();
 
 			if (idvalidator) 
 			{
-			   //System.out.println("There is a special character in " +ID);
-			   //System.out.println(ID);
+			   System.out.println("There is a special character in " +ID);
+			   System.out.println(ID);
 			   response.addProperty("Registration", "failure");
 			   response.addProperty("Reason", "ID contains Special Characters");
 			   
@@ -279,17 +279,17 @@ public class createEntityJSONParser {
 
 			ID = ID.replaceAll("^\"|\"$", "");
 			
-			//System.out.println(ID);
+			System.out.println(ID);
 
 			if (ID != null) 
 			{
 				state = 1;
 				response_createID = apiGateway.createUser(ID);
 			
-//				System.out.println("------STEP 1------");
-//				System.out.println("------------");
-//				System.out.println(response_createID);
-//				System.out.println("------------");
+				System.out.println("------STEP 1------");
+				System.out.println("------------");
+				System.out.println(response_createID);
+				System.out.println("------------");
 			} 
 			
 			else 
@@ -313,10 +313,10 @@ public class createEntityJSONParser {
 					return response.toString();
 				}
 
-//				System.out.println("------STEP 2------");
-//				System.out.println("------------");
-//				System.out.println(response_generateapiKey);
-//				System.out.println("------------");
+				System.out.println("------STEP 2------");
+				System.out.println("------------");
+				System.out.println(response_generateapiKey);
+				System.out.println("------------");
 			} 
 			
 			else if (response_createID.contains("Server Not Reachable")) 
@@ -350,24 +350,24 @@ public class createEntityJSONParser {
 			{
 				state = 3;
 				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID, "publish");
-//				System.out.println("------STEP 3------");
-//				System.out.println("------------");
-//				System.out.println(response_assignwhitelist);
-//				System.out.println("------------");
+				System.out.println("------STEP 3------");
+				System.out.println("------------");
+				System.out.println(response_assignwhitelist);
+				System.out.println("------------");
 
 				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID, "subscribe");
-//				System.out.println("------STEP 3------");
-//				System.out.println("------------");
-//				System.out.println(response_assignwhitelist);
-//				System.out.println("------------");
+				System.out.println("------STEP 3------");
+				System.out.println("------------");
+				System.out.println(response_assignwhitelist);
+				System.out.println("------------");
 
 				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID, "db");
-//				System.out.println("------STEP 3------");
-//				System.out.println("------------");
-//				System.out.println(response_assignwhitelist);
-//				System.out.println("------------");
+				System.out.println("------STEP 3------");
+				System.out.println("------------");
+				System.out.println(response_assignwhitelist);
+				System.out.println("------------");
 
-//				System.out.println("------STEP 3.1------");
+				System.out.println("------STEP 3.1------");
 				
 				if (loraserverConfigurationFields.serverConfiguration && loraserverConfigurationFields.LoRaServer) 
 				{
@@ -387,10 +387,10 @@ public class createEntityJSONParser {
 				
 				else if (serverType.contains("IPDevice")) 
 				{
-					//System.out.println("Its an IPDevice, asssigned WhiteList");
+					System.out.println("Its an IPDevice, asssigned WhiteList");
 				}
 				
-				//System.out.println("------STEP 3.1------");
+				System.out.println("------STEP 3.1------");
 			} 
 			
 			else 
@@ -425,7 +425,7 @@ public class createEntityJSONParser {
 					response_createQueue = broker.createQueue(ID + ".priority");
 					response_createQueue = broker.createQueue(ID + ".notify");
 
-					//System.out.println("+++++++++++Calling create Database Binding Block+++++++++++");
+					System.out.println("+++++++++++Calling create Database Binding Block+++++++++++");
 
 					broker.createBinding(ID + ".private", "database");
 					broker.createBinding(ID + ".public", "database");
@@ -446,10 +446,10 @@ public class createEntityJSONParser {
 					System.out.println("Its a videoCamera");
 					response_createQueue = "videoCamera";
 				}
-//				System.out.println("------STEP 4------");
-//				System.out.println("------------");
-//				System.out.println(response_createQueue);
-//				System.out.println("------------");
+				System.out.println("------STEP 4------");
+				System.out.println("------------");
+				System.out.println(response_createQueue);
+				System.out.println("------------");
 			} 
 			
 			else 
@@ -466,32 +466,32 @@ public class createEntityJSONParser {
 			{
 
 				state = 5;
-				//System.out.println("LDAP for LoRa and IPDevice");
-				//System.out.println(ID);
-				//System.out.println(entity.getEntityapikey());
+				System.out.println("LDAP for LoRa and IPDevice");
+				System.out.println(ID);
+				System.out.println(entity.getEntityapikey());
 
 				ID = ID.replaceAll("^\"|\"$", "");
-				//System.out.println(ID);
+				System.out.println(ID);
 
 				apiKey = entity.getEntityapikey().toString().replaceAll("^\"|\"$", "");
-				//System.out.println(apiKey);
+				System.out.println(apiKey);
 
 				response_updateLDAPEntry = updateLDAP.createEntry(RequestRegister.getX_Consumer_Username(),
 						ID.toString(), apiKey);
-//				System.out.println("LDAP Success !!!");
-//				System.out.println("------STEP 5------");
-//				System.out.println("------------");
-//				System.out.println(response_updateLDAPEntry);
-//				System.out.println("------------");
+				System.out.println("LDAP Success !!!");
+				System.out.println("------STEP 5------");
+				System.out.println("------------");
+				System.out.println(response_updateLDAPEntry);
+				System.out.println("------------");
 				
 				System.out.println("Added entry to LDAP");
 			} 
 			
 			else if (response_createQueue.contains("videoCamera")) 
 			{
-//				System.out.println("LDAP for Video Camera");
-//				System.out.println(ID);
-//				System.out.println(entity.getEntityapikey());
+				System.out.println("LDAP for Video Camera");
+				System.out.println(ID);
+				System.out.println(entity.getEntityapikey());
 
 				ID = ID.replaceAll("^\"|\"$", "");
 				System.out.println(ID);
@@ -501,11 +501,11 @@ public class createEntityJSONParser {
 
 				response_updateLDAPEntry = updateLDAP.createVideoEntry(RequestRegister.getX_Consumer_Username(),
 						ID.toString(), apiKey);
-//				System.out.println("LDAP Success !!!");
-//				System.out.println("------STEP 5------");
-//				System.out.println("------------");
-//				System.out.println(response_updateLDAPEntry);
-//				System.out.println("------------");
+				System.out.println("LDAP Success !!!");
+				System.out.println("------STEP 5------");
+				System.out.println("------------");
+				System.out.println(response_updateLDAPEntry);
+				System.out.println("------------");
 			} 
 			
 			else 
@@ -531,10 +531,10 @@ public class createEntityJSONParser {
 			{
 
 				response_updateCat = uCat.postCat(_dataSchema);
-//				System.out.println("------STEP 6------");
-//				System.out.println("------------");
-//				System.out.println(response_updateCat);
-//				System.out.println("------------");
+				System.out.println("------STEP 6------");
+				System.out.println("------------");
+				System.out.println(response_updateCat);
+				System.out.println("------------");
 				
 				System.out.println("Updated Catalogue");
 			} 
@@ -573,7 +573,7 @@ public class createEntityJSONParser {
 				broker.deleteQueue(ID + ".configure");
 				broker.deleteQueue(ID + ".follow");
 				broker.deleteQueue(ID + ".priority");
-				updateLDAP.deleteEntry(owner.getOwnerID(), ID, owner.getOwnerKey());
+				updateLDAP.deleteEntry(owner.getOwnerID(), ID);
 
 				return response.toString();
 

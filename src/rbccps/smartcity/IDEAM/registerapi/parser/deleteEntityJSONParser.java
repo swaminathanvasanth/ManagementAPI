@@ -63,20 +63,20 @@ public class deleteEntityJSONParser {
 		if (jsonTree.isJsonObject()) {
 			JsonObject jsonObject = jsonTree.getAsJsonObject();
 		
-			//System.out.println(jsonObject.toString() + "\n---------------\n");
+			System.out.println(jsonObject.toString() + "\n---------------\n");
 			
 			// Store entitySchema and ID in entity class for easy access.
 		
 			entity.setEntityID(jsonObject.get("id").getAsString());
 			
-			//System.out.println("Kick Start the flow");
+			System.out.println("Kick Start the flow");
 
 			try {
 				ID = entity.getEntityID().toString();
-				//System.out.println(entity.getEntityID().toString());
+				System.out.println(entity.getEntityID().toString());
 	
 				ID = ID.replaceAll("^\"|\"$", "");
-				//System.out.println(ID);
+				System.out.println(ID);
 				
 				// Find if the entity is deleted by actual owner
 				
@@ -84,19 +84,20 @@ public class deleteEntityJSONParser {
 				decoded_authorization_datas[0] = RequestRegister.getX_Consumer_Username();
 				decoded_authorization_datas[1] = apiKey;
 				
-				//System.out.println(decoded_authorization_datas[0] + " and " + decoded_authorization_datas[1]);
+				System.out.println(decoded_authorization_datas[0] + " and " + decoded_authorization_datas[1]);
 				
-				if(LDAP.verifyProvider(ID, decoded_authorization_datas)) {
+				if((LDAP.verifyProvider(ID, decoded_authorization_datas))||((!LDAP.checkEntry(ID)))) 
+				{
 					System.out.println("Device belongs to owner");
 				
 				
 				// STEP 1
 				if (ID != null) {
 					response_deleteID = apiGateway.deleteUser(ID);
-//					System.out.println("------STEP 1------");
-//					System.out.println("------------");
-//					System.out.println(response_deleteID);
-//					System.out.println("------------");
+					System.out.println("------STEP 1------");
+					System.out.println("------------");
+					System.out.println(response_deleteID);
+					System.out.println("------------");
 				} else {
 					response.addProperty("De-Registration", "failure");
 					response.addProperty("Reason", "ID not provided");
@@ -118,9 +119,9 @@ public class deleteEntityJSONParser {
 					broker.deleteQueue(ID + ".notify");
 					response_deleteQueue = broker.deleteQueue(ID + ".priority");
 					
-//					System.out.println("------------");
-//					System.out.println(response_deleteQueue);
-//					System.out.println("------------");
+					System.out.println("------------");
+					System.out.println(response_deleteQueue);
+					System.out.println("------------");
 					
 				} else if(response_deleteID.contains("Server Not Reachable")){
 					response.addProperty("De-Registration", "failure");
@@ -136,29 +137,29 @@ public class deleteEntityJSONParser {
 				
 				if (response_deleteQueue.contains("Deleted")) {
 					
-//					System.out.println(ID);
-//					System.out.println(entity.getEntityapikey());
+					System.out.println(ID);
+					System.out.println(entity.getEntityapikey());
 					
 					ID = ID.replaceAll("^\"|\"$", "");
-					//System.out.println(ID);
+					System.out.println(ID);
 					
 					
-//					System.out.println(RequestRegister.getX_Consumer_Username());
-//					System.out.println(ID.toString());
-//					System.out.println(entity.getEntityapikey());
+					System.out.println(RequestRegister.getX_Consumer_Username());
+					System.out.println(ID.toString());
+					System.out.println(entity.getEntityapikey());
 					
 					response_deleteLDAPEntry = updateLDAP.deleteEntry(RequestRegister.getX_Consumer_Username(),
-							ID.toString(), entity.getEntityapikey().toString());
+							ID.toString());
 					
 					/*
 					response_updateLDAPEntry = updateLDAP.createEntry("rbccps",
 							"anotheroneheretotest", "2a9f60f9196945e09e4aab522b788a4b");
 					*/
 					
-//					System.out.println("------STEP 3------");
-//					System.out.println("------------");
-//					System.out.println(response_deleteLDAPEntry);
-//					System.out.println("------------");
+					System.out.println("------STEP 3------");
+					System.out.println("------------");
+					System.out.println(response_deleteLDAPEntry);
+					System.out.println("------------");
 				} else {
 					response.addProperty("De-Registration", "failure");
 					response.addProperty("Reason", "Queue Deletion Failure");
@@ -168,17 +169,17 @@ public class deleteEntityJSONParser {
 				
 				if (response_deleteLDAPEntry == "Success") {
 					response_deleteCat = uCat.deleteCat(ID);
-//					System.out.println("------STEP 6------");
-//					System.out.println("------------");
-//					System.out.println(response_deleteCat);
-//					System.out.println("------------");
+					System.out.println("------STEP 6------");
+					System.out.println("------------");
+					System.out.println(response_deleteCat);
+					System.out.println("------------");
 				} else {
 					response.addProperty("De-Registration", "failure");
 					response.addProperty("Reason", "LDAP update Failure");
 				}
 			
 				// STEP 5
-				if(response_deleteCat >=200 && response_deleteCat<300){
+				if(response_deleteCat ==200 || response_deleteCat==404){
 					response.addProperty("De-Registration", "success");
 					response.addProperty("entityID", ID);
 				}

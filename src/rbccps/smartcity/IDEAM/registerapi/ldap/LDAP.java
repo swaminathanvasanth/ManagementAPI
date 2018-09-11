@@ -72,7 +72,7 @@ public class LDAP {
 			environment.put(Context.SECURITY_PRINCIPAL, AdminDn);
 			environment.put(Context.SECURITY_CREDENTIALS, password);
 			dirContext = new InitialDirContext(environment);
-			//System.out.println("Bind successful");
+			System.out.println("Bind successful");
 		} 
 		catch (Exception exception) 
 		{
@@ -86,7 +86,7 @@ public class LDAP {
 	{
 		boolean flag = false;
 
-		//System.out.println(providerId + userId + apiKey);
+		System.out.println(providerId + userId + apiKey);
 
 		Attribute OWNER = new BasicAttribute("owner", providerId);
 		Attribute PASSWORD = new BasicAttribute("userPassword", apiKey);
@@ -107,8 +107,8 @@ public class LDAP {
 		entry.put(oc);
 
 		entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
-		//System.out.println("entryDN :" + entryDN + " Entry :"
-		//		+ entry.toString());
+		System.out.println("entryDN :" + entryDN + " Entry :"
+				+ entry.toString());
 
 		// Broker Object
 		// Broker Entry
@@ -381,22 +381,22 @@ public class LDAP {
 
 			flag = true;
 
-//			System.out.println("entryDN : "+entryDN );
-//			System.out.println("brokerEntryDN : "+brokerEntryDN);
-//			System.out.println("brokerExchangeEntryDN : "+brokerExchangeEntryDN);
-//			System.out.println("brokerExchange_DeviceName_EntryDN : "+brokerExchange_DeviceName_EntryDN);
-//			System.out.println("brokerExchange_DeviceName_Configure_EntryDN : "+brokerExchange_DeviceName_Configure_EntryDN);
-//			System.out.println("brokerExchange_DeviceName_Private_EntryDN : "+brokerExchange_DeviceName_Private_EntryDN);
-//			System.out.println("brokerExchange_DeviceName_Protected_EntryDN : "+brokerExchange_DeviceName_Protected_EntryDN);
-//			System.out.println("brokerExchange_DeviceName_Public_EntryDN : "+brokerExchange_DeviceName_Public_EntryDN);
-//			System.out.println("brokerExchange_DeviceName_Follow_EntryDN : "+brokerExchange_DeviceName_Follow_EntryDN);
-//			System.out.println("brokerExchange_DeviceName_Notify_EntryDN : "+brokerExchange_DeviceName_Notify_EntryDN);
-//			System.out.println("brokerQueueEntryDN : "+brokerQueueEntryDN);
-//			System.out.println("brokerQueue_Name_EntryDN : "+brokerQueue_Name_EntryDN);
-//			System.out.println("brokerQueue_Name_Follow_EntryDN : "+brokerQueue_Name_Follow_EntryDN);
-//			System.out.println("brokerQueue_Name_Notify_EntryDN : "+brokerQueue_Name_Notify_EntryDN);
-//			System.out.println("brokerShareEntryDN : "+brokerShareEntryDN);
-//			System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
+			System.out.println("entryDN : "+entryDN );
+			System.out.println("brokerEntryDN : "+brokerEntryDN);
+			System.out.println("brokerExchangeEntryDN : "+brokerExchangeEntryDN);
+			System.out.println("brokerExchange_DeviceName_EntryDN : "+brokerExchange_DeviceName_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Configure_EntryDN : "+brokerExchange_DeviceName_Configure_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Private_EntryDN : "+brokerExchange_DeviceName_Private_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Protected_EntryDN : "+brokerExchange_DeviceName_Protected_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Public_EntryDN : "+brokerExchange_DeviceName_Public_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Follow_EntryDN : "+brokerExchange_DeviceName_Follow_EntryDN);
+			System.out.println("brokerExchange_DeviceName_Notify_EntryDN : "+brokerExchange_DeviceName_Notify_EntryDN);
+			System.out.println("brokerQueueEntryDN : "+brokerQueueEntryDN);
+			System.out.println("brokerQueue_Name_EntryDN : "+brokerQueue_Name_EntryDN);
+			System.out.println("brokerQueue_Name_Follow_EntryDN : "+brokerQueue_Name_Follow_EntryDN);
+			System.out.println("brokerQueue_Name_Notify_EntryDN : "+brokerQueue_Name_Notify_EntryDN);
+			System.out.println("brokerShareEntryDN : "+brokerShareEntryDN);
+			System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
 
 		} catch (Exception e) {
 			System.out.println("error: " + e.getMessage());
@@ -430,8 +430,8 @@ public class LDAP {
 			entry.put(oc);
 
 			entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
-//			System.out.println("entryDN :" + entryDN + " Entry :"
-//					+ entry.toString());
+			System.out.println("entryDN :" + entryDN + " Entry :"
+					+ entry.toString());
 
 			// Broker Object
 			// Broker Entry
@@ -560,15 +560,15 @@ public class LDAP {
 
 				flag = true;
 
-//				System.out.println("entryDN : "+entryDN );
-//				System.out.println("brokerEntryDN : "+brokerEntryDN);
-//				System.out.println("brokerExchangeEntryDN : "+brokerExchangeEntryDN);
-//				System.out.println("brokerExchange_DeviceName_EntryDN : "+brokerExchange_DeviceName_EntryDN);
-//				System.out.println("brokerExchange_DeviceName_Notify_EntryDN : "+brokerExchange_DeviceName_Notify_EntryDN);
-//				System.out.println("brokerQueueEntryDN : "+brokerQueueEntryDN);
-//				System.out.println("brokerQueue_Name_EntryDN : "+brokerQueue_Name_EntryDN);
-//				System.out.println("brokerShareEntryDN : "+brokerShareEntryDN);
-//				System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
+				System.out.println("entryDN : "+entryDN );
+				System.out.println("brokerEntryDN : "+brokerEntryDN);
+				System.out.println("brokerExchangeEntryDN : "+brokerExchangeEntryDN);
+				System.out.println("brokerExchange_DeviceName_EntryDN : "+brokerExchange_DeviceName_EntryDN);
+				System.out.println("brokerExchange_DeviceName_Notify_EntryDN : "+brokerExchange_DeviceName_Notify_EntryDN);
+				System.out.println("brokerQueueEntryDN : "+brokerQueueEntryDN);
+				System.out.println("brokerQueue_Name_EntryDN : "+brokerQueue_Name_EntryDN);
+				System.out.println("brokerShareEntryDN : "+brokerShareEntryDN);
+				System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
 
 			} catch (Exception e) {
 				System.out.println("error: " + e.getMessage());
@@ -600,8 +600,8 @@ public class LDAP {
 		entry.put(oc);
 
 		String entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
-//		System.out.println("entryDN :" + entryDN + " Entry :"
-//				+ entry.toString());
+		System.out.println("entryDN :" + entryDN + " Entry :"
+				+ entry.toString());
 
 		// video Object
 		// video Entry
@@ -686,7 +686,7 @@ public class LDAP {
 		return flag;
 	}
 	
-	public static boolean deleteEntry(String providerId, String userId, String apiKey)
+	public static int deleteEntry(String providerId, String userId)
 	{
 		Hashtable<String, Object> env = new Hashtable<String, Object>();
 		
@@ -725,6 +725,15 @@ public class LDAP {
 	    list.add("description="+userId+",description=queue,description=broker,uid="+userId+",cn=devices");
         list.add("description="+userId+".follow,description=queue,description=broker,uid="+userId+",cn=devices");
         list.add("description="+userId+".notify,description=queue,description=broker,uid="+userId+",cn=devices");
+        
+        try 
+        {
+        	ctx.search("uid="+userId+",cn=devices", "(*)",new Object[] {},searchControls);
+        }
+        catch (Exception e) 
+        {
+			return -1;
+		}
         	
 		try 
 		{
@@ -755,13 +764,13 @@ public class LDAP {
 			}
 			
 			System.out.println("Success");
-			return true;
+			return 1;
 		} 
 		catch (NamingException e1) 
 		{
 			e1.printStackTrace();
 			System.out.println("Could not delete from ldap");
-			return false;
+			return 0;
 		}
 	}
 
@@ -770,7 +779,7 @@ public class LDAP {
 
 		boolean flag = false;
 		entryDN = "uid=" + userId + ",cn=devices,dc=smartcity";
-		//System.out.println("In verifyProvider");
+		System.out.println("In verifyProvider");
 
 		try {
 			readldappwd();
@@ -790,7 +799,7 @@ public class LDAP {
 			
 			
 			if (provider[1].contains(submitted_providerName)) {
-				//System.out.println("Valid Device of the User");
+				System.out.println("Valid Device of the User");
 				flag = true;
 			} else {
 				System.out.println("Invalid Device of the User");
@@ -804,6 +813,43 @@ public class LDAP {
 			// e.printStackTrace();
 		}
 		return flag;
+	}
+	
+	public static boolean checkEntry(String uid)
+	{
+		Hashtable<String, Object> env = new Hashtable<String, Object>();
+		
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
+		env.put(Context.SECURITY_CREDENTIALS, password);
+		
+		DirContext ctx=null;
+		
+		try 
+		{
+			ctx = new InitialDirContext(env);
+		} 
+		catch (NamingException e1) 
+		{
+			e1.printStackTrace();
+		}
+		
+		SearchControls searchControls = new SearchControls();
+		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		searchControls.setCountLimit(10);
+		NamingEnumeration<SearchResult> namingEnumeration=null;
+		
+		try 
+        {
+        	ctx.search("uid="+uid+",cn=devices", "(*)",new Object[] {},searchControls);
+        	return true;
+        }
+        catch (Exception e) 
+        {
+			return false;
+		}
 	}
 
 }

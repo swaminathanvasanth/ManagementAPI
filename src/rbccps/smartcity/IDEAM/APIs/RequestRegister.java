@@ -11,6 +11,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
 import rbccps.smartcity.IDEAM.registerapi.kong.Register;
@@ -73,9 +76,9 @@ public class RequestRegister extends HttpServlet {
 
 	public HttpServletResponse getAPIKey(HttpServletRequest request, HttpServletResponse resp) {
 
-		//System.out.println("------------");
-		//System.out.println(request.getRequestURI());
-		//System.out.println("------------");
+		System.out.println("------------");
+		System.out.println(request.getRequestURI());
+		System.out.println("------------");
 
 		try 
 		{

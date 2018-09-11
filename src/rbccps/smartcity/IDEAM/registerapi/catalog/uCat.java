@@ -47,7 +47,7 @@ public class uCat {
 
 	public static int postCat(String _dataSchema){
 
-		//System.out.println("+++++++++++In on-board uCat Block+++++++++++");
+		System.out.println("+++++++++++In on-board uCat Block+++++++++++");
 		
 		try 
 		{
@@ -59,8 +59,8 @@ public class uCat {
 			
 			URL url = new URL(_url + "?id=" + entity.getEntityID());
 
-			//System.out.println("uCat Entry URL : "+url.toString());
-			//System.out.println("Data in body is : "+_dataSchema);
+			System.out.println("uCat Entry URL : "+url.toString());
+			System.out.println("Data in body is : "+_dataSchema);
 			
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			
@@ -87,8 +87,8 @@ public class uCat {
 				sb.append((char) c);
 			
             response = sb.toString();
-			//System.out.println(response);
-			//System.out.println(responseCode);
+			System.out.println(response);
+			System.out.println(responseCode);
 		} 
 		
 		catch (Exception e) 
@@ -103,7 +103,7 @@ public class uCat {
 	
 	public static int deleteCat(String _id){
 
-		//System.out.println("+++++++++++In on-board uCat Block+++++++++++");
+		System.out.println("+++++++++++In on-board uCat Block+++++++++++");
 		
 		try 
 		{
@@ -111,7 +111,7 @@ public class uCat {
 			
 			URL url = new URL(_url + "?id=" + entity.getEntityID());
 
-			//System.out.println("uCat Entry URL : "+url.toString());
+			System.out.println("uCat Entry URL : "+url.toString());
 			
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			
@@ -133,8 +133,8 @@ public class uCat {
 			
 			response = sb.toString();
 			
-			//System.out.println(response);
-			//System.out.println(responseCode);
+			System.out.println(response);
+			System.out.println(responseCode);
 		} 
 		catch (Exception e) 
 		{
