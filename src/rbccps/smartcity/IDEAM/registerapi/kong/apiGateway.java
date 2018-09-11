@@ -41,11 +41,11 @@ public class apiGateway {
 	static
 	{
 		bits=new HashMap<>();
-		bits.put(1, 6);
-		bits.put(2,11);
-		bits.put(3, 22);
-		bits.put(4, 43);
-		bits.put(5, 86);
+		bits.put(1, 8);
+		bits.put(2,16);
+		bits.put(3, 32);
+		bits.put(4, 64);
+		bits.put(5, 128);
 	}
 	
 	public static String createUser(String resourceID) 
@@ -145,7 +145,7 @@ public class apiGateway {
 		String response = null;
 		parser = new JsonParser();
 
-		//System.out.println(_value);
+		System.out.println(_value);
 		try 
 		{
 			URL url = new URL(_url + "/consumers/" + _value);
@@ -155,9 +155,9 @@ public class apiGateway {
 			conn.setRequestProperty("Content-Type",
 					"application/x-www-form-urlencoded");
 			
-			//System.out.println(conn.getResponseCode());
+			System.out.println(conn.getResponseCode());
 			response = "Deleted consumer in KONG";
-			
+			System.out.println(response);
 
 		} 
 		

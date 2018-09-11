@@ -139,7 +139,15 @@ public class RequestShare extends HttpServlet
 		readldappwd();
 		
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+		
 		boolean flag = getshareinfo(body);
+		
+		if(!flag)
+		{
+			response.setStatus(400);
+			response.getWriter().println("Possible missing fields");
+			return;
+		}
 		
 		Hashtable<String, Object> env = new Hashtable<String, Object>();
 		
@@ -357,6 +365,7 @@ public class RequestShare extends HttpServlet
 				
 			ctx.modifyAttributes("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices", item);
 			ldap=true;
+			pub=publish(_entityID, _requestorID);
 						
 		} 
 		

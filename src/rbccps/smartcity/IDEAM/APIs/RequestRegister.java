@@ -201,7 +201,7 @@ public class RequestRegister extends HttpServlet {
 		} finally {
 			if (security_level == null) {
 				System.out.println("Using default security level of 4");
-				security_level = String.valueOf(4);
+				security_level = String.valueOf(3);
 			}
 		}
 
