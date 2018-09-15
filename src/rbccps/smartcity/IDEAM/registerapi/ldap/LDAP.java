@@ -315,6 +315,23 @@ public class LDAP {
 		brokerQueue_Notify_Name_Entry.put(queue_Notify_Name_read);
 		brokerQueue_Notify_Name_Entry.put(queue_Notify_Name_write);
 		
+		String notifyQueueDN = "description="+userId+".notify,description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		
+		Attributes notifyQueue = new BasicAttributes();
+		
+		notifyQueue.put(new BasicAttribute("read","true"));
+		notifyQueue.put(new BasicAttribute("write","true"));
+		notifyQueue.put(oc);
+		
+		String priorityQueueDN = "description="+userId+".priority,description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		
+        Attributes priorityQueue = new BasicAttributes();
+		
+		priorityQueue.put(new BasicAttribute("read","true"));
+		priorityQueue.put(new BasicAttribute("write","true"));
+		priorityQueue.put(oc);
+		
+		
 		// Share
 
 		brokerShareEntryDN = "description=share,description=broker," + "uid="
@@ -327,20 +344,88 @@ public class LDAP {
 		brokerShareEntry.put(oc);
 		brokerShareEntry.put(shareread);
 		brokerShareEntry.put(sharewrite);
-
-		// Share (Name or ID) from which User can Read
-
-		brokerShare_Name_EntryDN = "description=" + userId
-				+ ",description=share,description=broker," + "uid=" + userId
-				+ ",cn=devices,dc=smartcity";
-
-		Attributes brokerShare_Name_Entry = new BasicAttributes();
-		Attribute Share_Name_read = new BasicAttribute("read", "true");
-		Attribute Share_Name_write = new BasicAttribute("write", "true");
-
-		brokerShare_Name_Entry.put(oc);
-		brokerShare_Name_Entry.put(Share_Name_read);
-		brokerShare_Name_Entry.put(Share_Name_write);
+		
+		//Read access in share
+		
+		String readShareEntryDN = "description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		
+		Attributes readShareEntry = new BasicAttributes();
+		
+		readShareEntry.put(new BasicAttribute("read","true"));
+		readShareEntry.put(oc);
+		
+		String queueReadEntryDN = "description="+userId+",description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		
+		Attributes queueReadEntry = new BasicAttributes();
+		
+		queueReadEntry.put(new BasicAttribute("read","true"));
+		queueReadEntry.put(oc);
+		
+        String followQueueReadEntryDN = "description="+userId+".follow,description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		
+		Attributes followQueueReadEntry = new BasicAttributes();
+		
+		followQueueReadEntry.put(new BasicAttribute("read","true"));
+		followQueueReadEntry.put(oc);
+		
+		String notifyQueueReadEntryDN = "description="+userId+".notify,description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+			
+		Attributes notifyQueueReadEntry = new BasicAttributes();
+			
+		notifyQueueReadEntry.put(new BasicAttribute("read","true"));
+		notifyQueueReadEntry.put(oc);
+		 
+		String configureQueueReadEntryDN = "description="+userId+".configure,description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+			
+		Attributes configureQueueReadEntry = new BasicAttributes();
+			
+		configureQueueReadEntry.put(new BasicAttribute("read","true"));
+		configureQueueReadEntry.put(oc);
+		 
+		String priorityQueueReadEntryDN = "description="+userId+".priority,description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+			
+		Attributes priorityQueueReadEntry = new BasicAttributes();
+			
+		priorityQueueReadEntry.put(new BasicAttribute("read","true"));
+		priorityQueueReadEntry.put(oc);
+		 
+		
+		//Write entry in share
+		
+		String writeShareEntryDN = "description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		 
+		Attributes writeShareEntry = new BasicAttributes();
+			
+		writeShareEntry.put(new BasicAttribute("write","true"));
+		writeShareEntry.put(oc);
+		 
+		String configureWriteEntryDN = "description="+userId+".configure,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		 
+		Attributes configureWriteEntry = new BasicAttributes();
+			
+		configureWriteEntry.put(new BasicAttribute("write","true"));
+		configureWriteEntry.put(oc);
+		 
+        String publicWriteEntryDN = "description="+userId+".public,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		 
+		Attributes publicWriteEntry = new BasicAttributes();
+			
+		publicWriteEntry.put(new BasicAttribute("write","true"));
+		publicWriteEntry.put(oc);
+		 
+        String protectedWriteEntryDN = "description="+userId+".protected,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		 
+		Attributes protectedWriteEntry = new BasicAttributes();
+			
+		protectedWriteEntry.put(new BasicAttribute("write","true"));
+		protectedWriteEntry.put(oc);
+		 
+        String privateWriteEntryDN = "description="+userId+".private,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		 
+		Attributes privateWriteEntry = new BasicAttributes();
+			
+		privateWriteEntry.put(new BasicAttribute("write","true"));
+		privateWriteEntry.put(oc);
 
 
 		try {
@@ -376,8 +461,22 @@ public class LDAP {
 			dirContext.createSubcontext(brokerQueue_Name_Notify_EntryDN,
 					brokerQueue_Notify_Name_Entry);
 			dirContext.createSubcontext(brokerShareEntryDN, brokerShareEntry);
-			dirContext.createSubcontext(brokerShare_Name_EntryDN,
-					brokerShare_Name_Entry);
+			
+			dirContext.createSubcontext(priorityQueueDN, priorityQueue);
+			
+			dirContext.createSubcontext(readShareEntryDN, readShareEntry);
+			dirContext.createSubcontext(queueReadEntryDN, queueReadEntry);
+			dirContext.createSubcontext(followQueueReadEntryDN, followQueueReadEntry);
+			dirContext.createSubcontext(notifyQueueReadEntryDN, notifyQueueReadEntry);
+			dirContext.createSubcontext(configureQueueReadEntryDN, configureQueueReadEntry);
+			dirContext.createSubcontext(priorityQueueReadEntryDN, priorityQueueReadEntry);
+			
+			dirContext.createSubcontext(writeShareEntryDN, writeShareEntry);
+			dirContext.createSubcontext(configureWriteEntryDN, configureWriteEntry);
+			dirContext.createSubcontext(publicWriteEntryDN, publicWriteEntry);
+			dirContext.createSubcontext(protectedWriteEntryDN, protectedWriteEntry);
+			dirContext.createSubcontext(privateWriteEntryDN, privateWriteEntry);
+			
 
 			flag = true;
 
@@ -527,19 +626,6 @@ public class LDAP {
 			brokerShareEntry.put(shareread);
 			brokerShareEntry.put(sharewrite);
 
-			// Share (Name or ID) from which User can Read
-
-			brokerShare_Name_EntryDN = "description=" + userId
-					+ ",description=share,description=broker," + "uid=" + userId
-					+ ",cn=devices,dc=smartcity";
-
-			Attributes brokerShare_Name_Entry = new BasicAttributes();
-			Attribute Share_Name_read = new BasicAttribute("read", "true");
-			Attribute Share_Name_write = new BasicAttribute("write", "true");
-
-			brokerShare_Name_Entry.put(oc);
-			brokerShare_Name_Entry.put(Share_Name_read);
-			brokerShare_Name_Entry.put(Share_Name_write);
 
 			try {
 				dirContext.createSubcontext(entryDN, entry);
@@ -555,8 +641,7 @@ public class LDAP {
 				dirContext.createSubcontext(brokerQueue_Name_Notify_EntryDN,
 						brokerQueue_Notify_Name_Entry);
 				dirContext.createSubcontext(brokerShareEntryDN, brokerShareEntry);
-				dirContext.createSubcontext(brokerShare_Name_EntryDN,
-						brokerShare_Name_Entry);
+				
 
 				flag = true;
 
@@ -628,7 +713,7 @@ public class LDAP {
 	}
 	
 	// Attributes to be set for new entry creation
-	public boolean addShareEntry(String providerId, String userId, String read, String write, String validity) {
+	public boolean addShareEntry(String providerId, String userId, String permission, String validity) {
 		boolean flag = false;
 		//System.out.println(providerId + " : " + userId + " : " + read + " : " + write  + " : " + validity);
 
@@ -641,45 +726,99 @@ public class LDAP {
 		oc.add("queue");
 		oc.add("share");
 		
-		// Share
-		brokerShareEntryDN = "description=share,description=broker," + "uid="
-				+ providerId + ",cn=devices,dc=smartcity";
-
-		Attributes brokerShareEntry = new BasicAttributes();
-		Attribute shareread = new BasicAttribute("read", read);
-		Attribute sharewrite = new BasicAttribute("write", write);
-		Attribute sharevalidity = new BasicAttribute("validity", validity);
-	
-		brokerShareEntry.put(shareread);
-		brokerShareEntry.put(sharewrite);
-		brokerShareEntry.put(sharevalidity);
-
-		// Share (Name or ID) of requested user
-
-		brokerShare_Name_EntryDN = "description=" + userId
-				+ ",description=share,description=broker," + "uid=" + providerId
-				+ ",cn=devices,dc=smartcity";
-
-		Attributes brokerShare_Name_Entry = new BasicAttributes();
-		Attribute Share_Name_read = new BasicAttribute("read", read);
-		Attribute Share_Name_write = new BasicAttribute("write", write);
-		Attribute Share_Name_validity = new BasicAttribute("validity", validity);
-
-		brokerShare_Name_Entry.put(oc);
-		brokerShare_Name_Entry.put(Share_Name_read);
-		brokerShare_Name_Entry.put(Share_Name_write);
-		brokerShare_Name_Entry.put(Share_Name_validity);
+		Attributes brokerShareEntry;
+		Attribute shareread,sharevalidity,sharewrite;
 		
-		System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
 		
-		try {
-			dirContext.createSubcontext(brokerShare_Name_EntryDN,
-					brokerShare_Name_Entry);
-			flag = true;
+		if(permission.equals("read"))
+		{
+			brokerShareEntryDN = "description="+providerId+".protected,description=read,description=share,description=broker,uid="
+					+ userId + ",cn=devices,dc=smartcity";
 
-		} catch (Exception e) {
-			System.out.println("error: " + e.getMessage());
-			return flag;
+			brokerShareEntry = new BasicAttributes();
+			shareread = new BasicAttribute("read", "true");
+			sharevalidity = new BasicAttribute("validity", validity);
+		
+			brokerShareEntry.put(shareread);
+			brokerShareEntry.put(sharevalidity);
+			brokerShareEntry.put(oc);
+			
+			try 
+			{
+				dirContext.createSubcontext(brokerShareEntryDN,brokerShareEntry);
+				flag = true;
+
+			} 
+			catch (Exception e) 
+			{
+				System.out.println("error: " + e.getMessage());
+				return flag;
+			}
+			
+		}
+		
+		else if(permission.equals("write"))
+		{
+			brokerShareEntryDN = "description="+providerId+".configure,description=write,description=share,description=broker,uid="
+					+ userId + ",cn=devices,dc=smartcity";
+
+			brokerShareEntry = new BasicAttributes();
+			sharewrite = new BasicAttribute("write", "true");
+			sharevalidity = new BasicAttribute("validity", validity);
+		
+			brokerShareEntry.put(sharewrite);
+			brokerShareEntry.put(sharevalidity);
+			brokerShareEntry.put(oc);
+			
+			try 
+			{
+				dirContext.createSubcontext(brokerShareEntryDN,brokerShareEntry);
+				flag = true;
+
+			} 
+			catch (Exception e) 
+			{
+				System.out.println("error: " + e.getMessage());
+				return flag;
+			}
+		}
+		else if(permission.equals("read-write"))
+		{
+			String brokerReadShareEntryDN = "description="+providerId+".protected,description=read,description=share,description=broker,uid="
+					+ userId + ",cn=devices,dc=smartcity";
+
+			Attributes brokerReadShareEntry = new BasicAttributes();
+			shareread = new BasicAttribute("read", "true");
+			sharevalidity = new BasicAttribute("validity", validity);
+		
+			brokerReadShareEntry.put(shareread);
+			brokerReadShareEntry.put(sharevalidity);
+			brokerReadShareEntry.put(oc);
+			
+			String brokerWriteShareEntryDN = "description="+providerId+".configure,description=write,description=share,description=broker,uid="
+					+ userId + ",cn=devices,dc=smartcity";
+
+			Attributes brokerWriteShareEntry = new BasicAttributes();
+			sharewrite = new BasicAttribute("write", "true");
+			sharevalidity = new BasicAttribute("validity", validity);
+		
+			brokerWriteShareEntry.put(sharewrite);
+			brokerWriteShareEntry.put(sharevalidity);
+			brokerWriteShareEntry.put(oc);
+			
+
+			try 
+			{
+				dirContext.createSubcontext(brokerReadShareEntryDN,brokerReadShareEntry);
+				dirContext.createSubcontext(brokerWriteShareEntryDN,brokerWriteShareEntry);
+				flag = true;
+
+			} 
+			catch (Exception e) 
+			{
+				System.out.println("error: " + e.getMessage());
+				return flag;
+			}
 		}
 		
 		System.out.println("brokerShare_Name_EntryDN : "+brokerShare_Name_EntryDN);
@@ -691,7 +830,7 @@ public class LDAP {
 		Hashtable<String, Object> env = new Hashtable<String, Object>();
 		
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389");
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
 		env.put(Context.SECURITY_CREDENTIALS, password);
@@ -714,52 +853,97 @@ public class LDAP {
 		
 	    ArrayList<String> list =new ArrayList<String>();
 	    
-	    list.add("description="+userId+",description=exchange,description=broker,uid="+userId+",cn=devices");
-	    list.add("description="+userId+".configure,description=exchange,description=broker,uid="+userId+",cn=devices");
-	    list.add("description="+userId+".follow,description=exchange,description=broker,uid="+userId+",cn=devices");
-	    list.add("description="+userId+".notify,description=exchange,description=broker,uid="+userId+",cn=devices");
-	    list.add("description="+userId+".public,description=exchange,description=broker,uid="+userId+",cn=devices");
-	    list.add("description="+userId+".private,description=exchange,description=broker,uid="+userId+",cn=devices");
-	    list.add("description="+userId+".protected,description=exchange,description=broker,uid="+userId+",cn=devices");
+	    list.add("description="+userId+",description=exchange,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+	    list.add("description="+userId+".configure,description=exchange,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+	    list.add("description="+userId+".follow,description=exchange,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+	    list.add("description="+userId+".notify,description=exchange,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+	    list.add("description="+userId+".public,description=exchange,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+	    list.add("description="+userId+".private,description=exchange,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+	    list.add("description="+userId+".protected,description=exchange,description=broker,uid="+userId+",cn=devices,dc=smartcity");
         
-	    list.add("description="+userId+",description=queue,description=broker,uid="+userId+",cn=devices");
-        list.add("description="+userId+".follow,description=queue,description=broker,uid="+userId+",cn=devices");
-        list.add("description="+userId+".notify,description=queue,description=broker,uid="+userId+",cn=devices");
+	    list.add("description="+userId+",description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".follow,description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".notify,description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".priority,description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+
+        
+        list.add("description="+userId+",description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".configure,description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".follow,description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".notify,description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".priority,description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+
+        list.add("description="+userId+".configure,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".public,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".private,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".protected,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+
+//        System.out.println("Before try");
+//        try 
+//        {
+//        	ctx.search("uid="+userId+",cn=devices,dc=smartcity", "(*)",new Object[] {},searchControls);
+//        }
+//        catch (Exception e) 
+//        {
+//			return -1;
+//		}
+//        
+//        System.out.println("After try");
+        	
+		ArrayList<String> ignoreList = new ArrayList<String>();
+		
+		ignoreList.add(userId);
+		ignoreList.add(userId+".configure");
+		ignoreList.add(userId+".follow");
+		ignoreList.add(userId+".notify");
+		ignoreList.add(userId+".priority");
+		
+		ignoreList.add(userId+".public");
+		ignoreList.add(userId+".private");
+		ignoreList.add(userId+".protected");
         
         try 
-        {
-        	ctx.search("uid="+userId+",cn=devices", "(*)",new Object[] {},searchControls);
-        }
-        catch (Exception e) 
-        {
-			return -1;
-		}
-        	
-		try 
 		{
-			namingEnumeration = ctx.search("description=share,description=broker,uid="+userId+",cn=devices", "(description=*)", new Object[]{}, searchControls);
+			namingEnumeration = ctx.search("description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity", "(description=*)", new Object[]{}, searchControls);
 			
 			while (namingEnumeration.hasMore()) 
 			{
 				SearchResult sr = namingEnumeration.next();
 				
-				if(sr.getName().equals(""))
+				if((sr.getName().equals(""))||(ignoreList.contains(sr.getName().split("=")[1].trim())))
 				{
 					continue;
 				}
 				
-				list.add(sr.getName()+",description=share,description=broker,uid="+userId+",cn=devices");
+				list.add(sr.getName()+",description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
 			}
 			
-			list.add("description=exchange,description=broker,uid="+userId+",cn=devices");
-			list.add("description=queue,description=broker,uid="+userId+",cn=devices");
-			list.add("description=share,description=broker,uid="+userId+",cn=devices");
-			list.add("description=broker,uid="+userId+",cn=devices");
-			list.add("uid="+userId+",cn=devices");
+            namingEnumeration = ctx.search("description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity", "(description=*)", new Object[]{}, searchControls);
+			
+			while (namingEnumeration.hasMore()) 
+			{
+				SearchResult sr = namingEnumeration.next();
+				
+				if((sr.getName().equals(""))||(ignoreList.contains(sr.getName().split("=")[1].trim())))
+				{
+					continue;
+				}
+				
+				list.add(sr.getName()+",description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+			}
+			
+			list.add("description=exchange,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+			list.add("description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+			list.add("description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+			list.add("description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+			list.add("description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+			list.add("description=broker,uid="+userId+",cn=devices,dc=smartcity");
+			list.add("uid="+userId+",cn=devices,dc=smartcity");
 			
 			
 			for(String name: list)
 			{
+				System.out.println(name);
 				ctx.destroySubcontext(name);
 			}
 			

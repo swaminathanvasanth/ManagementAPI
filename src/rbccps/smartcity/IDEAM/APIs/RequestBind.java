@@ -100,7 +100,7 @@ public class RequestBind extends HttpServlet
 			Hashtable<String, Object> env = new Hashtable<String, Object>();
 			
 			env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-			env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+			env.put(Context.PROVIDER_URL, "ldap://ldapd:8389");
 			env.put(Context.SECURITY_AUTHENTICATION, "simple");
 			env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
 			env.put(Context.SECURITY_CREDENTIALS, ldap_pwd);
@@ -123,7 +123,7 @@ public class RequestBind extends HttpServlet
 			
 			try 
 			{
-				namingEnumeration = ctx.search("description="+queue.split("\\.")[0]+",description=share,description=broker,uid="+exchange.split("\\.")[0]+",cn=devices", "(description=*)", new Object[]{}, searchControls);
+				namingEnumeration = ctx.search("description="+exchange+",description=read,description=share,description=broker,uid="+username+",cn=devices,dc=smartcity", "(description=*)", new Object[]{}, searchControls);
 			} 
 			catch (NamingException e1) 
 			{
@@ -228,7 +228,7 @@ public class RequestBind extends HttpServlet
 			Hashtable<String, Object> env = new Hashtable<String, Object>();
 			
 			env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-			env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+			env.put(Context.PROVIDER_URL, "ldap://ldapd:8389");
 			env.put(Context.SECURITY_AUTHENTICATION, "simple");
 			env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
 			env.put(Context.SECURITY_CREDENTIALS, ldap_pwd);
@@ -251,7 +251,7 @@ public class RequestBind extends HttpServlet
 			
 			try 
 			{
-				namingEnumeration = ctx.search("description="+queue.split("\\.")[0]+",description=share,description=broker,uid="+exchange.split("\\.")[0]+",cn=devices", "(description=*)", new Object[]{}, searchControls);
+				namingEnumeration = ctx.search("description="+exchange+",description=read,description=share,description=broker,uid="+username+",cn=devices,dc=smartcity", "(description=*)", new Object[]{}, searchControls);
 			} 
 			catch (NamingException e1) 
 			{

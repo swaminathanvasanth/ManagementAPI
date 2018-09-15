@@ -124,12 +124,19 @@ public class RequestFollow extends HttpServlet {
 		readldappwd();
 		
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+		
 		boolean flag = getfollowInfo(body);
+		
+		if(!flag)
+		{
+			response.setStatus(502);
+			response.getWriter().println("Internal server error");
+		}
 		
 		Hashtable<String, Object> env = new Hashtable<String, Object>();
 		
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389");
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
 		env.put(Context.SECURITY_CREDENTIALS, ldap_pwd);
@@ -145,33 +152,44 @@ public class RequestFollow extends HttpServlet {
 			e1.printStackTrace();
 		}
 		
-		SearchControls searchControls = new SearchControls();
-		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		searchControls.setCountLimit(10);
-		
 		try 
 		{
-			ctx.destroySubcontext("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices");
-		} 
+			if(_permission.equals("read"))
+			{
+				ctx.destroySubcontext("description="+_entityID+".protected,description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				boolean unbind=unbind();	
+				
+				if(!unbind)
+				{
+					response.setStatus(502);
+					response.getWriter().println("Unable to unbind queue");
+				}
+			}
+			else if(_permission.equals("write"))
+			{
+				ctx.destroySubcontext("description="+_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+
+			}
+			else if(_permission.equals("read-write"))
+			{
+				ctx.destroySubcontext("description="+_entityID+".protected,description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				ctx.destroySubcontext("description="+_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				
+				boolean unbind=unbind();
+				
+				if(!unbind)
+				{
+					response.setStatus(502);
+					response.getWriter().println("Unable to unbind queue");
+				}
+			}
+			
+			response.getWriter().println("Successfully unfollowed "+_entityID);
+		}
 		catch (NamingException e1) 
 		{
 			response.getWriter().println("Share entry does not exist");
 			return;
-		}
-		
-		try 
-		{
-			Map<String, Object> args=new HashMap<String, Object>();
-			args.put("durable", "true");
-			Pool.getAdminChannel().queueUnbind(_requestorID,_entityID+".protected","#",args);
-			response.getWriter().println("Successfully unfollowed "+_entityID);
-		}
-			
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			response.setStatus(502);
-			response.getWriter().println("Unable to unbind queue");
 		}
 	}
 
@@ -228,6 +246,25 @@ public class RequestFollow extends HttpServlet {
 		
 		return resp;
 
+	}
+	
+	public static boolean unbind()
+	{		
+		try 
+		{
+			Map<String, Object> args=new HashMap<String, Object>();
+			args.put("durable", "true");
+			Pool.getAdminChannel().queueUnbind(_requestorID,_entityID+".protected","#",args);
+			
+			return true;
+			
+		}
+			
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 }

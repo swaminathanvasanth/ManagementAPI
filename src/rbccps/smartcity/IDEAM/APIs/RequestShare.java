@@ -152,7 +152,7 @@ public class RequestShare extends HttpServlet
 		Hashtable<String, Object> env = new Hashtable<String, Object>();
 		
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
+		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389");
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
 		env.put(Context.SECURITY_CREDENTIALS, ldap_pwd);
@@ -168,42 +168,28 @@ public class RequestShare extends HttpServlet
 			e1.printStackTrace();
 		}
 		
-		SearchControls searchControls = new SearchControls();
-		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		searchControls.setCountLimit(10);
-		NamingEnumeration<SearchResult> namingEnumeration=null;
-		
 		try 
 		{
-			namingEnumeration = ctx.search("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices", "(description=*)", new Object[]{}, searchControls);
-			
-			while (namingEnumeration.hasMore()) 
+			if(_permission.equals("read"))
 			{
-				SearchResult sr = namingEnumeration.next();
-				   
-				_read=sr.getAttributes().get("read").toString().split(":")[1].trim();
-				_write=sr.getAttributes().get("write").toString().split(":")[1].trim();
+				ctx.destroySubcontext("description="+_entityID+".protected,description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				boolean unbind=unbind();	
+				
+				if(!unbind)
+				{
+					response.setStatus(502);
+					response.getWriter().println("Unable to unbind queue");
+				}
 			}
-			
-			if(_permission.equalsIgnoreCase("read"))
+			else if(_permission.equals("write"))
 			{
-				_read="false";
+				ctx.destroySubcontext("description="+_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+
 			}
-			
-			else if (_permission.equalsIgnoreCase("write"))
+			else if(_permission.equals("read-write"))
 			{
-				_write="false";
-			}
-			
-			else if(_permission.equalsIgnoreCase("read-write"))
-			{
-				_read="false";
-				_write="false";
-			}
-			
-			if(_read.equals("false")&&_write.equals("false"))
-			{
-				ctx.destroySubcontext("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices");
+				ctx.destroySubcontext("description="+_entityID+".protected,description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				ctx.destroySubcontext("description="+_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
 				
 				boolean unbind=unbind();
 				
@@ -212,30 +198,6 @@ public class RequestShare extends HttpServlet
 					response.setStatus(502);
 					response.getWriter().println("Unable to unbind queue");
 				}
-			}
-		    
-			else 
-			{
-				if(_read.equals("false"))
-				{
-					boolean unbind=unbind();
-					
-					if(!unbind)
-					{
-						response.setStatus(502);
-						response.getWriter().println("Unable to unbind queue");
-					}
-				}
-				
-				Attribute read = new BasicAttribute("read",_read);
-				Attribute write = new BasicAttribute("write",_write);
-					
-				ModificationItem[] item = new ModificationItem[2];
-					
-				item[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,read);
-				item[1] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, write);
-					
-				ctx.modifyAttributes("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices", item);
 			}
 		}
 		
@@ -302,144 +264,58 @@ public class RequestShare extends HttpServlet
 		readldappwd();
 		
 		boolean ldap=false,pub=false;
-		
-		Hashtable<String, Object> env = new Hashtable<String, Object>();
-		
-		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, "ldap://ldapd:8389/dc=smartcity");
-		env.put(Context.SECURITY_AUTHENTICATION, "simple");
-		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=smartcity");
-		env.put(Context.SECURITY_CREDENTIALS, ldap_pwd);
-		
-		DirContext ctx=null;
-		
-		try 
+			
+			
+	    if(_validity.charAt(_validity.length()-1)=='Y') 
 		{
-			ctx = new InitialDirContext(env);
+			_validityUnits = "Year";
 		} 
-		catch (NamingException e1) 
+		else if(_validity.charAt(_validity.length()-1)=='M') 
 		{
-			e1.printStackTrace();
-		}
-		
-		SearchControls searchControls = new SearchControls();
-		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		searchControls.setCountLimit(10);
-		NamingEnumeration<SearchResult> namingEnumeration=null;
-		
-		try 
-		{
-			namingEnumeration = ctx.search("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices", "(description=*)", new Object[]{}, searchControls);
-			
-			while (namingEnumeration.hasMore()) 
-			{
-				SearchResult sr = namingEnumeration.next();
-				   
-				_read=sr.getAttributes().get("read").toString().split(":")[1].trim();
-				_write=sr.getAttributes().get("write").toString().split(":")[1].trim();
-			}
-				
-			if(_permission.equalsIgnoreCase("read"))
-			{
-				_read="true";
-			}
-			
-			else if (_permission.equalsIgnoreCase("write"))
-			{
-				_write="true";
-			}
-			
-			else if(_permission.equalsIgnoreCase("read-write"))
-			{
-				_read="true";
-				_write="true";
-			}
-				
-			Attribute read = new BasicAttribute("read",_read);
-			Attribute write = new BasicAttribute("write",_write);
-				
-			ModificationItem[] item = new ModificationItem[2];
-				
-			item[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,read);
-			item[1] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, write);
-				
-			ctx.modifyAttributes("description="+_requestorID+",description=share,description=broker,uid="+_entityID+",cn=devices", item);
-			ldap=true;
-			pub=publish(_entityID, _requestorID);
-						
+			_validityUnits = "Month";
 		} 
-		
-		catch (NamingException e1) 
+		else if(_validity.charAt(_validity.length()-1)=='D') 
 		{
-			if(_permission.equalsIgnoreCase("read")) 
-			{
-				_read = "true";
-				_write = "false";
-			} 
+			_validityUnits = "Day";
+		} 
 			
-			else if(_permission.equalsIgnoreCase("write")) 
-			{
-				_read = "false";
-				_write = "true";
-			} 
+		System.out.println(_validityUnits);
 			
-			else if(_permission.equalsIgnoreCase("read-write")) 
-			{
-				_read = "true";
-				_write = "true";
-			}		
+		temp = _validity.substring(0, _validity.length()-1);
 			
-			if(_validity.charAt(_validity.length()-1)=='Y') 
-			{
-				_validityUnits = "Year";
-			} 
-			else if(_validity.charAt(_validity.length()-1)=='M') 
-			{
-				_validityUnits = "Month";
-			} 
-			else if(_validity.charAt(_validity.length()-1)=='D') 
-			{
-				_validityUnits = "Day";
-			} 
-			
-			System.out.println(_validityUnits);
-			
-			temp = _validity.substring(0, _validity.length()-1);
-			
-			System.out.println(temp);
+		System.out.println(temp);
 			
 
-			if(_validityUnits.equalsIgnoreCase("Year")) 
-			{
-				_expireDate = LocalDate.now().plusYears(Long.parseLong(temp));
-			} 
-			else if(_validityUnits.equalsIgnoreCase("Month")) 
-			{
-				_expireDate = LocalDate.now().plusMonths(Long.parseLong(temp));
-			}  
-			else if(_validityUnits.equalsIgnoreCase("Day")) 
-			{
-				_expireDate = LocalDate.now().plusDays(Long.parseLong(temp));	
-			} 
+		if(_validityUnits.equalsIgnoreCase("Year")) 
+		{
+			_expireDate = LocalDate.now().plusYears(Long.parseLong(temp));
+		} 
+		else if(_validityUnits.equalsIgnoreCase("Month")) 
+		{
+			_expireDate = LocalDate.now().plusMonths(Long.parseLong(temp));
+		}  
+		else if(_validityUnits.equalsIgnoreCase("Day")) 
+		{
+			_expireDate = LocalDate.now().plusDays(Long.parseLong(temp));	
+		} 
 			
-			_expiretime = LocalTime.now();
+		_expiretime = LocalTime.now();
 			
-			System.out.println("Expiry Date is : "+_expireDate.toString());
-			System.out.println("Expiry Time is : "+_expiretime.toString()); 
+		System.out.println("Expiry Date is : "+_expireDate.toString());
+		System.out.println("Expiry Time is : "+_expiretime.toString()); 
 			 
-			_expiry = LocalDateTime.of(_expireDate, _expiretime);
+		_expiry = LocalDateTime.of(_expireDate, _expiretime);
 			 
-			System.out.println("Expiry is : "+_expiry.toString());
-			zoneId = ZoneId.systemDefault();
-			epoch = _expiry.atZone(zoneId).toInstant().toEpochMilli();
+		System.out.println("Expiry is : "+_expiry.toString());
+		zoneId = ZoneId.systemDefault();
+		epoch = _expiry.atZone(zoneId).toInstant().toEpochMilli();
 			 
-			System.out.println("Epoch is : "+epoch);
-			_validity = epoch+"";
+		System.out.println("Epoch is : "+epoch);
+		_validity = epoch+"";
 			
-			LDAP addShareEntryToLdap = new LDAP();
-			ldap=addShareEntryToLdap.addShareEntry(_entityID, _requestorID, _read, _write, _validity);
-			pub=publish(_entityID, _requestorID);
-		}
+		LDAP addShareEntryToLdap = new LDAP();
+		ldap=addShareEntryToLdap.addShareEntry(_entityID, _requestorID, _permission, _validity);
+		pub=publish(_entityID, _requestorID);
 		
 		JsonObject response=new JsonObject();
 		if(ldap&&pub)
