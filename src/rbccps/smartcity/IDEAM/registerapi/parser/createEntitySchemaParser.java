@@ -37,7 +37,9 @@ public class createEntitySchemaParser {
 			entitySchemaObject.add("accessMechanism", access_jsonTree);
 			//id_element = (JsonElement) gson.fromJson(id, JsonElement.class);
 			//entitySchemaObject.add("id", id_element);
-			entityInfo.setEntityID(entitySchemaObject.get("id").toString());
+			entityInfo.setEntityID(entitySchemaObject.get("id").toString().toLowerCase());
+			
+			entitySchemaObject.addProperty("id", entityInfo.getEntityID());
 			System.out.println(entitySchemaObject.get("id").toString());
 			
 /*

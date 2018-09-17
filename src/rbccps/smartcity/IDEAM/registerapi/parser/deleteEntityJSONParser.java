@@ -67,7 +67,7 @@ public class deleteEntityJSONParser {
 			
 			// Store entitySchema and ID in entity class for easy access.
 		
-			entity.setEntityID(jsonObject.get("id").getAsString());
+			entity.setEntityID(jsonObject.get("id").getAsString().toLowerCase());
 			
 			System.out.println("Kick Start the flow");
 
