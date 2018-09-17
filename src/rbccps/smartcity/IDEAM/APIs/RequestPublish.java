@@ -48,7 +48,7 @@ public class RequestPublish extends HttpServlet {
 		
 		if(routingKey==null)
 		{
-			routingKey="#";
+			routingKey="<unspecified>";
 		}
 		
 		token=X_Consumer_Username+":"+apikey;
