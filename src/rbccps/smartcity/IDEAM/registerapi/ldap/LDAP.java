@@ -848,7 +848,6 @@ public class LDAP {
 		
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		searchControls.setCountLimit(10);
 		NamingEnumeration<SearchResult> namingEnumeration=null;
 		
 	    ArrayList<String> list =new ArrayList<String>();
@@ -943,7 +942,7 @@ public class LDAP {
 			
 			for(String name: list)
 			{
-				System.out.println(name);
+				//System.out.println(name);
 				ctx.destroySubcontext(name);
 			}
 			
@@ -1022,7 +1021,6 @@ public class LDAP {
 		
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		searchControls.setCountLimit(10);
 		NamingEnumeration<SearchResult> namingEnumeration=null;
 		
 		try 

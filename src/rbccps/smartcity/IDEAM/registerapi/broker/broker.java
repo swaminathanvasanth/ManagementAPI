@@ -60,7 +60,18 @@ public class broker {
 			
 		try
 		{	
-			Pool.getAdminChannel().queueDeclare(resourceID, true, false, false, null);
+			if (resourceID.endsWith(".priority")||(resourceID.equals("database")))
+			{
+				Pool.getAdminChannel().queueDeclare(resourceID, true, false, false, null);
+			}
+			else
+			{
+				Map<String, Object> args = new HashMap<String, Object>();
+				args.put("x-queue-mode", "lazy");
+				
+				Pool.getAdminChannel().queueDeclare(resourceID, true, false, false, args);
+
+			}
 			response="Created Queue "+resourceID;
 		}
 			

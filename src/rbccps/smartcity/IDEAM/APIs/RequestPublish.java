@@ -7,36 +7,42 @@ import java.io.UnsupportedEncodingException;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.AMQP.Basic;
+import com.rabbitmq.client.AMQP.BasicProperties;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class RequestPublish extends HttpServlet {
-
-	static String X_Consumer_Username;
-	static String apikey;
-	static String body;
-	static PrintWriter out;
-	
-
+public class RequestPublish extends HttpServlet 
+{	
 	static ExecutorService executor=Executors.newSingleThreadExecutor();
-	static int STATUS_OK = 200;
 	
-	String[] requestURI;
-	String exchange;
-	String routingKey;
-	String token;
-	publish pub=new publish();
+	static Connection connection = null;
+	static Channel channel = null;
+	static ConnectionFactory factory = null;
 	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		String[] requestURI;
+		String exchange;
+		String routingKey;
+		String token;
+		
+		String X_Consumer_Username;
+		String apikey;
+		String body;
+		
+		publish pub=new publish();
 
 		requestURI = request.getPathInfo().toString().split("/");
 		X_Consumer_Username = request.getHeader("X-Consumer-Username");
@@ -52,17 +58,20 @@ public class RequestPublish extends HttpServlet {
 		}
 		
 		token=X_Consumer_Username+":"+apikey;
-		
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+		
 		pub.token=token;
 		pub.body=body;
 		pub.exchange=exchange;
 		pub.key=routingKey;
-		out = response.getWriter();
-		response.setStatus(STATUS_OK);
+
+		response.setStatus(202);
 		
-		executor.execute(pub);		
-	}
+		//Future task=executor.submit(pub);
+		
+		executor.execute(pub);	
+		
+		}
 }
 
 class publish implements Runnable
@@ -151,5 +160,6 @@ class publish implements Runnable
 		}
 		
 	}
-	
 }
+
+	

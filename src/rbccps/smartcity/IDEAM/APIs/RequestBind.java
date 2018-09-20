@@ -118,7 +118,6 @@ public class RequestBind extends HttpServlet
 			
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-			searchControls.setCountLimit(10);
 			NamingEnumeration<SearchResult> namingEnumeration=null;
 			
 			try 
@@ -246,7 +245,6 @@ public class RequestBind extends HttpServlet
 			
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-			searchControls.setCountLimit(10);
 			NamingEnumeration<SearchResult> namingEnumeration=null;
 			
 			try 
