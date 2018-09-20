@@ -109,6 +109,12 @@ public class RequestShare extends HttpServlet
 			
 			boolean flag = getshareinfo(body);
 			
+			if(!request.getHeader("X-Consumer-Username").equals(_entityID))
+			{
+				response.setStatus(401);
+				return;
+			}
+			
 			if(!flag)
 			{
 				response.setStatus(400);
@@ -141,6 +147,12 @@ public class RequestShare extends HttpServlet
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		
 		boolean flag = getshareinfo(body);
+		
+		if(!request.getHeader("X-Consumer-Username").equals(_entityID))
+		{
+			response.setStatus(401);
+			return;
+		}
 		
 		if(!flag)
 		{

@@ -876,18 +876,6 @@ public class LDAP {
         list.add("description="+userId+".public,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
         list.add("description="+userId+".private,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
         list.add("description="+userId+".protected,description=write,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
-
-//        System.out.println("Before try");
-//        try 
-//        {
-//        	ctx.search("uid="+userId+",cn=devices,dc=smartcity", "(*)",new Object[] {},searchControls);
-//        }
-//        catch (Exception e) 
-//        {
-//			return -1;
-//		}
-//        
-//        System.out.println("After try");
         	
 		ArrayList<String> ignoreList = new ArrayList<String>();
 		
@@ -949,7 +937,7 @@ public class LDAP {
 			System.out.println("Success");
 			return 1;
 		} 
-		catch (NamingException e1) 
+		catch (Exception e1) 
 		{
 			e1.printStackTrace();
 			System.out.println("Could not delete from ldap");

@@ -93,6 +93,12 @@ public class RequestFollow extends HttpServlet {
 			body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 			boolean flag = getfollowInfo(body);
 			
+			if(!request.getHeader("X-Consumer-Username").equals(_requestorID))
+			{
+				response.setStatus(401);
+				return;
+			}
+			
 			if(!flag)
 			{
 				response.setStatus(400);
@@ -126,6 +132,12 @@ public class RequestFollow extends HttpServlet {
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		
 		boolean flag = getfollowInfo(body);
+		
+		if(!request.getHeader("X-Consumer-Username").equals(_requestorID))
+		{
+			response.setStatus(401);
+			return;
+		}
 		
 		if(!flag)
 		{
