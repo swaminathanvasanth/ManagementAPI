@@ -129,7 +129,10 @@ public class RequestRegister extends HttpServlet {
 				|| returnData.contains("Missing LoRa information") || returnData.contains("Missing Video information")
 				|| returnData.contains("Cannot Onboard Video camera in VideoServer. POST Error.")
 				|| returnData.contains("serverConfiguration_credentials, some field not found in json")
-				|| returnData.contains("PlayURL is not specified in json")) 
+				|| returnData.contains("PlayURL is not specified in json")
+				|| returnData.contains("ID is missing")
+				|| returnData.contains("ID contains Special Characters"))  
+			
 		{
 			try 
 			{
