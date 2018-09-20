@@ -67,8 +67,7 @@ public class createEntityJSONParser {
 	static boolean isSubscriber = false;
 	static JsonObject subscriber_response;
 
-	public static String JSONParser() 
-	{
+	public static String JSONParser() {
 
 		// Get Headers from request.
 		// Find resourceID
@@ -94,9 +93,9 @@ public class createEntityJSONParser {
 		subscriptionEndPoint_jsonObject.addProperty("value", "https://smartcity.rbccps.org/api/0.1.0/subscribe");
 
 		JsonObject resourceAPIInfo_jsonObject = new JsonObject();
-		resourceAPIInfo_jsonObject.addProperty("describes", 
+		resourceAPIInfo_jsonObject.addProperty("describes",
 				"Information on how to use various APIs (access, update, cat) associated with this resource");
-		
+
 		resourceAPIInfo_jsonObject.addProperty("value", "https://rbccps-iisc.github.io/");
 
 		JsonObject accessModifier_Entries_jsonObject = new JsonObject();
@@ -129,21 +128,19 @@ public class createEntityJSONParser {
 
 		System.out.println("------------------BODY------------------");
 		System.out.println(json);
-		
+
 		response = new JsonObject();
 
-		try 
-		{
+		try {
 			parser = new JsonParser();
 			jsonTree = parser.parse(json);
 			access_parser = new JsonParser();
 
 			access_jsonTree = access_parser.parse(accessMechanism_json);
 			access_jsonObject = access_jsonTree.getAsJsonObject();
-		} 
-		
-		catch (Exception e) 
-		{
+		}
+
+		catch (Exception e) {
 			response.addProperty("Registration", "Failure");
 			response.addProperty("Reason", "JSON parse error");
 			return response.toString();
@@ -153,8 +150,7 @@ public class createEntityJSONParser {
 		 * System.out.println(access_jsonObject.toString() + "\n---------------\n");
 		 */
 
-		if (jsonTree.isJsonObject()) 
-		{
+		if (jsonTree.isJsonObject()) {
 			jsonObject = jsonTree.getAsJsonObject();
 			/*
 			 * System.out.println(jsonObject.toString() + "\n---------------\n");
@@ -165,28 +161,23 @@ public class createEntityJSONParser {
 			// Check if it is a LoRa or Video or IP Device
 
 			serverType = _externalServerValidator.parse(jsonObject);
-			//System.out.println(serverType);
+			// System.out.println(serverType);
 
-			if (serverType.contains("lora")) 
-			{
+			if (serverType.contains("lora")) {
 				String _credentials = _loraserverConfigurationParser.parse(jsonObject);
 				System.out.println(_credentials);
 
-				if (loraserverConfigurationFields.serverConfiguration) 
-				{
-					if (loraserverConfigurationFields.LoRaServer) 
-					{
+				if (loraserverConfigurationFields.serverConfiguration) {
+					if (loraserverConfigurationFields.LoRaServer) {
 						System.out.println("loraserverConfigurationFields.LoRaServer = TRUE");
-						
-						if (loraserverConfigurationFields.appEUIFlag && loraserverConfigurationFields.devEUIFlag) 
-						{
+
+						if (loraserverConfigurationFields.appEUIFlag && loraserverConfigurationFields.devEUIFlag) {
 							System.out.println("Looks Good! Its a LoRa device");
 							startFlow();
 
-						} 
-						
-						else 
-						{
+						}
+
+						else {
 							response.addProperty("Registration", "failure");
 							response.addProperty("Reason", "Missing LoRa information");
 							System.out.println("Something went wrong with LoRa!");
@@ -194,39 +185,33 @@ public class createEntityJSONParser {
 					}
 				}
 
-			} 
-			
-			else if (serverType.contains("video")) 
-			{
+			}
+
+			else if (serverType.contains("video")) {
 				String _credentials = _videoserverConfigurationParser.parse(jsonObject);
 				System.out.println(_credentials);
 
-				if (videoserverConfigurationFields.serverConfiguration) 
-				{
-					if (videoserverConfigurationFields.videoServer) 
-					{
+				if (videoserverConfigurationFields.serverConfiguration) {
+					if (videoserverConfigurationFields.videoServer) {
 						System.out.println("videoserverConfigurationFields.videoServer = TRUE");
-						
-						if (videoserverConfigurationFields.url) 
-						{
+
+						if (videoserverConfigurationFields.url) {
 							System.out.println("Looks Good! Its a video device");
 							videoCamera = true;
 							startFlow();
 
-						} 
-						
-						else 
-						{
+						}
+
+						else {
 							response.addProperty("Registration", "failure");
 							response.addProperty("Reason", "Missing Video information");
 							System.out.println("Something went wrong with Video!");
 						}
 					}
 				}
-			} 
-			
-			else 
-			{
+			}
+
+			else {
 				System.out.println("Looks Good!, Its an IP Device");
 				startFlow();
 			}
@@ -234,32 +219,68 @@ public class createEntityJSONParser {
 		return response.toString();
 	}
 
-	private static String startFlow() 
-	{
+	private static String startFlow() {
 		state = 0;
 		String _dataSchema = _entitySchemaParser.parse(jsonObject, access_jsonTree);
 
-		if (isSubscriber) 
-		{
-			ID = _dataSchema;
+		if (isSubscriber) {
+			
+			if (entity.getEntityID() == null) {
+				System.out.println("The ID is missing");
+				response.addProperty("Registration", "failure");
+				response.addProperty("Reason", "ID is missing");
+				isSubscriber = false;
+				return response.toString();
+			} else {
+				ID = entity.getEntityID().toString();
+				System.out.println(ID);
+				
+			}
+			if (ID.trim().length() == 0 || ID.contains("null")) {
+				System.out.println("The ID is invalid " + ID);
+				System.out.println(ID);
+				response.addProperty("Registration", "failure");
+				response.addProperty("Reason", "ID is invalid");
+				isSubscriber = false;
+				return response.toString();
+			}
+			
 			subscriber_response = createsubscriberEntity.createEntity(ID);
 			response = subscriber_response;
 			System.out.println(subscriber_response);
 			isSubscriber = false;
 			return subscriber_response.toString();
 		}
+		
+		if (entity.getEntityID() == null) {
+			System.out.println("The ID is missing");
+			response.addProperty("Registration", "failure");
+			response.addProperty("Reason", "ID is missing");
+
+			return response.toString();
+		} else {
+			ID = entity.getEntityID().toString();
+			System.out.println(ID);
+		}
+		if (ID.trim().length() == 0 || ID.contains("null")) {
+			System.out.println("The ID is invalid " + ID);
+			System.out.println(ID);
+			response.addProperty("Registration", "failure");
+			response.addProperty("Reason", "ID is invalid");
+
+			return response.toString();
+		}
 
 		// Store entitySchema and ID in entity class for easy access.
 		entity.setEntitySchemaObject(_dataSchema);
 
-		try 
-		{
+		try {
 			System.out.println(entity.getEntitySchemaObject());
 			System.out.println(entity.getEntityID().toString());
 
 			ID = entity.getEntityID().toString();
 			System.out.println(ID);
-			
+
 			ID = ID.toLowerCase();
 			System.out.println("Converted to lower case");
 			System.out.println(ID);
@@ -267,49 +288,44 @@ public class createEntityJSONParser {
 			Matcher matcher = pattern.matcher(ID);
 			boolean idvalidator = matcher.find();
 
-			if (idvalidator) 
-			{
-			   System.out.println("There is a special character in " +ID);
-			   System.out.println(ID);
-			   response.addProperty("Registration", "failure");
-			   response.addProperty("Reason", "ID contains Special Characters");
-			   
-			   return response.toString();
+			if (idvalidator) {
+				System.out.println("There is a special character in " + ID);
+				System.out.println(ID);
+				response.addProperty("Registration", "failure");
+				response.addProperty("Reason", "ID contains Special Characters");
+
+				return response.toString();
 			}
 
 			ID = ID.replaceAll("^\"|\"$", "");
-			
+
 			System.out.println(ID);
 
-			if (ID != null) 
-			{
+			if (ID != null) {
 				state = 1;
 				response_createID = apiGateway.createUser(ID);
-			
+
 				System.out.println("------STEP 1------");
 				System.out.println("------------");
 				System.out.println(response_createID);
 				System.out.println("------------");
-			} 
-			
-			else 
-			{
+			}
+
+			else {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "ID not provided");
 				return response.toString();
 			}
 
-			if (response_createID.contains("created")) 
-			{
+			if (response_createID.contains("created")) {
 				state = 2;
 				response_generateapiKey = apiGateway.generateAPIKey(ID);
 
-				if (response_generateapiKey.contains("Security level must be between 1-5")) 
-				{
+				if (response_generateapiKey.contains("Security level must be between 1-5")) {
 					apiGateway.deleteUser(ID);
 					response.addProperty("Registration", "Failure");
 					response.addProperty("Reason", "Security level must be between 1-5");
-					
+
 					return response.toString();
 				}
 
@@ -317,37 +333,33 @@ public class createEntityJSONParser {
 				System.out.println("------------");
 				System.out.println(response_generateapiKey);
 				System.out.println("------------");
-			} 
-			
-			else if (response_createID.contains("Server Not Reachable")) 
-			{
+			}
+
+			else if (response_createID.contains("Server Not Reachable")) {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "Server Not Reachable");
 				// Delete the created ID in KONG
 				apiGateway.deleteUser(ID);
-				
-				return response.toString();
-			} 
-			
-			else if (response_createID.contains("ID not available. Please Use a Unique ID for Registration.")) 
-			{
-				response.addProperty("Registration", "failure");
-				response.addProperty("Reason", "ID already used. Please Use a Unique ID for Registration.");
-				
-				return response.toString();
-			} 
-			
-			else 
-			{
-				apiGateway.deleteUser(ID);
-				response.addProperty("Registration", "failure");
-				response.addProperty("Reason", "ID already used.");
-				
+
 				return response.toString();
 			}
 
-			if (response_generateapiKey.contains("key")) 
-			{
+			else if (response_createID.contains("ID not available. Please Use a Unique ID for Registration.")) {
+				response.addProperty("Registration", "failure");
+				response.addProperty("Reason", "ID already used. Please Use a Unique ID for Registration.");
+
+				return response.toString();
+			}
+
+			else {
+				apiGateway.deleteUser(ID);
+				response.addProperty("Registration", "failure");
+				response.addProperty("Reason", "ID already used.");
+
+				return response.toString();
+			}
+
+			if (response_generateapiKey.contains("key")) {
 				state = 3;
 				response_assignwhitelist = apiGateway.assignWhiteListGroup(ID, "publish");
 				System.out.println("------STEP 3------");
@@ -368,9 +380,8 @@ public class createEntityJSONParser {
 				System.out.println("------------");
 
 				System.out.println("------STEP 3.1------");
-				
-				if (loraserverConfigurationFields.serverConfiguration && loraserverConfigurationFields.LoRaServer) 
-				{
+
+				if (loraserverConfigurationFields.serverConfiguration && loraserverConfigurationFields.LoRaServer) {
 					String loraServerConfiguration_getJWTKey = loraServerConfiguration.getJWTKey();
 					System.out.println(loraServerConfiguration_getJWTKey);
 					String loraServerConfiguration_registerLoRaEntity = loraServerConfiguration.registerLoRaEntity(ID);
@@ -378,40 +389,35 @@ public class createEntityJSONParser {
 					loraserverConfigurationFields.serverConfiguration = false;
 					loraserverConfigurationFields.LoRaServer = false;
 
-				} 
-				
-				else if (videoserverConfigurationFields.videoServer) 
-				{
+				}
+
+				else if (videoserverConfigurationFields.videoServer) {
 					videoServerConfiguration.registervideoEntity(ID);
-				} 
-				
-				else if (serverType.contains("IPDevice")) 
-				{
+				}
+
+				else if (serverType.contains("IPDevice")) {
 					System.out.println("Its an IPDevice, asssigned WhiteList");
 				}
-				
+
 				System.out.println("------STEP 3.1------");
-			} 
-			
-			else 
-			{
+			}
+
+			else {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "Server not reachable. API KeyGen failed");
 				apiGateway.deleteUser(ID);
-				
+
 				return response.toString();
 			}
-			
-			if (response_assignwhitelist.contains("created")) 
-			{
+
+			if (response_assignwhitelist.contains("created")) {
 				state = 4;
-				
-				System.out.println("Created "+ID+" in Kong");
-				
+
+				System.out.println("Created " + ID + " in Kong");
+
 				// Create Exchange and Queue for LoRa and IPDevice
-				
-				if (!videoCamera) 
-				{
+
+				if (!videoCamera) {
 					broker.createExchange(ID + ".private");
 					broker.createExchange(ID + ".public");
 					broker.createExchange(ID + ".protected");
@@ -436,13 +442,12 @@ public class createEntityJSONParser {
 					broker.createBinding(ID + ".follow", ID + ".follow");
 					broker.createBinding(ID + ".configure", ID + ".configure");
 					broker.createBinding(ID + ".notify", ID + ".notify");
-					
-					System.out.println("Created queues and exchanges for "+ID+" in rabbitmq");
 
-				} 
-				
-				else 
-				{
+					System.out.println("Created queues and exchanges for " + ID + " in rabbitmq");
+
+				}
+
+				else {
 					System.out.println("Its a videoCamera");
 					response_createQueue = "videoCamera";
 				}
@@ -450,10 +455,9 @@ public class createEntityJSONParser {
 				System.out.println("------------");
 				System.out.println(response_createQueue);
 				System.out.println("------------");
-			} 
-			
-			else 
-			{
+			}
+
+			else {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "Failed in adding ID into the ACL");
 				apiGateway.deleteUser(ID);
@@ -461,9 +465,8 @@ public class createEntityJSONParser {
 				// If queue and exchange creation was stopped midway, remove appropriate entries
 				// here
 			}
-			
-			if (response_createQueue.contains("Created")) 
-			{
+
+			if (response_createQueue.contains("Created")) {
 
 				state = 5;
 				System.out.println("LDAP for LoRa and IPDevice");
@@ -483,12 +486,11 @@ public class createEntityJSONParser {
 				System.out.println("------------");
 				System.out.println(response_updateLDAPEntry);
 				System.out.println("------------");
-				
+
 				System.out.println("Added entry to LDAP");
-			} 
-			
-			else if (response_createQueue.contains("videoCamera")) 
-			{
+			}
+
+			else if (response_createQueue.contains("videoCamera")) {
 				System.out.println("LDAP for Video Camera");
 				System.out.println(ID);
 				System.out.println(entity.getEntityapikey());
@@ -506,10 +508,9 @@ public class createEntityJSONParser {
 				System.out.println("------------");
 				System.out.println(response_updateLDAPEntry);
 				System.out.println("------------");
-			} 
-			
-			else 
-			{
+			}
+
+			else {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "Failed in LDAP");
 
@@ -526,27 +527,24 @@ public class createEntityJSONParser {
 
 				return response.toString();
 			}
-			
-			if (response_updateLDAPEntry != null) 
-			{
+
+			if (response_updateLDAPEntry != null) {
 
 				response_updateCat = uCat.postCat(_dataSchema);
 				System.out.println("------STEP 6------");
 				System.out.println("------------");
 				System.out.println(response_updateCat);
 				System.out.println("------------");
-				
+
 				System.out.println("Updated Catalogue");
-			} 
-			
-			else 
-			{
+			}
+
+			else {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "LDAP update Failure");
 			}
 
-			if (response_updateCat >= 200 && response_updateCat <= 300) 
-			{
+			if (response_updateCat >= 200 && response_updateCat <= 300) {
 				response.addProperty("Registration", "success");
 				response.addProperty("entityID", ID);
 				response.addProperty("apiKey", apiKey);
@@ -556,10 +554,9 @@ public class createEntityJSONParser {
 				response.addProperty("publicationEndPoint",
 						"https://smartcity.rbccps.org/api/{version}/publish?id=" + ID);
 				response.addProperty("resourceAPIInfo", "https://rbccps-iisc.github.io");
-			} 
-			
-			else 
-			{
+			}
+
+			else {
 				response.addProperty("Registration", "failure");
 				response.addProperty("Reason", "uCat update Failure");
 
@@ -578,14 +575,13 @@ public class createEntityJSONParser {
 				return response.toString();
 
 			}
-		} 
-		
-		catch (Exception e) 
-		{
+		}
+
+		catch (Exception e) {
 			response.addProperty("Registration", "failure");
 			response.addProperty("Reason", "Possible missing fields");
 		}
-		
+
 		return response.toString();
 	}
 }

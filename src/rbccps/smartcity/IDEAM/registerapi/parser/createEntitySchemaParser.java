@@ -13,13 +13,14 @@ public class createEntitySchemaParser {
 
 	JsonElement ID;
 	String _ID;
+	entity entityInfo;
 
 	
 	
 	public String parse(JsonObject jsonObject, JsonElement access_jsonTree){
 		
 		try {
-			entity entityInfo = new entity();			
+			entityInfo = new entity();			
 			entitySchema = jsonObject.get("entitySchema");
 			_entitySchema = entitySchema.toString();
 			entitySchemaObject = entitySchema.getAsJsonObject();
@@ -58,6 +59,7 @@ public class createEntitySchemaParser {
 		try {
 			ID = jsonObject.get("id");
 			_ID = ID.toString().replaceAll("^\"|\"$", "");
+			entityInfo.setEntityID(_ID);
 			System.out.println(_ID);
 			createEntityJSONParser.isSubscriber = true;
 			return _ID;

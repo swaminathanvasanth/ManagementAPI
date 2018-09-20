@@ -86,7 +86,7 @@ public class deleteEntityJSONParser {
 				
 				System.out.println(decoded_authorization_datas[0] + " and " + decoded_authorization_datas[1]);
 				
-				if((LDAP.verifyProvider(ID, decoded_authorization_datas))||((!LDAP.checkEntry(ID)))) 
+				if((LDAP.verifyProvider(ID, decoded_authorization_datas))) 
 				{
 					System.out.println("Device belongs to owner");
 				

@@ -79,10 +79,9 @@ public class createsubscriberEntity {
 				// Delete the created ID in KONG
 				apiGateway.deleteUser(ID);
 				return response;
-			} else {
-				apiGateway.deleteUser(ID);
+			} else if (response_createID.contains("ID not available")) {
 				response.addProperty("Registration", "failure");
-				response.addProperty("Reason", "ID already used.");
+				response.addProperty("Reason", "ID not available. Please Use a Unique ID for Registration.");
 				return response;
 			}
 
