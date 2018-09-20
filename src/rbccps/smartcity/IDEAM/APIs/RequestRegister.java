@@ -96,7 +96,7 @@ public class RequestRegister extends HttpServlet {
 		
 		System.out.println(returnData);
 
-		if (returnData.contains("ID already used")) 
+		if (returnData.contains("ID already used") || returnData.contains("ID not available. Please Use a Unique ID for Registration.")) 
 		{
 			resp.setStatus(CONFLICT);
 			clearEntries();
