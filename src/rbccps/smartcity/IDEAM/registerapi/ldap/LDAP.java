@@ -872,6 +872,8 @@ public class LDAP {
         list.add("description="+userId+".follow,description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity");
         list.add("description="+userId+".notify,description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity");
         list.add("description="+userId+".priority,description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+        list.add("description="+userId+".configure,description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity");
+
 
         
         list.add("description="+userId+",description=read,description=share,description=broker,uid="+userId+",cn=devices,dc=smartcity");
