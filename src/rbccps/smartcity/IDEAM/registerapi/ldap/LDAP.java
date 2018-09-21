@@ -331,6 +331,14 @@ public class LDAP {
 		priorityQueue.put(new BasicAttribute("write","true"));
 		priorityQueue.put(oc);
 		
+        String configureQueueDN = "description="+userId+".configure,description=queue,description=broker,uid="+userId+",cn=devices,dc=smartcity";
+		
+        Attributes configureQueue = new BasicAttributes();
+		
+		configureQueue.put(new BasicAttribute("read","true"));
+		configureQueue.put(new BasicAttribute("write","true"));
+		configureQueue.put(oc);
+		
 		
 		// Share
 
@@ -476,7 +484,7 @@ public class LDAP {
 			dirContext.createSubcontext(publicWriteEntryDN, publicWriteEntry);
 			dirContext.createSubcontext(protectedWriteEntryDN, protectedWriteEntry);
 			dirContext.createSubcontext(privateWriteEntryDN, privateWriteEntry);
-			
+			dirContext.createSubcontext(configureQueueDN, configureQueue);
 
 			flag = true;
 
