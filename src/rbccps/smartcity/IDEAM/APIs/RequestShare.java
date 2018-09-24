@@ -371,11 +371,17 @@ public class RequestShare extends HttpServlet
 		JsonObject response=new JsonObject();
 		if(ldap&&pub)
 		{
-			response.addProperty("status","Share request approved for "+_requestorID+" with permission "+_permission+" at "+Instant.now());
+			response.addProperty("status","success");
+			response.addProperty("info","Share request approved");
+			response.addProperty("entityID",_requestorID);
+			response.addProperty("permission",_permission);
+			response.addProperty("validity",_validity);
+		
 		}
 		else 
 		{
-			response.addProperty("status", "Failed to approve share request");
+			response.addProperty("status","failure");
+			response.addProperty("reason", "Failed to approve share request");
 		}
 		
 		return response.toString();
@@ -388,7 +394,9 @@ public class RequestShare extends HttpServlet
 		{	
 			JsonObject object=new JsonObject();
 			
-			object.addProperty("Status update for follow request sent to "+entityID, "Approved. You can now bind to "+entityID+".protected");
+			object.addProperty("status","Approved");
+			object.addProperty("info","You can now bind to "+entityID+".protected");
+		
 			
 			Pool.getAdminChannel().basicPublish(requestorID+".notify", "#", null, object.toString().getBytes("UTF-8"));
 			
