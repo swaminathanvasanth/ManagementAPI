@@ -14,6 +14,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import rbccps.smartcity.IDEAM.registerapi.broker.Pool;
+import rbccps.smartcity.IDEAM.registerapi.ldap.LDAP;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -32,6 +33,9 @@ public class RequestBind extends HttpServlet
 {
 	static String ldap_pwd;
 	static String rmq_pwd;
+	
+	static String[] decoded_authorization_datas = new String[2];
+	static boolean isOwner = false;
 	
 	public void readldappwd() {
 		
@@ -70,13 +74,23 @@ public class RequestBind extends HttpServlet
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("Apikey");
 		
-		
-		if(!username.equalsIgnoreCase(queue.split("\\.")[0]))
-		{
-			response.setStatus(401);
-			response.getWriter().println("You do not have access to bind this queue");
-			return;
-		}
+		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
+		decoded_authorization_datas[1] = request.getHeader("apikey");
+
+					if ((LDAP.verifyProvider(queue, decoded_authorization_datas))) {
+								System.out.println("Device belongs to owner");
+								isOwner = true;
+								username = queue;
+							}
+
+
+					if (!isOwner)
+						if(!username.equalsIgnoreCase(queue.split("\\.")[0]))
+							{
+								response.setStatus(401);
+								response.getWriter().println("You do not have access to bind this queue");
+								return;
+							}
 		
 		//If the exchange and queue belongs to the same device
 		
@@ -198,12 +212,23 @@ public class RequestBind extends HttpServlet
 			apikey=request.getParameter("apikey");
 		}
 		
-		if(!username.equalsIgnoreCase(queue.split("\\.")[0]))
-		{
-			response.setStatus(401);
-			response.getWriter().println("You do not have access to unbind this queue");
-			return;
-		}
+		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
+		decoded_authorization_datas[1] = request.getHeader("apikey");
+
+					if ((LDAP.verifyProvider(queue, decoded_authorization_datas))) {
+								System.out.println("Device belongs to owner");
+								isOwner = true;
+								username = queue;
+							}
+
+
+					if (!isOwner)
+						if(!username.equalsIgnoreCase(queue.split("\\.")[0]))
+						{
+							response.setStatus(401);
+							response.getWriter().println("You do not have access to unbind this queue");
+							return;
+						}
 		
 		
 		if(queue.split("\\.")[0].equalsIgnoreCase(exchange.split("\\.")[0]))
