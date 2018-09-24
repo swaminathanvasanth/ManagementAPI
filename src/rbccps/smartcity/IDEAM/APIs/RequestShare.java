@@ -112,6 +112,8 @@ public class RequestShare extends HttpServlet
 			
 			boolean flag = getshareinfo(body);
 			
+			jsonObject = new JsonObject();
+			
 			decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 			decoded_authorization_datas[1] = request.getHeader("apikey");
 			
@@ -130,7 +132,9 @@ public class RequestShare extends HttpServlet
 			if(!flag)
 			{
 				response.setStatus(400);
-				response.getWriter().println("Possible missing fields");
+				jsonObject.addProperty("status", "Failure");
+				jsonObject.addProperty("reason", "Possible missing fields");
+				response.getWriter().println(jsonObject);
 				return;
 			}
 			
@@ -160,6 +164,8 @@ public class RequestShare extends HttpServlet
 		
 		boolean flag = getshareinfo(body);
 		
+		jsonObject = new JsonObject();
+		
 		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 		decoded_authorization_datas[1] = request.getHeader("apikey");
 		
@@ -178,7 +184,9 @@ public class RequestShare extends HttpServlet
 		if(!flag)
 		{
 			response.setStatus(400);
-			response.getWriter().println("Possible missing fields");
+			jsonObject.addProperty("status", "Failure");
+			jsonObject.addProperty("reason", "Possible missing fields");
+			response.getWriter().println(jsonObject);
 			return;
 		}
 		
@@ -211,7 +219,10 @@ public class RequestShare extends HttpServlet
 				if(!unbind)
 				{
 					response.setStatus(502);
-					response.getWriter().println("Unable to unbind queue");
+					jsonObject.addProperty("status", "Failure");
+					jsonObject.addProperty("reason", "Unable to unbind queue");
+					response.getWriter().println(jsonObject);
+					
 				}
 			}
 			else if(_permission.equals("write"))
@@ -229,19 +240,26 @@ public class RequestShare extends HttpServlet
 				if(!unbind)
 				{
 					response.setStatus(502);
-					response.getWriter().println("Unable to unbind queue");
+					jsonObject.addProperty("status", "Failure");
+					jsonObject.addProperty("reason", "Unable to unbind queue");
+					response.getWriter().println(jsonObject);
+					
 				}
 			}
 		}
 		
 		catch (NamingException e1) 
 		{
-			response.getWriter().println("Share entry does not exist");
+			jsonObject.addProperty("status", "Failure");
+			jsonObject.addProperty("reason", "Share entry does not exist");
+			response.getWriter().println(jsonObject);
 			return;
 		}
 		
-		response.getWriter().println("Successfully unshared from "+_requestorID);
-		
+		jsonObject.addProperty("status", "success");
+		jsonObject.addProperty("reason", "Successfully unshared");
+		jsonObject.addProperty("entityID", _requestorID);
+		response.getWriter().println(jsonObject);
 	}
 	
 	public boolean getshareinfo(String json) 
