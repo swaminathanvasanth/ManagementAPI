@@ -66,6 +66,9 @@ public class RequestShare extends HttpServlet
 	static String _entityID = null;
 	static String _requestorID = null;
 	
+	static String share_entityID = null;
+	static String [] share_entityIDs = null;
+	
 	static JsonElement permission;
 	static String _permission = null;
 	static String _read = null;
@@ -117,7 +120,20 @@ public class RequestShare extends HttpServlet
 			decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 			decoded_authorization_datas[1] = request.getHeader("apikey");
 			
-			if ((LDAP.verifyProvider(_entityID, decoded_authorization_datas))) {
+			share_entityID = _entityID;
+			if(share_entityID.contains("."))
+			{
+				System.out.println("Hit");
+				System.out.println(_entityID);
+				System.out.println(_entityID.split("."));
+				
+				share_entityIDs = new String[2];
+				share_entityIDs = _entityID.split("\\.");
+				share_entityID = share_entityIDs[0];
+				System.out.println(share_entityID);
+				
+			}
+			if ((LDAP.verifyProvider(share_entityID, decoded_authorization_datas))) {
 				System.out.println("Device belongs to owner");
 				isOwner = true;
 			}
@@ -143,6 +159,10 @@ public class RequestShare extends HttpServlet
 			if(resp.contains("Failed"))
 			{
 				response.setStatus(502);
+			}
+			else if(resp.contains("Request already shared"))
+			{
+				response.setStatus(409);
 			}
 			
 			response.getWriter().println(resp);
@@ -370,15 +390,20 @@ public class RequestShare extends HttpServlet
 		
 		JsonObject response=new JsonObject();
 		if(ldap&&pub)
-		{
+		{	
 			response.addProperty("status","success");
 			response.addProperty("info","Share request approved");
 			response.addProperty("entityID",_requestorID);
 			response.addProperty("permission",_permission);
-			response.addProperty("validity",_validity);
+			response.addProperty("validity",_expiry.toString());
 		
 		}
-		else 
+		else if (LDAP.entryexists){
+			LDAP.entryexists = false;
+			response.addProperty("status","failure");
+			response.addProperty("reason", "Request already shared");
+		}
+		else
 		{
 			response.addProperty("status","failure");
 			response.addProperty("reason", "Failed to approve share request");

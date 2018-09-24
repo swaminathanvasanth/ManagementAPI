@@ -47,6 +47,7 @@ public class LDAP {
 	static String brokerShareEntryDN;
 	static String brokerShare_Name_EntryDN;
 	static String LDAPEntry;
+	public static boolean entryexists = false;
 
 	public static void readldappwd() {
 		System.out.println("constructer to LDAP bind");
@@ -760,6 +761,12 @@ public class LDAP {
 			catch (Exception e) 
 			{
 				System.out.println("error: " + e.getMessage());
+				
+				if (e.getMessage().toString().contains("Entry Already Exists"))
+				{
+					entryexists = true;
+				}
+				
 				return flag;
 			}
 			
@@ -787,6 +794,13 @@ public class LDAP {
 			catch (Exception e) 
 			{
 				System.out.println("error: " + e.getMessage());
+				
+				if (e.getMessage().toString().contains("Entry Already Exists"))
+				{
+					entryexists = true;
+				}
+					
+				
 				return flag;
 			}
 		}
@@ -825,6 +839,11 @@ public class LDAP {
 			catch (Exception e) 
 			{
 				System.out.println("error: " + e.getMessage());
+				if (e.getMessage().toString().contains("Entry Already Exists"))
+				{
+					entryexists = true;
+				}
+					
 				return flag;
 			}
 		}
