@@ -30,6 +30,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import rbccps.smartcity.IDEAM.registerapi.broker.Pool;
+import rbccps.smartcity.IDEAM.registerapi.ldap.LDAP;
 import rbccps.smartcity.IDEAM.registerapi.lora.loraserverConfigurationFields;
 
 /**
@@ -70,6 +71,9 @@ public class RequestFollow extends HttpServlet {
 	static String rmq_pwd;
 	static String ldap_pwd;
 	
+	static String[] decoded_authorization_datas = new String[2];
+	static boolean isOwner = false;
+	
 	public void readldappwd() 
 	{	
 		try
@@ -93,11 +97,20 @@ public class RequestFollow extends HttpServlet {
 			body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 			boolean flag = getfollowInfo(body);
 			
-			if(!request.getHeader("X-Consumer-Username").equals(_requestorID))
-			{
-				response.setStatus(401);
-				return;
-			}
+			decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
+			decoded_authorization_datas[1] = request.getHeader("apikey");
+
+				if ((LDAP.verifyProvider(_requestorID, decoded_authorization_datas))) {
+							System.out.println("Device belongs to owner");
+							isOwner = true;
+						}
+
+				if (!isOwner)
+					if(!request.getHeader("X-Consumer-Username").equals(_requestorID))
+						{
+						response.setStatus(401);
+						return;
+						}
 			
 			if(!flag)
 			{
@@ -133,11 +146,20 @@ public class RequestFollow extends HttpServlet {
 		
 		boolean flag = getfollowInfo(body);
 		
-		if(!request.getHeader("X-Consumer-Username").equals(_requestorID))
-		{
-			response.setStatus(401);
-			return;
-		}
+		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
+		decoded_authorization_datas[1] = request.getHeader("apikey");
+
+			if ((LDAP.verifyProvider(_requestorID, decoded_authorization_datas))) {
+						System.out.println("Device belongs to owner");
+						isOwner = true;
+					}
+
+			if (!isOwner)
+				if(!request.getHeader("X-Consumer-Username").equals(_requestorID))
+					{
+						response.setStatus(401);
+						return;
+					}
 		
 		if(!flag)
 		{
