@@ -97,6 +97,8 @@ public class RequestFollow extends HttpServlet {
 			body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 			boolean flag = getfollowInfo(body);
 			
+			jsonObject = new JsonObject();
+			
 			decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 			decoded_authorization_datas[1] = request.getHeader("apikey");
 
@@ -115,7 +117,9 @@ public class RequestFollow extends HttpServlet {
 			if(!flag)
 			{
 				response.setStatus(400);
-				response.getWriter().println("Possible missing fields");
+				jsonObject.addProperty("status", "Failure");
+				jsonObject.addProperty("reason", "Possible missing fields");
+				response.getWriter().println(jsonObject);
 				return;
 			}
 			
@@ -132,7 +136,9 @@ public class RequestFollow extends HttpServlet {
 		catch (IOException e) 
 		{
 			response.setStatus(400);
-			response.getWriter().println("Invalid request");
+			jsonObject.addProperty("status", "Failure");
+			jsonObject.addProperty("reason", "Invalid request");
+			response.getWriter().println(jsonObject);
 			return;
 		}
 	}
@@ -145,6 +151,7 @@ public class RequestFollow extends HttpServlet {
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		
 		boolean flag = getfollowInfo(body);
+		jsonObject = new JsonObject();
 		
 		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 		decoded_authorization_datas[1] = request.getHeader("apikey");
@@ -164,7 +171,9 @@ public class RequestFollow extends HttpServlet {
 		if(!flag)
 		{
 			response.setStatus(502);
-			response.getWriter().println("Internal server error");
+			jsonObject.addProperty("status", "Failure");
+			jsonObject.addProperty("reason", "Internal server error");
+			response.getWriter().println(jsonObject);
 		}
 		
 		Hashtable<String, Object> env = new Hashtable<String, Object>();
@@ -196,7 +205,9 @@ public class RequestFollow extends HttpServlet {
 				if(!unbind)
 				{
 					response.setStatus(502);
-					response.getWriter().println("Unable to unbind queue");
+					jsonObject.addProperty("status", "Failure");
+					jsonObject.addProperty("reason", "Unable to unbind queue");
+					response.getWriter().println(jsonObject);					
 				}
 			}
 			else if(_permission.equals("write"))
@@ -214,15 +225,23 @@ public class RequestFollow extends HttpServlet {
 				if(!unbind)
 				{
 					response.setStatus(502);
-					response.getWriter().println("Unable to unbind queue");
+					jsonObject.addProperty("status", "Failure");
+					jsonObject.addProperty("reason", "Unable to unbind queue");
+					response.getWriter().println(jsonObject);
 				}
 			}
 			
-			response.getWriter().println("Successfully unfollowed "+_entityID);
+			jsonObject.addProperty("status", "success");
+			jsonObject.addProperty("info", "Successfully unfollowed");
+			jsonObject.addProperty("entityID", _entityID);
+			response.getWriter().println(jsonObject);
+		
 		}
 		catch (NamingException e1) 
 		{
-			response.getWriter().println("Share entry does not exist");
+			jsonObject.addProperty("status", "failure");
+			jsonObject.addProperty("reason", "Share entry does not exist");
+			response.getWriter().println(jsonObject);
 			return;
 		}
 	}
