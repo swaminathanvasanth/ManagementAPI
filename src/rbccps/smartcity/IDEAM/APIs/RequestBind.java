@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.JsonObject;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -36,6 +37,7 @@ public class RequestBind extends HttpServlet
 	
 	static String[] decoded_authorization_datas = new String[2];
 	static boolean isOwner = false;
+	static JsonObject jsonObject;
 	
 	public void readldappwd() {
 		
@@ -73,6 +75,8 @@ public class RequestBind extends HttpServlet
 
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("Apikey");
+	
+		jsonObject = new JsonObject();
 		
 		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 		decoded_authorization_datas[1] = request.getHeader("apikey");
@@ -88,7 +92,9 @@ public class RequestBind extends HttpServlet
 						if(!username.equalsIgnoreCase(queue.split("\\.")[0]))
 							{
 								response.setStatus(401);
-								response.getWriter().println("You do not have access to bind this queue");
+								jsonObject.addProperty("status", "Failure");
+								jsonObject.addProperty("reason", "You do not have access to bind this queue");
+								response.getWriter().println(jsonObject);
 								return;
 							}
 		
@@ -101,12 +107,16 @@ public class RequestBind extends HttpServlet
 				Map<String, Object> args=new HashMap<String, Object>();
 				args.put("durable", "true");
 				Pool.getAdminChannel().queueBind(queue,exchange,routingKey,args);
-				response.getWriter().println("Bind Queue OK");
+				jsonObject.addProperty("status", "success");
+				jsonObject.addProperty("info", "Bind Queue OK");
+				response.getWriter().println(jsonObject);
 			}
 			catch(Exception e)
 			{
 				e.printStackTrace();
-				response.getWriter().println("Unable to bind queue");
+				jsonObject.addProperty("status", "Failure");
+				jsonObject.addProperty("reason", "Unable to bind queue");
+				response.getWriter().println(jsonObject);
 			}
 		}
 		else
@@ -140,7 +150,9 @@ public class RequestBind extends HttpServlet
 			} 
 			catch (NamingException e1) 
 			{
-				response.getWriter().println("Share entry does not exist");
+				jsonObject.addProperty("status", "Failure");
+				jsonObject.addProperty("reason", "Share entry does not exist");
+				response.getWriter().println(jsonObject);
 				return;
 			}
 			
@@ -162,18 +174,24 @@ public class RequestBind extends HttpServlet
 							args.put("durable", "true");
 							
 							Pool.getAdminChannel().queueBind(queue,exchange,routingKey,args);
-							response.getWriter().println("Bind Queue OK");
+							jsonObject.addProperty("status", "success");
+							jsonObject.addProperty("info", "Bind Queue OK");
+							response.getWriter().println(jsonObject);
 							break;
 						}
 						catch(Exception e)
 						{
 							e.printStackTrace();
-							response.getWriter().println("Unable to bind queue");
+							jsonObject.addProperty("status", "Failure");
+							jsonObject.addProperty("reason", "Unable to bind queue");
+							response.getWriter().println(jsonObject);
 						}
 				   }
 				   else
 				   {
-					   response.getWriter().println("Your data lease time has expired");
+					   jsonObject.addProperty("status", "Failure");
+					   jsonObject.addProperty("reason", "Your data lease time has expired");
+					   response.getWriter().println(jsonObject);
 				   }
 				}
 				
@@ -212,13 +230,15 @@ public class RequestBind extends HttpServlet
 			apikey=request.getParameter("apikey");
 		}
 		
+		jsonObject = new JsonObject();
+		
 		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 		decoded_authorization_datas[1] = request.getHeader("apikey");
 
 					if ((LDAP.verifyProvider(queue, decoded_authorization_datas))) {
 								System.out.println("Device belongs to owner");
 								isOwner = true;
-								username = queue;
+								username = queue;	
 							}
 
 
@@ -226,7 +246,9 @@ public class RequestBind extends HttpServlet
 						if(!username.equalsIgnoreCase(queue.split("\\.")[0]))
 						{
 							response.setStatus(401);
-							response.getWriter().println("You do not have access to unbind this queue");
+							jsonObject.addProperty("status", "Failure");
+							jsonObject.addProperty("reason", "You do not have access to unbind this queue");
+							response.getWriter().println(jsonObject);
 							return;
 						}
 		
@@ -238,13 +260,17 @@ public class RequestBind extends HttpServlet
 				Map<String, Object> args=new HashMap<String, Object>();
 				args.put("durable", "true");
 				Pool.getAdminChannel().queueUnbind(queue,exchange,routingKey,args);
-				response.getWriter().println("Unbind Queue OK");
+				jsonObject.addProperty("status", "success");
+				jsonObject.addProperty("info", "Unbind Queue OK");
+				response.getWriter().println(jsonObject);
 			}
 			
 			catch(Exception e)
 			{
 				e.printStackTrace();
-				response.getWriter().println("Unable to unbind queue");
+				jsonObject.addProperty("status", "Failure");
+				jsonObject.addProperty("reason", "Unable to unbind queue");
+				response.getWriter().println(jsonObject);
 			}
 		}
 		else
@@ -287,14 +313,18 @@ public class RequestBind extends HttpServlet
 				Map<String, Object> args=new HashMap<String, Object>();
 				args.put("durable", "true");
 				Pool.getAdminChannel().queueUnbind(queue,exchange,routingKey,args);
-				response.getWriter().println("Unbind Queue OK");
+				jsonObject.addProperty("status", "success");
+				jsonObject.addProperty("info", "Unbind Queue OK");
+				response.getWriter().println(jsonObject);
 				ctx.close();
 			}
 			
 			catch(Exception e)
 			{
 				e.printStackTrace();
-				response.getWriter().println("Unable to unbind queue");
+				jsonObject.addProperty("status", "Failure");
+				jsonObject.addProperty("reason", "Unable to unbind queue");
+				response.getWriter().println(jsonObject);
 			}
 			
 		}
