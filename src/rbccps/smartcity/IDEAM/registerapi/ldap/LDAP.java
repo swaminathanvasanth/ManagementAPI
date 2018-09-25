@@ -722,7 +722,7 @@ public class LDAP {
 	}
 	
 	// Attributes to be set for new entry creation
-	public boolean addShareEntry(String providerId, String userId, String permission, String validity) {
+	public boolean addShareEntry(String providerId, String userId, String permission, String validity, String _exchange) {
 		boolean flag = false;
 		//System.out.println(providerId + " : " + userId + " : " + read + " : " + write  + " : " + validity);
 
@@ -741,7 +741,7 @@ public class LDAP {
 		
 		if(permission.equals("read"))
 		{
-			brokerShareEntryDN = "description="+providerId+".protected,description=read,description=share,description=broker,uid="
+			brokerShareEntryDN = "description="+providerId+"."+_exchange+",description=read,description=share,description=broker,uid="
 					+ userId + ",cn=devices,dc=smartcity";
 
 			brokerShareEntry = new BasicAttributes();
@@ -806,7 +806,7 @@ public class LDAP {
 		}
 		else if(permission.equals("read-write"))
 		{
-			String brokerReadShareEntryDN = "description="+providerId+".protected,description=read,description=share,description=broker,uid="
+			String brokerReadShareEntryDN = "description="+providerId+"."+_exchange+",description=read,description=share,description=broker,uid="
 					+ userId + ",cn=devices,dc=smartcity";
 
 			Attributes brokerReadShareEntry = new BasicAttributes();
