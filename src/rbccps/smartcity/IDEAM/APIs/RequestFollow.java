@@ -73,6 +73,14 @@ public class RequestFollow extends HttpServlet {
 	
 	static String[] decoded_authorization_datas = new String[2];
 	static boolean isOwner = false;
+	static boolean isdefault = false;
+	
+	static String share_entityID = null;
+	static String share_exchange = null;
+	static String _exchange = null;
+	static String [] share_entityIDs = null;
+	static boolean invalid_access_request = false;
+	static boolean public_access_request = false;
 	
 	public void readldappwd() 
 	{	
@@ -97,10 +105,26 @@ public class RequestFollow extends HttpServlet {
 			body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 			boolean flag = getfollowInfo(body);
 			
+			checkentityID();
 			jsonObject = new JsonObject();
+			if(invalid_access_request) {
+				invalid_access_request = false;
+				response.setStatus(401);
+				return;
+			} else if (public_access_request) {
+				public_access_request = false;
+				jsonObject.addProperty("status", "success");
+				jsonObject.addProperty("info", "No permission is required to access Public exchange.");
+				jsonObject.addProperty("access", "Send bind request to the " + share_entityID+"."+share_exchange + " exchange to start getting data."  );
+				response.getWriter().println(jsonObject);
+				return;
+			}
+			
 			
 			decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 			decoded_authorization_datas[1] = request.getHeader("apikey");
+			
+			
 
 				if ((LDAP.verifyProvider(_requestorID, decoded_authorization_datas))) {
 							System.out.println("Device belongs to owner");
@@ -151,7 +175,23 @@ public class RequestFollow extends HttpServlet {
 		body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		
 		boolean flag = getfollowInfo(body);
+		
+		checkentityID();
+		
 		jsonObject = new JsonObject();
+				
+		if(invalid_access_request) {
+			invalid_access_request = false;
+			response.setStatus(401);
+			return;
+		} else if (public_access_request) {
+			public_access_request = false;
+			jsonObject.addProperty("status", "success");
+			jsonObject.addProperty("info", "No permission is required to access Public exchange.");
+			jsonObject.addProperty("access", "Send bind request to the " + share_entityID+"."+share_exchange + " exchange to start getting data."  );
+			response.getWriter().println(jsonObject);
+			return;
+		}
 		
 		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 		decoded_authorization_datas[1] = request.getHeader("apikey");
@@ -198,8 +238,8 @@ public class RequestFollow extends HttpServlet {
 		try 
 		{
 			if(_permission.equals("read"))
-			{
-				ctx.destroySubcontext("description="+_entityID+".protected,description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+			{ // +share_entityID+"."+_exchange+
+				ctx.destroySubcontext("description="+share_entityID+"."+_exchange+",description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
 				boolean unbind=unbind();	
 				
 				if(!unbind)
@@ -212,13 +252,13 @@ public class RequestFollow extends HttpServlet {
 			}
 			else if(_permission.equals("write"))
 			{
-				ctx.destroySubcontext("description="+_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				ctx.destroySubcontext("description="+share_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
 
 			}
 			else if(_permission.equals("read-write"))
 			{
-				ctx.destroySubcontext("description="+_entityID+".protected,description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
-				ctx.destroySubcontext("description="+_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				ctx.destroySubcontext("description="+share_entityID+"."+_exchange+",description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				ctx.destroySubcontext("description="+share_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
 				
 				boolean unbind=unbind();
 				
@@ -233,7 +273,8 @@ public class RequestFollow extends HttpServlet {
 			
 			jsonObject.addProperty("status", "success");
 			jsonObject.addProperty("info", "Successfully unfollowed");
-			jsonObject.addProperty("entityID", _entityID);
+			jsonObject.addProperty("entityID", share_entityID);
+			jsonObject.addProperty("access", _exchange);
 			response.getWriter().println(jsonObject);
 		
 		}
@@ -241,6 +282,7 @@ public class RequestFollow extends HttpServlet {
 		{
 			jsonObject.addProperty("status", "failure");
 			jsonObject.addProperty("reason", "Share entry does not exist");
+			response.setStatus(404);
 			response.getWriter().println(jsonObject);
 			return;
 		}
@@ -291,11 +333,42 @@ public class RequestFollow extends HttpServlet {
 			return false;
 		}
 	}
+	
+	public static void checkentityID() {
+		share_entityID = _entityID;
+		if(share_entityID.contains("."))
+		{
+			isdefault = false;
+			System.out.println(_entityID);
+			System.out.println(_entityID.split("."));
+			
+			share_entityIDs = new String[2];
+			share_entityIDs = _entityID.split("\\.");
+			share_entityID = share_entityIDs[0];
+			share_exchange = share_entityIDs[1];
+			System.out.println(share_entityID);
+			System.out.println(share_exchange);
+			_exchange = share_exchange;
+			
+			if( ! ( _exchange.contains("private") || _exchange.contains("heartbeat") || _exchange.contains("public") || _exchange.contains("protected"))) {
+				invalid_access_request = true;
+			}
+			
+			if ( _exchange.contains("public") ) {
+				public_access_request = true;
+			}
+			
+		} else {
+			isdefault = true;
+			_exchange = "protected";
+		}
+		
+	}
 
 	private String sendfollowrequest() 
 	{
 		broker = new rbccps.smartcity.IDEAM.registerapi.broker.broker();
-		String resp=broker.publish(_entityID+".follow", _permission, _requestorID, _validity);
+		String resp=broker.publish(share_entityID, _permission, _requestorID, _validity, _exchange);
 		
 		return resp;
 
