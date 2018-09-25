@@ -64,19 +64,26 @@ public class RequestBind extends HttpServlet
 		String exchange=request.getRequestURI().split("/")[4];
 		
 		String routingKey;
-	
+		jsonObject = new JsonObject();
+		
 		routingKey=request.getHeader("routingKey");
+		System.out.println(routingKey);
 		
 		if(routingKey== null)
 		{
 			routingKey="#";
+		} else if (! routingKey.equals("#")) {
+			response.setStatus(401);
+			jsonObject.addProperty("status", "Failure");
+			jsonObject.addProperty("reason", "You do not have access to bind this routingKey to the queue");
+			response.getWriter().println(jsonObject);
+			return;
 		}
 		
 
 		String username=request.getHeader("X-Consumer-Username");
 		String apikey=request.getHeader("Apikey");
 	
-		jsonObject = new JsonObject();
 		
 		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 		decoded_authorization_datas[1] = request.getHeader("apikey");
@@ -214,12 +221,18 @@ public class RequestBind extends HttpServlet
 		String exchange=request.getRequestURI().split("/")[4];
 		
 		String routingKey;
-		
+		jsonObject = new JsonObject();
 		routingKey=request.getHeader("routingKey");
 		
 		if(routingKey== null)
 		{
 			routingKey="#";
+		} else if (! routingKey.equals("#")) {
+			response.setStatus(401);
+			jsonObject.addProperty("status", "Failure");
+			jsonObject.addProperty("reason", "You do not have access to unbind this routingKey to the queue");
+			response.getWriter().println(jsonObject);
+			return;
 		}
 		
 		String username=request.getHeader("X-Consumer-Username");
@@ -229,8 +242,7 @@ public class RequestBind extends HttpServlet
 		{
 			apikey=request.getParameter("apikey");
 		}
-		
-		jsonObject = new JsonObject();
+				
 		
 		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 		decoded_authorization_datas[1] = request.getHeader("apikey");
