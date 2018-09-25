@@ -66,6 +66,9 @@ public class RequestShare extends HttpServlet
 	static String _entityID = null;
 	static String _requestorID = null;
 	
+	static String share_entityID = null;
+	static String [] share_entityIDs = null;
+	
 	static JsonElement permission;
 	static String _permission = null;
 	static String _read = null;
@@ -84,6 +87,14 @@ public class RequestShare extends HttpServlet
 	static String temp = null;
 	static String rmq_pwd;
 	static String ldap_pwd;
+	
+	static String[] decoded_authorization_datas = new String[2];
+	static boolean isOwner = false;
+	static boolean isdefault = false;
+	static String share_exchange = null;
+	static String _exchange = null;
+	static boolean invalid_access_request = false;
+	static boolean public_access_request = false;
 	
 	public static void readldappwd() 
 	{	
@@ -109,16 +120,46 @@ public class RequestShare extends HttpServlet
 			
 			boolean flag = getshareinfo(body);
 			
-			if(!request.getHeader("X-Consumer-Username").equals(_entityID))
-			{
+			checkentityID();
+			
+			jsonObject = new JsonObject();
+			
+			if(invalid_access_request) {
+				invalid_access_request = false;
 				response.setStatus(401);
 				return;
+			} else if (public_access_request) {
+				public_access_request = false;
+				jsonObject.addProperty("status", "failure");
+				jsonObject.addProperty("reason", "No permission is required to access Public exchange.");
+				response.setStatus(401);
+				response.getWriter().println(jsonObject);
+				return;
 			}
+			
+			decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
+			decoded_authorization_datas[1] = request.getHeader("apikey");
+			
+			if ((LDAP.verifyProvider(share_entityID, decoded_authorization_datas))) {
+				System.out.println("Device belongs to owner");
+				isOwner = true;
+			}
+
+			if (!isOwner)
+				if(!request.getHeader("X-Consumer-Username").equals(share_entityID))
+					{
+						response.setStatus(401);
+						return;
+					}
+			
+			isOwner = false;
 			
 			if(!flag)
 			{
 				response.setStatus(400);
-				response.getWriter().println("Possible missing fields");
+				jsonObject.addProperty("status", "Failure");
+				jsonObject.addProperty("reason", "Possible missing fields");
+				response.getWriter().println(jsonObject);
 				return;
 			}
 			
@@ -127,6 +168,10 @@ public class RequestShare extends HttpServlet
 			if(resp.contains("Failed"))
 			{
 				response.setStatus(502);
+			}
+			else if(resp.contains("Request already shared"))
+			{
+				response.setStatus(409);
 			}
 			
 			response.getWriter().println(resp);
@@ -148,16 +193,46 @@ public class RequestShare extends HttpServlet
 		
 		boolean flag = getshareinfo(body);
 		
-		if(!request.getHeader("X-Consumer-Username").equals(_entityID))
-		{
+		checkentityID();
+		
+		jsonObject = new JsonObject();
+		
+		if(invalid_access_request) {
+			invalid_access_request = false;
 			response.setStatus(401);
 			return;
+		} else if (public_access_request) {
+			public_access_request = false;
+			jsonObject.addProperty("status", "failure");
+			jsonObject.addProperty("reason", "No permission is required to access Public exchange.");
+			response.setStatus(401);
+			response.getWriter().println(jsonObject);
+			return;
 		}
+		
+		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
+		decoded_authorization_datas[1] = request.getHeader("apikey");
+		
+		if ((LDAP.verifyProvider(share_entityID, decoded_authorization_datas))) {
+			System.out.println("Device belongs to owner");
+			isOwner = true;
+		}
+
+		if (!isOwner)
+			if(!request.getHeader("X-Consumer-Username").equals(share_entityID))
+			{
+				response.setStatus(401);
+				return;
+			}
+		
+		isOwner = false;
 		
 		if(!flag)
 		{
 			response.setStatus(400);
-			response.getWriter().println("Possible missing fields");
+			jsonObject.addProperty("status", "Failure");
+			jsonObject.addProperty("reason", "Possible missing fields");
+			response.getWriter().println(jsonObject);
 			return;
 		}
 		
@@ -183,44 +258,56 @@ public class RequestShare extends HttpServlet
 		try 
 		{
 			if(_permission.equals("read"))
-			{
-				ctx.destroySubcontext("description="+_entityID+".protected,description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+			{ 
+				ctx.destroySubcontext("description="+share_entityID+"."+_exchange+",description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
 				boolean unbind=unbind();	
 				
 				if(!unbind)
 				{
 					response.setStatus(502);
-					response.getWriter().println("Unable to unbind queue");
+					jsonObject.addProperty("status", "Failure");
+					jsonObject.addProperty("reason", "Unable to unbind queue");
+					response.getWriter().println(jsonObject);
+					
 				}
 			}
 			else if(_permission.equals("write"))
 			{
-				ctx.destroySubcontext("description="+_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				ctx.destroySubcontext("description="+share_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
 
 			}
 			else if(_permission.equals("read-write"))
 			{
-				ctx.destroySubcontext("description="+_entityID+".protected,description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
-				ctx.destroySubcontext("description="+_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				ctx.destroySubcontext("description="+share_entityID+"."+_exchange+",description=read,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
+				ctx.destroySubcontext("description="+share_entityID+".configure,description=write,description=share,description=broker,uid="+_requestorID+",cn=devices,dc=smartcity");
 				
 				boolean unbind=unbind();
 				
 				if(!unbind)
 				{
 					response.setStatus(502);
-					response.getWriter().println("Unable to unbind queue");
+					jsonObject.addProperty("status", "Failure");
+					jsonObject.addProperty("reason", "Unable to unbind queue");
+					response.getWriter().println(jsonObject);
+					
 				}
 			}
 		}
 		
 		catch (NamingException e1) 
 		{
-			response.getWriter().println("Share entry does not exist");
+			jsonObject.addProperty("status", "Failure");
+			jsonObject.addProperty("reason", "Share entry does not exist");
+			response.setStatus(404);
+			response.getWriter().println(jsonObject);
 			return;
 		}
 		
-		response.getWriter().println("Successfully unshared from "+_requestorID);
-		
+		jsonObject.addProperty("status", "success");
+		jsonObject.addProperty("reason", "Successfully unshared");
+		jsonObject.addProperty("entityID", _requestorID);
+		jsonObject.addProperty("access", _exchange);
+		response.getWriter().println(jsonObject);
 	}
 	
 	public boolean getshareinfo(String json) 
@@ -269,6 +356,37 @@ public class RequestShare extends HttpServlet
 
 		}
 	}
+	
+	public static void checkentityID() {
+		share_entityID = _entityID;
+		if(share_entityID.contains("."))
+		{
+			isdefault = false;
+			System.out.println(_entityID);
+			System.out.println(_entityID.split("."));
+			
+			share_entityIDs = new String[2];
+			share_entityIDs = _entityID.split("\\.");
+			share_entityID = share_entityIDs[0];
+			share_exchange = share_entityIDs[1];
+			System.out.println(share_entityID);
+			System.out.println(share_exchange);
+			_exchange = share_exchange;
+			
+			if( ! ( _exchange.contains("private") || _exchange.contains("heartbeat") || _exchange.contains("public") || _exchange.contains("protected"))) {
+				invalid_access_request = true;
+			}
+			
+			if ( _exchange.contains("public") ) {
+				public_access_request = true;
+			} 
+		} else {
+			isdefault = true;
+			_exchange = "protected";
+		}
+		
+	}
+
 	
 	public static String sendsharerequest() 
 	{
@@ -326,32 +444,46 @@ public class RequestShare extends HttpServlet
 		_validity = epoch+"";
 			
 		LDAP addShareEntryToLdap = new LDAP();
-		ldap=addShareEntryToLdap.addShareEntry(_entityID, _requestorID, _permission, _validity);
-		pub=publish(_entityID, _requestorID);
+		ldap=addShareEntryToLdap.addShareEntry(share_entityID, _requestorID, _permission, _validity, _exchange);
+		pub=publish(share_entityID, _requestorID, _exchange);
 		
 		JsonObject response=new JsonObject();
 		if(ldap&&pub)
-		{
-			response.addProperty("status","Share request approved for "+_requestorID+" with permission "+_permission+" at "+Instant.now());
+		{	
+			response.addProperty("status","success");
+			response.addProperty("info","Share request approved");
+			response.addProperty("entityID",_requestorID);
+			response.addProperty("access",_exchange);
+			response.addProperty("permission",_permission);
+			response.addProperty("validity",_expiry.toString());
+		
 		}
-		else 
+		else if (LDAP.entryexists){
+			LDAP.entryexists = false;
+			response.addProperty("status","failure");
+			response.addProperty("reason", "Request already shared");
+		}
+		else
 		{
-			response.addProperty("status", "Failed to approve share request");
+			response.addProperty("status","failure");
+			response.addProperty("reason", "Failed to approve share request");
 		}
 		
 		return response.toString();
 	}
 	
-	public static boolean publish(String entityID, String requestorID)
+	public static boolean publish(String entityID, String requestorID, String _exchange)
 	{
 			
 		try
 		{	
 			JsonObject object=new JsonObject();
 			
-			object.addProperty("Status update for follow request sent to "+entityID, "Approved. You can now bind to "+entityID+".protected");
+			object.addProperty("status","Approved");
+			object.addProperty("info","You can now bind to "+entityID+"."+_exchange);
+		
 			
-			Pool.getAdminChannel().basicPublish(requestorID+".notify", "#", null, object.toString().getBytes("UTF-8"));
+			Pool.getAdminChannel().basicPublish(requestorID+".notify", entityID+"."+_exchange, null, object.toString().getBytes("UTF-8"));
 			
 			return true;
 		}
@@ -370,7 +502,7 @@ public class RequestShare extends HttpServlet
 		{
 			Map<String, Object> args=new HashMap<String, Object>();
 			args.put("durable", "true");
-			Pool.getAdminChannel().queueUnbind(_requestorID,_entityID+".protected","#",args);
+			Pool.getAdminChannel().queueUnbind(_requestorID,_entityID+"."+_exchange,"#",args);
 			
 			return true;
 			

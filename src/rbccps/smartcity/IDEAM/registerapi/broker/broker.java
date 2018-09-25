@@ -30,6 +30,7 @@ public class broker {
 	static String response;
 	static String password = "";
 	static String _message;
+	static String _timestamp;
 
 
 	public static String createExchange(String resourceID) 
@@ -154,7 +155,7 @@ public class broker {
 	}
 
 	
-	public static String publish(String _entityID, String _permission, String _requestorID, String _validity) 
+	public static String publish(String _entityID, String _permission, String _requestorID, String _validity, String _exchange) 
 	{
 		
 		JsonObject response=new JsonObject();
@@ -164,13 +165,20 @@ public class broker {
 			JsonObject object=new JsonObject();
 			
 			object.addProperty("requestor", _requestorID);
+			object.addProperty("access", _exchange);
 			object.addProperty("permission", _permission);
 			object.addProperty("validity", _validity);
-			object.addProperty("timestamp", Instant.now().toString());
+			_timestamp = Instant.now().toString();
+			object.addProperty("timestamp", _timestamp);
 
-			Pool.getAdminChannel().basicPublish(_entityID, "#", null, object.toString().getBytes("UTF-8"));
+			Pool.getAdminChannel().basicPublish(_entityID+".follow", _entityID + "." +_exchange, null, object.toString().getBytes("UTF-8"));
 			
-			response.addProperty("status","Follow request has been made to "+_entityID+" with permission "+_permission+" at "+Instant.now());
+			response.addProperty("status", "success");
+			response.addProperty("info", "Follow request has been made");
+			response.addProperty("entityID", _entityID);
+			response.addProperty("access", _exchange);
+			response.addProperty("permission", _permission);
+			response.addProperty("timestamp", _timestamp);
 			
 			return response.toString();
 		}
@@ -178,7 +186,8 @@ public class broker {
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			response.addProperty("status","Failed to make follow request");
+			response.addProperty("status","failure");
+			response.addProperty("reason","Failed to make follow request");
 		}
 		
 		return response.toString();
