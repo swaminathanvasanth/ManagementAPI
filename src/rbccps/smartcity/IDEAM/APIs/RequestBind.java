@@ -104,6 +104,11 @@ public class RequestBind extends HttpServlet
 								response.getWriter().println(jsonObject);
 								return;
 							}
+					
+					System.out.println(username + "   ====   " + apikey + "   ====   " + isOwner);
+					
+					isOwner = false;
+					
 		
 		//If the exchange and queue belongs to the same device
 		
@@ -157,6 +162,7 @@ public class RequestBind extends HttpServlet
 			} 
 			catch (NamingException e1) 
 			{
+				response.setStatus(404);
 				jsonObject.addProperty("status", "Failure");
 				jsonObject.addProperty("reason", "Share entry does not exist");
 				response.getWriter().println(jsonObject);
@@ -196,6 +202,7 @@ public class RequestBind extends HttpServlet
 				   }
 				   else
 				   {
+					   response.setStatus(401);
 					   jsonObject.addProperty("status", "Failure");
 					   jsonObject.addProperty("reason", "Your data lease time has expired");
 					   response.getWriter().println(jsonObject);
@@ -264,8 +271,9 @@ public class RequestBind extends HttpServlet
 							return;
 						}
 		
+					isOwner = false;
 		
-		if(queue.split("\\.")[0].equalsIgnoreCase(exchange.split("\\.")[0]))
+		if(queue.split("\\.")[0].equalsIgnoreCase(exchange.split("\\.")[0])||(exchange.split("\\.")[1].equalsIgnoreCase("public")))
 		{
 			try 
 			{
@@ -317,6 +325,9 @@ public class RequestBind extends HttpServlet
 			catch (NamingException e1) 
 			{
 				response.setStatus(401);
+				jsonObject.addProperty("status", "Failure");
+				jsonObject.addProperty("reason", "Share entry does not exist");
+				response.getWriter().println(jsonObject);
 				return;
 			}
 

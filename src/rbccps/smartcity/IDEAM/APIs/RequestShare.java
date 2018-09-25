@@ -146,11 +146,13 @@ public class RequestShare extends HttpServlet
 			}
 
 			if (!isOwner)
-				if(!request.getHeader("X-Consumer-Username").equals(_entityID))
+				if(!request.getHeader("X-Consumer-Username").equals(share_entityID))
 					{
 						response.setStatus(401);
 						return;
 					}
+			
+			isOwner = false;
 			
 			if(!flag)
 			{
@@ -211,17 +213,19 @@ public class RequestShare extends HttpServlet
 		decoded_authorization_datas[0] = request.getHeader("X-Consumer-Username");
 		decoded_authorization_datas[1] = request.getHeader("apikey");
 		
-		if ((LDAP.verifyProvider(_entityID, decoded_authorization_datas))) {
+		if ((LDAP.verifyProvider(share_entityID, decoded_authorization_datas))) {
 			System.out.println("Device belongs to owner");
 			isOwner = true;
 		}
 
 		if (!isOwner)
-			if(!request.getHeader("X-Consumer-Username").equals(_entityID))
+			if(!request.getHeader("X-Consumer-Username").equals(share_entityID))
 			{
 				response.setStatus(401);
 				return;
 			}
+		
+		isOwner = false;
 		
 		if(!flag)
 		{

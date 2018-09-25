@@ -138,6 +138,8 @@ public class RequestFollow extends HttpServlet {
 						return;
 						}
 			
+				isOwner = false;
+				
 			if(!flag)
 			{
 				response.setStatus(400);
@@ -208,6 +210,8 @@ public class RequestFollow extends HttpServlet {
 						return;
 					}
 		
+			isOwner = false;
+			
 		if(!flag)
 		{
 			response.setStatus(502);
